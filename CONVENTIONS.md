@@ -726,6 +726,61 @@ func requestCameraPermission() async -> Bool {
 
 ---
 
+## One-Time Tooltip Pattern
+
+**When to use**: When displaying educational content that should only appear once (or within a time window).
+
+**Example**:
+```swift
+struct FeatureTooltip: View {
+    @AppStorage("hasSeenFeatureTooltip") private var hasSeenTooltip = false
+    @State private var isVisible = false
+    @State private var opacity: Double = 0
+
+    private var installDate: Date {
+        if let stored = UserDefaults.standard.object(forKey: "appInstallDate") as? Date {
+            return stored
+        } else {
+            let now = Date()
+            UserDefaults.standard.set(now, forKey: "appInstallDate")
+            return now
+        }
+    }
+
+    private var isWithinFirstWeek: Bool {
+        let days = Calendar.current.dateComponents([.day], from: installDate, to: Date()).day ?? 0
+        return days < 7
+    }
+
+    var body: some View {
+        Group {
+            if isVisible {
+                tooltipContent.opacity(opacity)
+            }
+        }
+        .onAppear { checkAndShow() }
+    }
+
+    private func checkAndShow() {
+        guard !hasSeenTooltip, isWithinFirstWeek else { return }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+            withAnimation(.easeIn(duration: 0.3)) {
+                isVisible = true
+                opacity = 1.0
+            }
+        }
+    }
+}
+```
+
+**Why**:
+- `@AppStorage` provides automatic persistence for dismissal state
+- Time-window logic (first week) prevents tooltip fatigue for returning users
+- Delayed appearance (1.5s) prevents jarring immediate overlay on view load
+- Animation on show/hide creates polished feel
+
+---
+
 ## Ring Alignment Jitter Pattern
 
 **When to use**: When visual instability should increase smoothly at lower state values.
