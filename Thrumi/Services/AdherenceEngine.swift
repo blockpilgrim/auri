@@ -7,6 +7,10 @@ final class AdherenceEngine {
 
     private(set) var state: AdherenceState = .empty
 
+    /// Tracks the most recent meal log for micro-feedback animation.
+    /// Set to the isOnTrack value when a meal is logged, then cleared after observation.
+    private(set) var pendingMicroFeedback: Bool? = nil
+
     private static let defaultAdherenceWhenNoMeals = 0.5
     private static let rewardCurveExponent = 2.5
 
@@ -25,6 +29,17 @@ final class AdherenceEngine {
             rolling7Adherence: rolling7Adherence,
             rolling30Adherence: rolling30Adherence
         )
+    }
+
+    /// Triggers micro-feedback for a meal that was just logged.
+    /// Call this immediately after saving a meal to animate the Fusion Core.
+    func triggerMicroFeedback(isOnTrack: Bool) {
+        pendingMicroFeedback = isOnTrack
+    }
+
+    /// Clears the pending micro-feedback (called by view after consuming it).
+    func clearMicroFeedback() {
+        pendingMicroFeedback = nil
     }
 
     func applyRewardCurve(_ adherence: Double) -> Double {

@@ -20,6 +20,24 @@ final class FusionCoreScene {
     private var ringMaterials: [CoreComponent: PhysicallyBasedMaterial] = [:]
     private var emissiveMaterials: [CoreComponent: UnlitMaterial] = [:]
 
+    // MARK: - Ring Alignment Jitter State
+
+    /// Current jitter offsets for each ring (randomized per-frame at low adherence)
+    private var outerJitterOffset: SIMD3<Float> = .zero
+    private var middleJitterOffset: SIMD3<Float> = .zero
+    private var innerJitterOffset: SIMD3<Float> = .zero
+
+    /// Noise generator for smooth jitter
+    private var jitterPhase: Float = 0
+
+    // MARK: - Micro-Feedback Animation State
+
+    /// Animation state for micro-feedback effects
+    private(set) var microFeedbackActive: Bool = false
+    private(set) var microFeedbackIsOnTrack: Bool = true
+    private var microFeedbackProgress: Float = 0
+    private var microFeedbackDuration: Float = 0.4
+
     private init(
         rootEntity: Entity,
         outerRing: Entity,
@@ -392,6 +410,192 @@ final class FusionCoreScene {
     func resetCorePulse(to baseIntensity: Float) {
         updateCenterGlow(intensity: baseIntensity)
         setLightIntensity(baseIntensity)
+    }
+
+    // MARK: - Ring Alignment Jitter
+
+    /// Updates and applies ring alignment jitter based on adherence.
+    /// At lower adherence, rings have subtle misalignment that suggests instability.
+    /// - Parameters:
+    ///   - jitterAmount: Amount of jitter (0.0 = perfect alignment, 0.5 = max jitter)
+    ///   - deltaTime: Time since last update for smooth noise animation
+    func updateRingAlignmentJitter(jitterAmount: Float, deltaTime: Float) {
+        // Animate jitter phase for smooth random movement
+        jitterPhase += deltaTime * 2.0
+
+        // Generate smooth noise-like offsets
+        let jitterScale = jitterAmount * 0.015 // Max ~0.75 degrees
+
+        // Each ring gets slightly different jitter
+        outerJitterOffset = SIMD3<Float>(
+            sin(jitterPhase * 1.1) * jitterScale,
+            0,
+            cos(jitterPhase * 0.9) * jitterScale * 0.5
+        )
+
+        middleJitterOffset = SIMD3<Float>(
+            sin(jitterPhase * 1.3 + 1.0) * jitterScale * 0.8,
+            0,
+            cos(jitterPhase * 1.1 + 0.5) * jitterScale * 0.6
+        )
+
+        innerJitterOffset = SIMD3<Float>(
+            sin(jitterPhase * 1.5 + 2.0) * jitterScale * 0.6,
+            0,
+            cos(jitterPhase * 1.3 + 1.5) * jitterScale * 0.4
+        )
+    }
+
+    /// Applies physics-driven ring rotations with jitter overlay.
+    /// - Parameters:
+    ///   - rotations: SIMD3 containing rotation angles for [outer, middle, inner] rings in radians
+    ///   - jitterAmount: Amount of alignment jitter (0.0 to 0.5)
+    func applyRingRotationsWithJitter(_ rotations: SIMD3<Float>, jitterAmount: Float) {
+        // Outer ring: base tilt + spin + jitter
+        let outerSpin = simd_quatf(angle: rotations.x, axis: [0, 1, 0])
+        let outerJitter = simd_quatf(angle: outerJitterOffset.x, axis: [1, 0, 0])
+            * simd_quatf(angle: outerJitterOffset.z, axis: [0, 0, 1])
+        outerRing.transform.rotation = Self.outerBaseTilt * outerSpin * outerJitter
+
+        // Middle ring: base tilt + spin (counter-rotates) + jitter
+        let middleSpin = simd_quatf(angle: -rotations.y, axis: [0, 1, 0])
+        let middleJitter = simd_quatf(angle: middleJitterOffset.x, axis: [1, 0, 0])
+            * simd_quatf(angle: middleJitterOffset.z, axis: [0, 0, 1])
+        middleRing.transform.rotation = Self.middleBaseTilt * middleSpin * middleJitter
+
+        // Inner ring: base tilt + spin + jitter
+        let innerSpin = simd_quatf(angle: rotations.z, axis: [0, 1, 0])
+        let innerJitter = simd_quatf(angle: innerJitterOffset.x, axis: [1, 0, 0])
+            * simd_quatf(angle: innerJitterOffset.z, axis: [0, 0, 1])
+        innerRing.transform.rotation = Self.innerBaseTilt * innerSpin * innerJitter
+    }
+
+    // MARK: - Visual State Application
+
+    /// Applies all visual parameters from the state interpolator.
+    /// Call this every frame or when adherence changes.
+    func applyVisualState(from interpolator: StateInterpolator) {
+        // Center glow emissive
+        setEmissiveIntensity(interpolator.emissiveIntensity, for: .center)
+
+        // Coil brightness (unless in micro-feedback animation)
+        if !microFeedbackActive {
+            setEmissiveIntensity(interpolator.coilBrightness, for: .coils)
+        }
+
+        // Light intensity
+        setLightIntensity(interpolator.lightIntensity)
+
+        // Ring roughness (shinier at higher adherence)
+        setMetallicRoughness(interpolator.ringRoughness, for: .outerRing)
+        setMetallicRoughness(interpolator.ringRoughness * 0.9, for: .middleRing)
+        setMetallicRoughness(interpolator.ringRoughness * 0.8, for: .innerRing)
+    }
+
+    /// Applies visual state with reactor pulse modulation.
+    func applyVisualState(from interpolator: StateInterpolator, withPulse pulseValue: Float) {
+        // Apply pulse to emissive intensity
+        let pulsedEmissive = ReactorPulse.applyToEmissive(
+            baseIntensity: interpolator.emissiveIntensity,
+            pulseValue: pulseValue
+        )
+        setEmissiveIntensity(pulsedEmissive, for: .center)
+
+        // Coil brightness with subtle pulse (unless in micro-feedback)
+        if !microFeedbackActive {
+            let pulsedCoil = ReactorPulse.applyToEmissive(
+                baseIntensity: interpolator.coilBrightness,
+                pulseValue: pulseValue * 0.5 // Coils pulse more subtly
+            )
+            setEmissiveIntensity(pulsedCoil, for: .coils)
+        }
+
+        // Light intensity with pulse
+        let pulsedLight = ReactorPulse.applyToLight(
+            baseIntensity: interpolator.lightIntensity,
+            pulseValue: pulseValue
+        )
+        setLightIntensity(pulsedLight)
+
+        // Ring roughness (not pulsed)
+        setMetallicRoughness(interpolator.ringRoughness, for: .outerRing)
+        setMetallicRoughness(interpolator.ringRoughness * 0.9, for: .middleRing)
+        setMetallicRoughness(interpolator.ringRoughness * 0.8, for: .innerRing)
+    }
+
+    // MARK: - Micro-Feedback Animations
+
+    /// Triggers micro-feedback animation when user logs a meal.
+    /// - Parameter isOnTrack: Whether the meal was marked as on-track
+    func triggerMicroFeedback(isOnTrack: Bool) {
+        microFeedbackActive = true
+        microFeedbackIsOnTrack = isOnTrack
+        microFeedbackProgress = 0
+        microFeedbackDuration = isOnTrack ? 0.3 : 0.4 // On-track is snappier
+    }
+
+    /// Updates micro-feedback animation state.
+    /// - Parameters:
+    ///   - deltaTime: Time since last update in seconds
+    ///   - baseCoilIntensity: Base coil intensity from interpolator
+    ///   - baseDamping: Base damping from interpolator (for off-track feedback)
+    /// - Returns: Damping multiplier (1.0 if no effect, >1.0 for off-track spike)
+    func updateMicroFeedback(deltaTime: Float, baseCoilIntensity: Float, baseDamping: Float) -> Float {
+        guard microFeedbackActive else { return 1.0 }
+
+        microFeedbackProgress += deltaTime / microFeedbackDuration
+
+        if microFeedbackProgress >= 1.0 {
+            // Animation complete
+            microFeedbackActive = false
+            microFeedbackProgress = 0
+            setEmissiveIntensity(baseCoilIntensity, for: .coils)
+            return 1.0
+        }
+
+        // Ease-out animation curve
+        let t = 1.0 - pow(1.0 - microFeedbackProgress, 2.0)
+
+        if microFeedbackIsOnTrack {
+            // On-track: brief glow surge then settle
+            // Peak at t=0.3, then fade to normal
+            let glowCurve: Float
+            if t < 0.3 {
+                glowCurve = t / 0.3 // Ramp up to peak
+            } else {
+                glowCurve = 1.0 - (t - 0.3) / 0.7 // Fade down
+            }
+
+            let glowBoost = glowCurve * 0.3 // +30% at peak
+            setEmissiveIntensity(baseCoilIntensity + glowBoost, for: .coils)
+
+            // Also pulse the center glow briefly
+            if t < 0.3 {
+                updateCenterGlow(intensity: 1.0 + glowCurve * 0.2)
+            }
+
+            return 1.0 // No damping change for on-track
+        } else {
+            // Off-track: glow dims, damping spikes
+            // Glow softens
+            let dimFactor = 1.0 - (1.0 - t) * 0.2 // Dims by 20% at start, returns to normal
+            setEmissiveIntensity(baseCoilIntensity * dimFactor, for: .coils)
+
+            // Damping spikes and returns (affects physics)
+            let dampingSpike: Float
+            if t < 0.5 {
+                dampingSpike = 1.0 + (1.0 - t * 2.0) * 0.3 // Peak 1.3x at start
+            } else {
+                dampingSpike = 1.0 // Back to normal
+            }
+
+            return dampingSpike
+        }
+    }
+
+    /// Returns whether a micro-feedback animation is currently active.
+    var isMicroFeedbackActive: Bool {
+        microFeedbackActive
     }
 }
 

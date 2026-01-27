@@ -10,8 +10,11 @@ struct CoreView: View {
 
             VStack(spacing: 0) {
                 // Fusion Core 3D View
-                FusionCoreView(adherenceState: adherenceEngine?.state ?? .empty)
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                FusionCoreView(
+                    adherenceState: adherenceEngine?.state ?? .empty,
+                    adherenceEngine: adherenceEngine
+                )
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
 
                 // Today's adherence HUD
                 HStack {

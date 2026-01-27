@@ -532,3 +532,138 @@ struct VelocityTracker {
 - Tracking recent samples allows velocity calculation at any point
 - Time-based filtering ensures velocity reflects recent motion, not stale data
 - Struct with mutating functions for value semantics
+
+---
+
+## State Interpolation Pattern
+
+**When to use**: When mapping a continuous value (like adherence 0.0–1.0) to multiple output parameters.
+
+**Example**:
+```swift
+@Observable
+@MainActor
+final class StateInterpolator {
+    var adherenceState: AdherenceState
+
+    // Non-linear reward curve: 80% feels near-peak
+    var normalizedPower: Float {
+        let k: Float = 2.5
+        return 1 - pow(1 - Float(adherenceState.coreAdherence), k)
+    }
+
+    // All outputs use lerp with normalizedPower
+    var maxSpeed: Float { lerp(4.0, 12.0, normalizedPower) }
+    var emissiveIntensity: Float { lerp(0.2, 1.0, normalizedPower) }
+
+    private func lerp(_ a: Float, _ b: Float, _ t: Float) -> Float {
+        a + (b - a) * t
+    }
+}
+```
+
+**Why**:
+- Centralizes parameter mapping in one place (single source of truth)
+- Non-linear reward curve makes progress feel meaningful
+- `@Observable` enables SwiftUI reactivity
+- Computed properties ensure outputs stay synchronized with input
+
+---
+
+## Constant-Rate Animation with Variable Amplitude
+
+**When to use**: When an animation should always run at the same speed but with varying intensity based on state.
+
+**Example**:
+```swift
+struct ReactorPulse {
+    private var phase: Float = 0
+    let frequency: Float = 0.5  // Hz - CONSTANT, never changes
+
+    mutating func update(deltaTime: Float, amplitude: Float, sharpness: Float) -> Float {
+        phase += deltaTime * frequency * 2 * .pi
+        if phase > 2 * .pi { phase -= 2 * .pi }
+
+        let rawPulse = sin(phase)
+        let shapedPulse = sign(rawPulse) * pow(abs(rawPulse), 1.0 / (sharpness + 0.5))
+        return shapedPulse * amplitude
+    }
+}
+```
+
+**Why**:
+- Constant rate avoids anxiety-inducing associations (like heart rate)
+- Variable amplitude/sharpness still communicates state
+- Phase wrapping prevents float overflow in long sessions
+- Struct with mutating state for simple ownership
+
+---
+
+## Micro-Feedback Animation Pattern
+
+**When to use**: When providing immediate visual feedback for user actions without disrupting ongoing animations.
+
+**Example**:
+```swift
+// In scene class
+private(set) var microFeedbackActive: Bool = false
+private var microFeedbackProgress: Float = 0
+private var microFeedbackDuration: Float = 0.4
+
+func triggerMicroFeedback(isOnTrack: Bool) {
+    microFeedbackActive = true
+    microFeedbackProgress = 0
+    microFeedbackDuration = isOnTrack ? 0.3 : 0.4  // On-track snappier
+}
+
+func updateMicroFeedback(deltaTime: Float, ...) -> Float {
+    guard microFeedbackActive else { return 1.0 }
+
+    microFeedbackProgress += deltaTime / microFeedbackDuration
+    if microFeedbackProgress >= 1.0 {
+        microFeedbackActive = false
+        return 1.0
+    }
+
+    let t = 1.0 - pow(1.0 - microFeedbackProgress, 2.0)  // Ease-out
+    // Apply feedback effects based on t
+    return dampingMultiplier
+}
+```
+
+**Why**:
+- Progress-based animation allows frame-rate-independent timing
+- Returning multipliers (like damping) lets caller integrate with physics
+- Ease-out curve feels natural (quick start, smooth end)
+- On-track animations should feel snappier than off-track (positive reinforcement)
+
+---
+
+## Ring Alignment Jitter Pattern
+
+**When to use**: When visual instability should increase smoothly at lower state values.
+
+**Example**:
+```swift
+private var jitterPhase: Float = 0
+
+func updateRingAlignmentJitter(jitterAmount: Float, deltaTime: Float) {
+    jitterPhase += deltaTime * 2.0  // Animate for smooth movement
+
+    let jitterScale = jitterAmount * 0.015  // Max rotation in radians
+
+    // Each element gets different phase for organic feel
+    outerJitterOffset = SIMD3<Float>(
+        sin(jitterPhase * 1.1) * jitterScale,
+        0,
+        cos(jitterPhase * 0.9) * jitterScale * 0.5
+    )
+    // ... similar for other elements
+}
+```
+
+**Why**:
+- Phase-based animation creates smooth, continuous jitter (not random noise)
+- Different phase multipliers per element prevent synchronized movement
+- jitterAmount from interpolator ties to adherence state
+- Separate X/Z axes create natural-looking wobble

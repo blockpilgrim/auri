@@ -10,11 +10,16 @@ struct FusionCoreView: View {
     /// The current adherence state that drives the Core's visual appearance.
     let adherenceState: AdherenceState
 
+    /// Optional reference to adherence engine for micro-feedback events
+    var adherenceEngine: AdherenceEngine?
+
     // MARK: - Scene State
 
     @State private var scene: FusionCoreScene?
     @State private var physics = SpinnerPhysics()
     @State private var motionManager = MotionManager()
+    @State private var stateInterpolator = StateInterpolator()
+    @State private var reactorPulse = ReactorPulse()
 
     // MARK: - Camera State
 
@@ -35,6 +40,10 @@ struct FusionCoreView: View {
     @State private var pingAnimationProgress: Float = 1.0 // 1.0 = complete, 0.0 = just started
     @State private var isPinging: Bool = false
 
+    // MARK: - Micro-Feedback State
+
+    @State private var pendingMicroFeedback: Bool? = nil
+
     var body: some View {
         GeometryReader { geometry in
             RealityView { content in
@@ -49,12 +58,13 @@ struct FusionCoreView: View {
                 // Store scene reference for updates
                 await MainActor.run {
                     scene = fusionCore
+                    stateInterpolator.update(with: adherenceState)
+                    physics.applyParameters(from: stateInterpolator)
                     startPhysicsLoop()
                     motionManager.startUpdates()
                 }
             } update: { content in
-                // Update visual state based on adherence
-                updateCoreAppearance()
+                // Update handled by display link for smooth animation
             }
             .gesture(spinGesture)
             .gesture(twistGesture)
@@ -65,9 +75,18 @@ struct FusionCoreView: View {
                 motionManager.stopUpdates()
             }
             .onChange(of: adherenceState) { _, newState in
-                physics.updateParameters(for: newState)
+                stateInterpolator.update(with: newState)
+                physics.applyParameters(from: stateInterpolator)
             }
         }
+    }
+
+    // MARK: - Micro-Feedback Trigger
+
+    /// Triggers micro-feedback animation for meal logging.
+    /// Call this when a meal is logged to provide immediate visual response.
+    func triggerMicroFeedback(isOnTrack: Bool) {
+        pendingMicroFeedback = isOnTrack
     }
 
     // MARK: - Gestures
@@ -170,6 +189,17 @@ struct FusionCoreView: View {
     private func updatePhysics(deltaTime: Float) {
         guard let scene else { return }
 
+        // Check for pending micro-feedback from AdherenceEngine
+        if let engine = adherenceEngine, let isOnTrack = engine.pendingMicroFeedback {
+            scene.triggerMicroFeedback(isOnTrack: isOnTrack)
+            engine.clearMicroFeedback()
+        }
+        // Also check for local pending micro-feedback
+        if let isOnTrack = pendingMicroFeedback {
+            scene.triggerMicroFeedback(isOnTrack: isOnTrack)
+            pendingMicroFeedback = nil
+        }
+
         // Apply device motion precession
         if motionManager.isActive && physics.isSpinning {
             physics.applyPrecession(pitch: motionManager.pitch, roll: motionManager.roll)
@@ -180,15 +210,48 @@ struct FusionCoreView: View {
             )
         }
 
+        // Update micro-feedback animation and get damping multiplier
+        let dampingMultiplier = scene.updateMicroFeedback(
+            deltaTime: deltaTime,
+            baseCoilIntensity: stateInterpolator.coilBrightness,
+            baseDamping: stateInterpolator.damping
+        )
+
+        // Apply damping multiplier from micro-feedback (off-track causes brief damping spike)
+        if dampingMultiplier > 1.0 {
+            physics.damping = stateInterpolator.damping * (2.0 - dampingMultiplier)
+        }
+
         // Update physics simulation
         physics.update(deltaTime: deltaTime)
 
-        // Apply physics state to 3D entities
-        scene.applyRingRotations(physics.ringRotations)
+        // Update ring alignment jitter
+        scene.updateRingAlignmentJitter(
+            jitterAmount: stateInterpolator.ringAlignmentJitter,
+            deltaTime: deltaTime
+        )
+
+        // Apply physics state to 3D entities with jitter overlay
+        scene.applyRingRotationsWithJitter(
+            physics.ringRotations,
+            jitterAmount: stateInterpolator.ringAlignmentJitter
+        )
 
         // Update camera rotation
         scene.rootEntity.transform.rotation = simd_quatf(angle: -cameraAngle, axis: [0, 1, 0])
             * simd_quatf(angle: -cameraElevation, axis: [1, 0, 0])
+
+        // Update reactor pulse
+        let pulseValue = reactorPulse.update(
+            deltaTime: deltaTime,
+            amplitude: stateInterpolator.pulseAmplitude,
+            sharpness: stateInterpolator.pulseSharpness
+        )
+
+        // Apply visual state with pulse (unless in micro-feedback)
+        if !scene.isMicroFeedbackActive {
+            scene.applyVisualState(from: stateInterpolator, withPulse: pulseValue)
+        }
 
         // Update ping animation
         if isPinging {
@@ -196,8 +259,7 @@ struct FusionCoreView: View {
             if pingAnimationProgress >= 1.0 {
                 pingAnimationProgress = 1.0
                 isPinging = false
-                let baseIntensity = Float(0.3 + applyRewardCurve(adherenceState.coreAdherence) * 0.7) * 0.8
-                scene.resetCoilPing(to: baseIntensity)
+                scene.resetCoilPing(to: stateInterpolator.coilBrightness)
             }
         }
     }
@@ -219,33 +281,6 @@ struct FusionCoreView: View {
         return light
     }
 
-    // MARK: - State Updates
-
-    private func updateCoreAppearance() {
-        guard let scene else { return }
-
-        // Map adherence to visual parameters using the reward curve
-        let power = applyRewardCurve(adherenceState.coreAdherence)
-
-        // Update emissive intensity (center glow and coils)
-        let glowIntensity = Float(0.3 + power * 0.7)
-        scene.setEmissiveIntensity(glowIntensity, for: .center)
-
-        // Only update coils if not pinging
-        if !isPinging {
-            scene.setEmissiveIntensity(glowIntensity * 0.8, for: .coils)
-        }
-
-        // Update light intensity
-        scene.setLightIntensity(Float(0.4 + power * 0.6))
-
-        // Update ring roughness (higher adherence = shinier)
-        let roughness = Float(0.4 - power * 0.25)
-        scene.setMetallicRoughness(roughness, for: .outerRing)
-        scene.setMetallicRoughness(roughness * 0.9, for: .middleRing)
-        scene.setMetallicRoughness(roughness * 0.8, for: .innerRing)
-    }
-
     // MARK: - Visual Effects
 
     private func triggerPing() {
@@ -255,13 +290,6 @@ struct FusionCoreView: View {
         pingAnimationProgress = 0.0
         scene.triggerCoilPing()
         physics.addPingImpulse()
-    }
-
-    /// Applies the reward curve to make 80% feel awesome.
-    /// power = 1 - (1 - adherence)^k where k ~ 2.5
-    private func applyRewardCurve(_ adherence: Double) -> Double {
-        let k = 2.5
-        return 1 - pow(1 - adherence, k)
     }
 }
 
@@ -374,37 +402,56 @@ struct VelocityTracker {
 // MARK: - Previews
 
 #Preview("Phase-Locked (100%)") {
-    FusionCoreView(adherenceState: AdherenceState(
-        todayAdherence: 1.0,
-        rolling7Adherence: 1.0,
-        rolling30Adherence: 1.0
-    ))
+    FusionCoreView(
+        adherenceState: AdherenceState(
+            todayAdherence: 1.0,
+            rolling7Adherence: 1.0,
+            rolling30Adherence: 1.0
+        )
+    )
     .background(Color.black)
 }
 
 #Preview("Online (80%)") {
-    FusionCoreView(adherenceState: AdherenceState(
-        todayAdherence: 0.8,
-        rolling7Adherence: 0.8,
-        rolling30Adherence: 0.8
-    ))
+    FusionCoreView(
+        adherenceState: AdherenceState(
+            todayAdherence: 0.8,
+            rolling7Adherence: 0.8,
+            rolling30Adherence: 0.8
+        )
+    )
     .background(Color.black)
 }
 
 #Preview("Stabilizing (60%)") {
-    FusionCoreView(adherenceState: AdherenceState(
-        todayAdherence: 0.6,
-        rolling7Adherence: 0.6,
-        rolling30Adherence: 0.6
-    ))
+    FusionCoreView(
+        adherenceState: AdherenceState(
+            todayAdherence: 0.6,
+            rolling7Adherence: 0.6,
+            rolling30Adherence: 0.6
+        )
+    )
+    .background(Color.black)
+}
+
+#Preview("Standby (40%)") {
+    FusionCoreView(
+        adherenceState: AdherenceState(
+            todayAdherence: 0.4,
+            rolling7Adherence: 0.4,
+            rolling30Adherence: 0.4
+        )
+    )
     .background(Color.black)
 }
 
 #Preview("Safe Mode (20%)") {
-    FusionCoreView(adherenceState: AdherenceState(
-        todayAdherence: 0.2,
-        rolling7Adherence: 0.2,
-        rolling30Adherence: 0.2
-    ))
+    FusionCoreView(
+        adherenceState: AdherenceState(
+            todayAdherence: 0.2,
+            rolling7Adherence: 0.2,
+            rolling30Adherence: 0.2
+        )
+    )
     .background(Color.black)
 }
