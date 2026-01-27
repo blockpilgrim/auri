@@ -246,3 +246,52 @@ func savePhoto(_ image: UIImage, for mealId: UUID) throws -> String {
 - Relative paths stored in database avoid issues if documents directory path changes
 - UUID-based filenames prevent collisions
 - JPEG compression ~0.75 balances quality and size (~200KB target)
+
+---
+
+## Environment-Based Service Injection
+
+**When to use**: When injecting services into the SwiftUI view hierarchy.
+
+**Example**:
+```swift
+// App/Environment+Extensions.swift
+import SwiftUI
+
+extension EnvironmentValues {
+    @Entry var mealService: MealService?
+    @Entry var adherenceEngine: AdherenceEngine?
+    @Entry var userPreferences: UserPreferencesService?
+}
+
+// App/ThrumiApp.swift
+@main
+struct ThrumiApp: App {
+    let mealService: MealService
+    // ... other services
+
+    init() {
+        let container = try! ModelContainer(for: schema)
+        mealService = MealService(modelContext: container.mainContext)
+        // ...
+    }
+
+    var body: some Scene {
+        WindowGroup {
+            RootView()
+                .environment(\.mealService, mealService)
+        }
+    }
+}
+
+// In views
+struct SomeView: View {
+    @Environment(\.mealService) private var mealService
+}
+```
+
+**Why**:
+- `@Entry` macro (Swift 5.10+) simplifies custom environment value declaration
+- Optional types allow views to work in previews without services
+- Services initialized once at app startup and shared via environment
+- Decouples views from specific service implementations
