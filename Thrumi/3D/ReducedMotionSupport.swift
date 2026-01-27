@@ -34,6 +34,9 @@ struct ReducedMotionConfig {
     /// Whether to show the reactor pulse animation
     let showPulse: Bool
 
+    /// Whether to show particle effects (sparks, arcs, flashes)
+    let showParticles: Bool
+
     /// Multiplier for jitter effects (0.0 = none, 1.0 = normal)
     let jitterIntensity: Float
 
@@ -50,6 +53,7 @@ struct ReducedMotionConfig {
         animationSpeed: 1.0,
         precessionIntensity: 1.0,
         showPulse: true,
+        showParticles: true,
         jitterIntensity: 1.0,
         showMicroFeedback: true,
         glowTransitionSpeed: 1.0
@@ -60,6 +64,7 @@ struct ReducedMotionConfig {
         animationSpeed: 0.3,
         precessionIntensity: 0.0,
         showPulse: false,
+        showParticles: false,
         jitterIntensity: 0.0,
         showMicroFeedback: false,
         glowTransitionSpeed: 2.0 // Faster transitions = less motion
@@ -116,6 +121,9 @@ final class MotionSettingsProvider {
 
     /// Whether to show pulse animation
     var showPulse: Bool { config.showPulse }
+
+    /// Whether to show particle effects (sparks, arcs, flashes)
+    var showParticles: Bool { config.showParticles }
 
     /// Jitter intensity multiplier
     var jitterIntensity: Float { config.jitterIntensity }

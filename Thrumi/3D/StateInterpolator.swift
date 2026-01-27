@@ -1,132 +1,105 @@
 import Foundation
 import simd
+import UIKit
 
-/// Centralized mapping of adherence state to all Fusion Core parameters.
-///
-/// The StateInterpolator applies a non-linear reward curve to make 80% feel near-peak,
-/// then provides continuous interpolation for all physics and visual parameters.
-/// This is where "feel equals feedback" comes to life.
+/// Centralized mapping of adherence (0–1) to Fusion Core visual/interaction parameters.
 @Observable
 @MainActor
 final class StateInterpolator {
-    // MARK: - Input State
-
-    /// The current adherence state driving all interpolations
     var adherenceState: AdherenceState
-
-    // MARK: - Reward Curve Configuration
-
-    /// Exponent for the reward curve: power = 1 - (1 - adherence)^k
-    /// Higher k makes gains feel more front-loaded (80% feels closer to 100%)
-    private let rewardCurveK: Float = 2.5
-
-    // MARK: - Computed Power
-
-    /// Normalized power after applying the reward curve (0.0–1.0)
-    /// This makes 80% adherence feel near-peak and 50% feel decent
-    var normalizedPower: Float {
-        let adherence = Float(adherenceState.coreAdherence)
-        return 1 - pow(1 - adherence, rewardCurveK)
+    var adherence: Float {
+        Float(adherenceState.coreAdherence)
     }
 
-    // MARK: - Physics Parameters
+    // MARK: - Visual
 
-    /// Maximum angular velocity in rad/s (4.0 at 0%, 12.0 at 100%)
-    var maxSpeed: Float {
-        lerp(4.0, 12.0, normalizedPower)
-    }
-
-    /// Damping factor per frame (0.92 = fast decay at 0%, 0.995 = slow decay at 100%)
-    var damping: Float {
-        lerp(0.92, 0.995, normalizedPower)
-    }
-
-    /// Wobble suppression strength (0.3 at 0%, 0.95 at 100%)
-    var stabilizationAuthority: Float {
-        lerp(0.3, 0.95, normalizedPower)
-    }
-
-    /// Gesture responsiveness multiplier (0.7 at 0%, 1.2 at 100%)
-    var torqueMultiplier: Float {
-        lerp(0.7, 1.2, normalizedPower)
-    }
-
-    // MARK: - Visual Parameters
-
-    /// Center core emissive intensity (0.2 dim to 1.0 bright)
-    var emissiveIntensity: Float {
-        lerp(0.2, 1.0, normalizedPower)
-    }
-
-    /// Bloom post-process strength (0.1 minimal to 0.6 rich)
+    /// Bloom strength: 0% = 0.3, 50% = 1.0, 100% = 1.8
     var bloomStrength: Float {
-        lerp(0.1, 0.6, normalizedPower)
+        piecewiseLerp(x: adherence, xMid: 0.5, y0: 0.3, yMid: 1.0, y1: 1.8)
     }
 
-    /// Copper coil emissive brightness (0.3 dim to 1.0 bright)
-    var coilBrightness: Float {
-        lerp(0.3, 1.0, normalizedPower)
-    }
-
-    /// Ring surface roughness (0.4 matte to 0.15 polished)
-    var ringRoughness: Float {
-        lerp(0.4, 0.15, normalizedPower)
-    }
-
-    /// Point light intensity multiplier (0.4 dim to 1.0 bright)
-    var lightIntensity: Float {
-        lerp(0.4, 1.0, normalizedPower)
-    }
-
-    /// Ring alignment precision (0.5 wobbly to 1.0 perfectly concentric)
-    /// At lower adherence, rings have slight misalignment "jitter"
-    var ringAlignmentPrecision: Float {
-        lerp(0.5, 1.0, normalizedPower)
-    }
-
-    /// Ring alignment jitter amount (inverse of precision)
-    var ringAlignmentJitter: Float {
-        1.0 - ringAlignmentPrecision
-    }
-
-    // MARK: - Pulse Parameters
-
-    /// Pulse amplitude (0.05 subtle to 0.2 pronounced)
-    /// Note: pulse rate is CONSTANT (not tied to adherence) per PRODUCT.md
+    /// Pulse amplitude: 0% = 0.06, 50% = 0.20, 100% = 0.40
     var pulseAmplitude: Float {
-        lerp(0.05, 0.2, normalizedPower)
+        piecewiseLerp(x: adherence, xMid: 0.5, y0: 0.06, yMid: 0.20, y1: 0.40)
     }
 
-    /// Pulse sharpness (0.3 soft sine to 0.8 sharper triangular)
-    /// Higher adherence = crisper, more defined pulses
-    var pulseSharpness: Float {
-        lerp(0.3, 0.8, normalizedPower)
+    /// Overall core glow multiplier (used to scale layer opacity/size).
+    var glowMultiplier: Float {
+        // Keep Safe Mode elegant, but dramatically scale at high adherence.
+        lerp(0.55, 1.35, bloomStrength / 1.8)
     }
 
-    // MARK: - Tier-Specific Visual Hints
-
-    /// Whether to show "impossible" phase-lock details (only at 90%+)
-    var showPhaseLockDetails: Bool {
-        adherenceState.tier == .phaseLocked
+    /// At 80%+ adherence, inner core shifts toward white (max 30% at 100%).
+    var innerCoreColor: UIColor {
+        CoreColors.innerCoreColor(adherence: adherence)
     }
 
-    /// Whether to show occasional "field noise" (50-69% tier)
-    var showFieldNoise: Bool {
-        adherenceState.tier == .stabilizing
+    /// Ring roughness (matte → polished).
+    var ringRoughness: Float {
+        piecewiseLerp(x: adherence, xMid: 0.5, y0: 0.55, yMid: 0.30, y1: 0.18)
     }
 
-    // MARK: - Haptic Parameters
+    /// Coil glow intensity multiplier.
+    var coilGlowIntensity: Float {
+        piecewiseLerp(x: adherence, xMid: 0.5, y0: 0.10, yMid: 0.45, y1: 1.00)
+    }
 
-    /// Haptic intensity multiplier (0.3 soft to 1.0 crisp)
-    /// High adherence = crisp micro-impulses, low adherence = softer feedback
+    // MARK: - Lights
+
+    /// Core point light intensity: 1.0 at 0% → 5.0 at 100%
+    var coreLightIntensity: Float {
+        lerp(1.0, 5.0, adherence)
+    }
+
+    /// Coil point light intensity: 0.3 at 0% → 1.5 at 100%
+    var coilLightIntensity: Float {
+        lerp(0.3, 1.5, adherence)
+    }
+
+    // MARK: - Particles
+
+    var sparkIntensity: Float {
+        intensity(after: 0.20)
+    }
+
+    var arcIntensity: Float {
+        intensity(after: 0.50)
+    }
+
+    var flashIntensity: Float {
+        intensity(after: 0.60)
+    }
+
+    // MARK: - Core Layer Visibility
+
+    var showEnergyField1: Bool { adherence >= 0.30 }
+    var showAtmosphere: Bool { adherence >= 0.40 }
+    var showEnergyField2: Bool { adherence >= 0.50 }
+
+    // MARK: - Interaction/Spin
+
+    /// Max spin speed scales with adherence.
+    var maxSpinSpeed: Float {
+        piecewiseLerp(x: adherence, xMid: 0.5, y0: 4.0, yMid: 10.0, y1: 18.0)
+    }
+
+    /// Damping per frame (tuned for a satisfying decay). Higher adherence = longer spin.
+    var spinDampingPerFrame: Float {
+        piecewiseLerp(x: adherence, xMid: 0.5, y0: 0.972, yMid: 0.988, y1: 0.996)
+    }
+
+    var torqueMultiplier: Float {
+        piecewiseLerp(x: adherence, xMid: 0.5, y0: 0.65, yMid: 0.95, y1: 1.25)
+    }
+
+    // MARK: - Haptics
+
     var hapticIntensity: Float {
-        lerp(0.3, 1.0, normalizedPower)
+        lerp(0.3, 1.0, adherence)
     }
 
-    /// Haptic sharpness multiplier (0.3 rounded to 1.0 sharp)
-    /// High adherence = sharp, precise feedback, low adherence = more damped
     var hapticSharpness: Float {
-        lerp(0.3, 1.0, normalizedPower)
+        lerp(0.3, 1.0, adherence)
     }
 
     // MARK: - Initialization
@@ -137,26 +110,28 @@ final class StateInterpolator {
 
     // MARK: - Convenience Methods
 
-    /// Updates the underlying adherence state
     func update(with state: AdherenceState) {
         self.adherenceState = state
     }
 
-    /// Linear interpolation helper
     private func lerp(_ a: Float, _ b: Float, _ t: Float) -> Float {
-        a + (b - a) * t
+        a + (b - a) * clamp01(t)
     }
-}
 
-// MARK: - SpinnerPhysics Integration
+    private func piecewiseLerp(x: Float, xMid: Float, y0: Float, yMid: Float, y1: Float) -> Float {
+        if x <= xMid {
+            return lerp(y0, yMid, x / max(0.0001, xMid))
+        } else {
+            return lerp(yMid, y1, (x - xMid) / max(0.0001, 1.0 - xMid))
+        }
+    }
 
-extension SpinnerPhysics {
-    /// Applies all physics parameters from the state interpolator.
-    /// Call this when adherence changes for smooth continuous updates.
-    func applyParameters(from interpolator: StateInterpolator) {
-        self.maxSpeed = interpolator.maxSpeed
-        self.damping = interpolator.damping
-        self.stabilizationAuthority = interpolator.stabilizationAuthority
-        self.torqueMultiplier = interpolator.torqueMultiplier
+    private func intensity(after threshold: Float) -> Float {
+        guard adherence > threshold else { return 0 }
+        return clamp01((adherence - threshold) / (1.0 - threshold))
+    }
+
+    private func clamp01(_ x: Float) -> Float {
+        max(0, min(1, x))
     }
 }

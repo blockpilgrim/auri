@@ -1024,3 +1024,266 @@ struct ReducedMotionModifier: ViewModifier {
 - Config struct centralizes reduced motion parameters
 - State differentiation preserved via color/intensity (not motion)
 - Haptics can still fire in reduced motion mode (tactile != visual motion)
+
+---
+
+## Multi-Layer Glow System Pattern
+
+**When to use**: When creating complex glow effects with multiple overlapping layers that respond to state.
+
+**Example**:
+```swift
+@MainActor
+final class CoreGlowLayers {
+    let container: Entity
+    private let hotCenter: ModelEntity     // Always visible, scales with power
+    private let innerCore: ModelEntity     // Always visible, color shifts at high power
+    private let outerGlow: ModelEntity     // Always visible, pulses slower
+    private let energyField1: ModelEntity  // Visible at 30%+, rotates
+    private let energyField2: ModelEntity  // Visible at 50%+, counter-rotates
+    private let atmosphere: ModelEntity    // Visible at 40%+, outermost halo
+    private let energyRing: ModelEntity    // Torus, rotates fast
+
+    static func create() -> CoreGlowLayers {
+        let container = Entity()
+        // Create layers as spheres with UnlitMaterial for glow effect
+        // Add in order (outer first) for proper transparency layering
+        container.addChild(atmosphere)
+        container.addChild(energyField2)
+        // ...
+        container.addChild(hotCenter)
+        return CoreGlowLayers(...)
+    }
+
+    func update(adherence: Double, normalizedPower: Float, pulseValues: PulseValues, deltaTime: Float) {
+        // Toggle visibility based on thresholds
+        energyField1.isEnabled = adherence >= 0.30
+        // Update materials based on pulse and power
+    }
+}
+```
+
+**Why**:
+- Each layer can be independently animated (rotation, pulse, opacity)
+- Visibility thresholds create progressive visual complexity as state improves
+- UnlitMaterial with transparent blending creates additive glow appearance
+- Layer order in scene graph affects transparency compositing
+
+---
+
+## Multi-Frequency Pulse Pattern
+
+**When to use**: When a single pulse frequency isn't visually rich enough, or different elements need different animation rates.
+
+**Example**:
+```swift
+struct MultiFrequencyPulse {
+    private let primaryFrequency: Float = 1.5   // Main breathing rhythm
+    private let fastFrequency: Float = 4.5      // Inner shimmer
+    private let ultraFastFrequency: Float = 10.5 // High-power flicker
+
+    private var primaryPhase: Float = 0
+    private var fastPhase: Float = 0
+    private var ultraFastPhase: Float = 0
+
+    struct PulseValues {
+        let primary: Float   // -1 to 1
+        let fast: Float      // -1 to 1
+        let ultraFast: Float // -1 to 1, may be 0 if not at high adherence
+    }
+
+    mutating func update(deltaTime: Float, amplitude: Float, sharpness: Float, adherence: Float) -> PulseValues {
+        primaryPhase += deltaTime * primaryFrequency * 2 * .pi
+        fastPhase += deltaTime * fastFrequency * 2 * .pi
+        ultraFastPhase += deltaTime * ultraFastFrequency * 2 * .pi
+
+        // Ultra-fast only at 70%+ adherence
+        let ultraFastActive = adherence >= 0.70
+
+        return PulseValues(
+            primary: sin(primaryPhase) * amplitude,
+            fast: sin(fastPhase) * amplitude * 0.6,
+            ultraFast: ultraFastActive ? sin(ultraFastPhase) * amplitude * 0.3 : 0
+        )
+    }
+}
+```
+
+**Why**:
+- Multiple frequencies create richer, more organic animation
+- Conditional activation (e.g., ultra-fast at 70%+) rewards high adherence
+- Separate phase tracking prevents integer overflow across all frequencies
+- Return struct allows caller to apply values to different visual elements
+
+---
+
+## iOS Particle Effect Workaround
+
+**When to use**: When ParticleEmitterComponent isn't available or has limited iOS support.
+
+**Don't do this** (on iOS):
+```swift
+// ParticleEmitterComponent has limited iOS support
+var emitter = ParticleEmitterComponent()
+emitter.birthRate = 30  // This property may not exist on iOS
+emitter.mainEmitter.color = .constant(.single(color.cgColor))
+```
+
+**Why it fails**: ParticleEmitterComponent's full API is primarily available on visionOS. On iOS, the type may exist but with limited or different properties.
+
+**Do this instead**:
+```swift
+@MainActor
+final class SparkParticle {
+    let entity: ModelEntity
+    var isExpired: Bool { lifetime >= maxLifetime }
+    private var lifetime: Float = 0
+    private var velocity: SIMD3<Float>
+
+    static func create(color: UIColor, intensity: Float) -> SparkParticle {
+        let mesh = MeshResource.generateSphere(radius: 0.002)
+        var material = UnlitMaterial()
+        material.color = .init(tint: color)
+        let entity = ModelEntity(mesh: mesh, materials: [material])
+        // Set random position, velocity, lifetime
+        return SparkParticle(entity: entity, ...)
+    }
+
+    func update(deltaTime: Float) {
+        lifetime += deltaTime
+        entity.position += velocity * deltaTime
+        // Fade opacity, apply gravity, etc.
+    }
+}
+
+// In manager:
+private var activeSparks: [SparkParticle] = []
+
+func updateSparks(...) {
+    // Remove expired
+    activeSparks.removeAll { spark in
+        spark.update(deltaTime: deltaTime)
+        if spark.isExpired {
+            spark.entity.removeFromParent()
+            return true
+        }
+        return false
+    }
+    // Spawn new based on timing
+    if currentTime - lastSparkTime >= spawnInterval {
+        let spark = SparkParticle.create(...)
+        container.addChild(spark.entity)
+        activeSparks.append(spark)
+        lastSparkTime = currentTime
+    }
+}
+```
+
+**Why**:
+- Works reliably on iOS (no platform-specific API dependencies)
+- Full control over particle behavior, appearance, and performance
+- Easy to cap maximum particles for performance
+- Can be extended for any particle type (sparks, flashes, debris)
+
+---
+
+## Prototype-First Visual Translation Pattern
+
+**When to use**: When rebuilding visual systems based on a working reference implementation (e.g., HTML/Three.js prototype).
+
+**Example approach**:
+```
+1. Read entire prototype file first - understand structure before writing code
+2. Document prototype's architecture in code comments:
+   - Camera setup (position, lookAt, behavior)
+   - Scene structure (what entities, their hierarchy)
+   - Animation/update loop structure
+   - Interpolation values for state mapping
+3. Translate with explicit line number references:
+```
+
+```swift
+/// Translated from thrumi-prototype.html buildFusionCore() (lines 891-947).
+///
+/// Ring configuration per prototype:
+/// | Index | Inner R | Outer R | Thickness | Speed | Direction |
+/// |-------|---------|---------|-----------|-------|-----------|
+/// | 0     | 0.55    | 0.70    | 0.08      | 1.0   | CW        |
+/// | 1     | 0.80    | 0.95    | 0.06      | 0.8   | CCW       |
+/// ...
+
+private static let ringConfigs: [RingConfig] = [
+    RingConfig(innerRadius: 0.55, outerRadius: 0.70, thickness: 0.08, speedMultiplier: 1.0, direction: 1, ...),
+    RingConfig(innerRadius: 0.80, outerRadius: 0.95, thickness: 0.06, speedMultiplier: 0.8, direction: -1, ...),
+]
+```
+
+**Why**:
+- Line number references make future debugging easier ("why is this 0.55?")
+- Explicit mapping tables catch scale/unit translation errors
+- Comments serve as specification when prototype file is no longer available
+- Prevents "improvisation" drift from reference implementation
+
+---
+
+## Fixed Camera Position Pattern (RealityKit)
+
+**When to use**: When the 3D scene requires a fixed viewing angle, not user-controlled orbit.
+
+**Example**:
+```swift
+// In View body:
+RealityView { content in
+    let scene = await FusionCoreScene.create()
+    content.add(scene.rootEntity)
+}
+// Apply fixed camera angle as 3D rotation on the view
+.rotation3DEffect(
+    .degrees(-63),  // Camera elevation angle
+    axis: (x: 1, y: 0, z: 0),
+    perspective: 0.5
+)
+```
+
+**Why**:
+- RealityKit's camera is managed by the view system, not scene objects
+- Applying rotation to the view simulates camera angle
+- No orbit controls means consistent framing across sessions
+- Document the prototype's camera position (e.g., `(0, 5, 2.5)` looking at origin) to explain the rotation value
+
+---
+
+## Ring Configuration Component Pattern
+
+**When to use**: When multiple similar entities need individual runtime parameters.
+
+**Example**:
+```swift
+// Custom component for per-entity data
+struct RingConfigComponent: Component {
+    let speedMultiplier: Float
+    let direction: Float // 1 = CW, -1 = CCW
+    let index: Int
+}
+
+// Attach during creation
+let ringGroup = Entity()
+ringGroup.components.set(RingConfigComponent(
+    speedMultiplier: config.speedMultiplier,
+    direction: config.direction,
+    index: index
+))
+
+// Read during update
+for ring in rings {
+    guard let config = ring.components[RingConfigComponent.self] else { continue }
+    let rotation = baseRotation * config.speedMultiplier * config.direction
+    ring.transform.rotation = simd_quatf(angle: rotation, axis: [0, 1, 0])
+}
+```
+
+**Why**:
+- RealityKit's Component system provides entity-attached data
+- Avoids parallel arrays for entity-to-config mapping
+- Query-friendly: can iterate entities and access their configs
+- Type-safe: compiler ensures correct component usage

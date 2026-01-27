@@ -57,22 +57,36 @@ Numbers exist (for users who want them), but the primary motivator is a physical
 
 ## 4. The Fusion Core
 
-The Fusion Core is a procedural 3D fidget spinner inspired by the *idea* of an arc reactor: **machined precision** plus an **alive** glow. It should feel like a functional power module, not a toy.
+The Fusion Core is a procedural 3D fidget spinner inspired by Tony Stark's arc reactor: **machined precision** plus an **alive** glow. It should feel like a functional power module, not a toy.
 
 ### Visual Language (Industrial High-Tech)
 
 - **Materials:** brushed palladium/steel, machined chamfers, exposed copper coils, translucent ceramic/glass elements.
-- **Geometry:** multiple floating rings and coil assemblies arranged concentrically; details that read as engineered.
 - **Center:** contained energy field (procedural glow), *not* fluid simulation.
-- **Light:** bloom-forward volumetric glow and crisp specular highlights; the Core should “cast” light in a cinematic way.
 
-### The “Impossible Physics”
+### Particle Effects
 
-Because this is digital, the Fusion Core uses **magnetic levitation**:
+Particles are essential for communicating power state. They scale with adherence.
 
-- outer rings float without axles
-- micro-adjustments in ring alignment are visible (like active stabilization)
-- at high adherence, the system appears “superconducting” and perfectly phase-locked
+**Sparks:**
+- Small glowing particles (teal or orange, randomized) emitting from ring positions
+- Appear at 20%+ adherence
+- Drift outward/upward, fade over 0.3-0.8 seconds
+- Frequency: none at 0%, occasional at 50%, constant stream at 100%
+
+**Energy Arcs:**
+- Lightning-like jagged lines
+- Appear at 50%+ adherence only
+- Last 100-250ms, then disappear
+- More frequent and brighter at higher power
+
+**Flashes:**
+- Bright burst pulses at the core (quick expand then fade)
+- Appear at 60%+ adherence only
+- At 80%+, increased amount of spawn around spinner
+- Duration: 150-250ms
+
+**At 0-20% adherence:** No particles. The Core is calm and quiet.
 
 ### The Reactor Pulse (Alive without anxiety)
 
@@ -80,10 +94,6 @@ The Core has a slow, steady **power pulse** (visual only): a gentle emissive swe
 
 - **Pulse rate is constant** (not tied to adherence) to avoid “heart rate” associations.
 - Adherence affects **amplitude, sharpness, and harmonic richness** of the light (not the tempo).
-
-### Constraint: Do Not Copy a Specific Prop
-
-The Fusion Core must be a unique, procedurally generated design—**Stark-esque, not a replica** of any particular movie model.
 
 ---
 
@@ -124,8 +134,8 @@ Design intent:
 
 Even though the baseline is blended, each meal produces immediate feedback:
 
-- **On track:** a brief “field alignment” beat (rings settle more concentric, glow tightens, damping eases slightly).
-- **Off track:** a brief “stabilization” beat (containment tightens, damping increases slightly, glow softens).
+- **On track:** a brief “field alignment” beat (particle effects, glow brightens).
+- **Off track:** a brief “stabilization” beat (lessening effects, glow softens).
 
 This keeps the app responsive moment-to-moment.
 
@@ -174,10 +184,8 @@ The Fusion Core transitions smoothly across 0–100%, but these tiers are a shar
 
 **Phase-Locked (90–100%) — Always-on peak (100% is unmistakable):**
 
-- Rings maintain near-perfect concentric alignment under motion.
 - Highest speed ceiling; longest spin persistence.
 - Light is bright but controlled: rich bloom, crisp highlights, subtle volumetric rays.
-- “Impossible” details: micro phase-lock behavior (sub-rings counter-rotate with harmonic stability).
 
 **Online (70–89%):**
 
@@ -223,7 +231,6 @@ The Fusion Core should be genuinely satisfying even when a user is idle.
 | Gesture | Response | What adherence modulates |
 |---|---|---|
 | Flick / swipe | imparts torque and spin | max speed, spin persistence, smoothness |
-| Drag on ring | “grab the field” and accelerate/decelerate | resistance curve, stabilization authority |
 | Two-finger twist | precise spin control | fine control resolution, micro-jitter |
 | Tilt (device motion) | subtle gyroscopic precession | precession clarity and damping |
 | Tap | localized coil “ping” (light tick) | intensity and crispness |

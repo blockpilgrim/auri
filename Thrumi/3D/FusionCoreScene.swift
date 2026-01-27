@@ -1,609 +1,379 @@
-import Foundation
 import RealityKit
-import simd
 import UIKit
+import simd
 
-/// Manages the Fusion Core 3D scene, including entity creation and material control.
 @MainActor
 final class FusionCoreScene {
+    static let unitScale: Float = 0.05
+
     let rootEntity: Entity
-    let outerRing: Entity
-    let middleRing: Entity
-    let innerRing: Entity
-    let coilAssembly: Entity
-    let centerCore: Entity
+    let particleManager: ParticleEffectsManager
 
-    // Point light for center glow
-    private let centerLight: Entity
+    private let glowLayers: CoreGlowLayers
+    private let coreLight: Entity
+    private let coilLight: Entity
 
-    // Store material references for runtime updates
-    private var ringMaterials: [CoreComponent: PhysicallyBasedMaterial] = [:]
-    private var emissiveMaterials: [CoreComponent: UnlitMaterial] = [:]
+    private struct RingSpec {
+        let innerRadius: Float
+        let outerRadius: Float
+        let direction: Float
+        let speedMultiplier: Float
+        let hasCoils: Bool
+        let coilCount: Int
+        let yOffset: Float
+    }
 
-    // MARK: - Ring Alignment Jitter State
+    private struct RingNode {
+        let entity: Entity
+        let body: ModelEntity
+        let detail: [ModelEntity]
+        let coilGlows: [ModelEntity]
+        let direction: Float
+        let speedMultiplier: Float
+    }
 
-    /// Current jitter offsets for each ring (randomized per-frame at low adherence)
-    private var outerJitterOffset: SIMD3<Float> = .zero
-    private var middleJitterOffset: SIMD3<Float> = .zero
-    private var innerJitterOffset: SIMD3<Float> = .zero
+    private static let rings: [RingSpec] = [
+        RingSpec(innerRadius: 0.55, outerRadius: 0.70, direction: 1, speedMultiplier: 1.00, hasCoils: true, coilCount: 8, yOffset: 0.000),
+        RingSpec(innerRadius: 0.80, outerRadius: 0.95, direction: -1, speedMultiplier: 0.82, hasCoils: false, coilCount: 0, yOffset: 0.002),
+        RingSpec(innerRadius: 1.05, outerRadius: 1.25, direction: 1, speedMultiplier: 0.68, hasCoils: true, coilCount: 12, yOffset: -0.002),
+        RingSpec(innerRadius: 1.35, outerRadius: 1.50, direction: -1, speedMultiplier: 0.54, hasCoils: false, coilCount: 0, yOffset: 0.004),
+        RingSpec(innerRadius: 1.60, outerRadius: 1.80, direction: 1, speedMultiplier: 0.40, hasCoils: false, coilCount: 0, yOffset: -0.004),
+    ]
 
-    /// Noise generator for smooth jitter
-    private var jitterPhase: Float = 0
-
-    // MARK: - Micro-Feedback Animation State
-
-    /// Animation state for micro-feedback effects
-    private(set) var microFeedbackActive: Bool = false
-    private(set) var microFeedbackIsOnTrack: Bool = true
-    private var microFeedbackProgress: Float = 0
-    private var microFeedbackDuration: Float = 0.4
+    private var ringNodes: [RingNode]
+    private var coilGlowEntities: [ModelEntity]
+    private var lastRingRoughness: Float = -1
 
     private init(
         rootEntity: Entity,
-        outerRing: Entity,
-        middleRing: Entity,
-        innerRing: Entity,
-        coilAssembly: Entity,
-        centerCore: Entity,
-        centerLight: Entity
+        glowLayers: CoreGlowLayers,
+        ringNodes: [RingNode],
+        coilGlowEntities: [ModelEntity],
+        particleManager: ParticleEffectsManager,
+        coreLight: Entity,
+        coilLight: Entity
     ) {
         self.rootEntity = rootEntity
-        self.outerRing = outerRing
-        self.middleRing = middleRing
-        self.innerRing = innerRing
-        self.coilAssembly = coilAssembly
-        self.centerCore = centerCore
-        self.centerLight = centerLight
+        self.glowLayers = glowLayers
+        self.ringNodes = ringNodes
+        self.coilGlowEntities = coilGlowEntities
+        self.particleManager = particleManager
+        self.coreLight = coreLight
+        self.coilLight = coilLight
     }
 
-    /// Creates and loads the Fusion Core scene with procedurally generated geometry.
     static func create() async -> FusionCoreScene {
         let root = Entity()
         root.name = "FusionCore"
 
-        // Create the three concentric rings with industrial metallic look
-        let outer = createRing(
-            name: "OuterRing",
-            majorRadius: 0.12,
-            minorRadius: 0.012,
-            color: .init(red: 0.75, green: 0.75, blue: 0.78, alpha: 1.0), // Palladium/steel
-            metallic: 0.95,
-            roughness: 0.25
+        // Hero scale for UI presentation (RealityKit units are meters).
+        // Tuned so the spinner reads large and central in the HUD.
+        root.scale = SIMD3<Float>(repeating: 4.5)
+
+        // Place the spinner in front of the default camera.
+        // RealityKit units are meters; bring the scene closer so it reads at "hero" size.
+        root.position = [0, -0.05, -0.25]
+        // Simulate a fixed camera pitched down ~65° by pitching the scene up.
+        let pitch: Float = 65.0 * .pi / 180.0
+        root.transform.rotation = simd_quatf(angle: pitch, axis: [1, 0, 0])
+
+        let glow = CoreGlowLayers.create(unitScale: unitScale)
+        root.addChild(glow.container)
+
+        var nodes: [RingNode] = []
+        var coilGlows: [ModelEntity] = []
+
+        for (index, spec) in rings.enumerated() {
+            let ring = createRing(spec: spec, unitScale: unitScale, name: "Ring\(index + 1)")
+            nodes.append(ring)
+            coilGlows.append(contentsOf: ring.coilGlows)
+            root.addChild(ring.entity)
+        }
+
+        let coreLight = createPointLight(
+            name: "CoreLight",
+            color: CoreColors.coreTeal,
+            baseLumens: 1500,
+            attenuationRadius: 0.60,
+            position: [0, 0, 0]
         )
 
-        let middle = createRing(
-            name: "MiddleRing",
-            majorRadius: 0.085,
-            minorRadius: 0.010,
-            color: .init(red: 0.72, green: 0.72, blue: 0.76, alpha: 1.0), // Brushed steel
-            metallic: 0.92,
-            roughness: 0.30
+        let coilLight = createPointLight(
+            name: "CoilLight",
+            color: CoreColors.coilGlow,
+            baseLumens: 900,
+            attenuationRadius: 0.40,
+            position: [0, 0, 0]
         )
 
-        let inner = createRing(
-            name: "InnerRing",
-            majorRadius: 0.055,
-            minorRadius: 0.008,
-            color: .init(red: 0.78, green: 0.78, blue: 0.82, alpha: 1.0), // Polished steel
-            metallic: 0.98,
-            roughness: 0.15
-        )
+        root.addChild(coreLight)
+        root.addChild(coilLight)
+        root.addChild(createDirectionalFillLight())
 
-        // Create coil assembly (copper-colored emissive segments)
-        let coils = createCoilAssembly()
-
-        // Create glowing center core
-        let center = createCenterCore()
-
-        // Create point light for center glow effect
-        let light = createCenterLight()
-
-        // Parent all components to root
-        root.addChild(outer)
-        root.addChild(middle)
-        root.addChild(inner)
-        root.addChild(coils)
-        root.addChild(center)
-        root.addChild(light)
-
-        // Slight tilt for visual interest (magnetic levitation aesthetic)
-        outer.transform.rotation = simd_quatf(angle: .pi * 0.02, axis: [1, 0, 0])
-        middle.transform.rotation = simd_quatf(angle: -.pi * 0.015, axis: [0, 0, 1])
+        let meanRadii = rings.map { (($0.innerRadius + $0.outerRadius) * 0.5) * unitScale }
+        let particles = ParticleEffectsManager(ringRadii: meanRadii)
+        root.addChild(particles.container)
 
         return FusionCoreScene(
             rootEntity: root,
-            outerRing: outer,
-            middleRing: middle,
-            innerRing: inner,
-            coilAssembly: coils,
-            centerCore: center,
-            centerLight: light
+            glowLayers: glow,
+            ringNodes: nodes,
+            coilGlowEntities: coilGlows,
+            particleManager: particles,
+            coreLight: coreLight,
+            coilLight: coilLight
         )
     }
 
-    // MARK: - Geometry Creation
+    func update(
+        interpolator: StateInterpolator,
+        pulse: MultiFrequencyPulse.PulseValues,
+        deltaTime: Float,
+        spinAngle: Float,
+        currentTime: TimeInterval,
+        bloomMultiplier: Float,
+        thermalParticleMultiplier: Float,
+        showParticles: Bool
+    ) {
+        glowLayers.update(
+            interpolator: interpolator,
+            pulse: pulse,
+            deltaTime: deltaTime,
+            bloomMultiplier: bloomMultiplier
+        )
 
-    private static func createRing(
+        updateRingTransforms(spinAngle: spinAngle)
+        updateRingMaterialsIfNeeded(interpolator: interpolator)
+        updateCoilGlow(interpolator: interpolator, pulse: pulse)
+        updateLights(interpolator: interpolator, pulse: pulse)
+
+        particleManager.update(
+            interpolator: interpolator,
+            deltaTime: deltaTime,
+            currentTime: currentTime,
+            thermalParticleMultiplier: thermalParticleMultiplier,
+            showParticles: showParticles
+        )
+    }
+
+    private func updateRingTransforms(spinAngle: Float) {
+        for ring in ringNodes {
+            let angle = spinAngle * ring.speedMultiplier * ring.direction
+            ring.entity.transform.rotation = simd_quatf(angle: angle, axis: [0, 1, 0])
+        }
+    }
+
+    private func updateRingMaterialsIfNeeded(interpolator: StateInterpolator) {
+        let roughness = interpolator.ringRoughness
+        guard abs(roughness - lastRingRoughness) > 0.002 else { return }
+        lastRingRoughness = roughness
+
+        for ring in ringNodes {
+            ring.body.model?.materials = [makeRingBodyMaterial(roughness: roughness)]
+            for detail in ring.detail {
+                detail.model?.materials = [makeRingDetailMaterial(roughness: max(0.12, roughness - 0.10))]
+            }
+        }
+    }
+
+    private func updateCoilGlow(interpolator: StateInterpolator, pulse: MultiFrequencyPulse.PulseValues) {
+        let base = interpolator.coilGlowIntensity
+        let pulsed = clamp01(base * (1.0 + pulse.primary * 0.8 + pulse.fast * 0.35 + pulse.ultraFast * 0.25))
+        let alpha = clamp01(0.15 + pulsed * 0.85)
+
+        var glowMaterial = UnlitMaterial()
+        glowMaterial.color = .init(tint: CoreColors.withAlpha(CoreColors.coilGlow, alpha))
+        glowMaterial.blending = .transparent(opacity: .init(floatLiteral: alpha))
+
+        for glow in coilGlowEntities {
+            glow.model?.materials = [glowMaterial]
+        }
+    }
+
+    private func updateLights(interpolator: StateInterpolator, pulse: MultiFrequencyPulse.PulseValues) {
+        let lightPulse = 1.0 + pulse.primary * 0.5
+
+        if var core = coreLight.components[PointLightComponent.self] {
+            core.intensity = 1500 * interpolator.coreLightIntensity * lightPulse
+            core.attenuationRadius = lerp(0.30, 0.70, interpolator.adherence)
+            coreLight.components.set(core)
+        }
+
+        if var coil = coilLight.components[PointLightComponent.self] {
+            coil.intensity = 900 * interpolator.coilLightIntensity * (1.0 + pulse.fast * 0.35)
+            coil.attenuationRadius = lerp(0.22, 0.50, interpolator.adherence)
+            coilLight.components.set(coil)
+        }
+    }
+
+    private static func createRing(spec: RingSpec, unitScale: Float, name: String) -> RingNode {
+        let group = Entity()
+        group.name = name
+
+        let midRadius = ((spec.innerRadius + spec.outerRadius) * 0.5) * unitScale
+        let tubeRadius = ((spec.outerRadius - spec.innerRadius) * 0.5) * unitScale
+
+        let bodyMesh = MeshResource.generateTorus(meanRadius: midRadius, tubeRadius: tubeRadius, segments: 96, tubeSegments: 18)
+        let body = ModelEntity(mesh: bodyMesh, materials: [makeRingBodyMaterial(roughness: 0.35)])
+        body.name = "Body"
+        group.addChild(body)
+
+        // Machined details (groove bands)
+        let grooveA = ModelEntity(
+            mesh: MeshResource.generateTorus(meanRadius: midRadius - tubeRadius * 0.25, tubeRadius: max(0.0005, tubeRadius * 0.18), segments: 80, tubeSegments: 14),
+            materials: [makeRingDetailMaterial(roughness: 0.22)]
+        )
+        grooveA.name = "GrooveA"
+        group.addChild(grooveA)
+
+        let grooveB = ModelEntity(
+            mesh: MeshResource.generateTorus(meanRadius: midRadius + tubeRadius * 0.28, tubeRadius: max(0.0005, tubeRadius * 0.14), segments: 80, tubeSegments: 14),
+            materials: [makeRingDetailMaterial(roughness: 0.22)]
+        )
+        grooveB.name = "GrooveB"
+        group.addChild(grooveB)
+
+        group.position.y = spec.yOffset
+
+        var coilGlows: [ModelEntity] = []
+        if spec.hasCoils {
+            let coilGroup = createCoils(radius: midRadius, tubeRadius: tubeRadius, count: spec.coilCount)
+            group.addChild(coilGroup.group)
+            coilGlows = coilGroup.glowStrips
+        }
+
+        return RingNode(
+            entity: group,
+            body: body,
+            detail: [grooveA, grooveB],
+            coilGlows: coilGlows,
+            direction: spec.direction,
+            speedMultiplier: spec.speedMultiplier
+        )
+    }
+
+    private static func createCoils(radius: Float, tubeRadius: Float, count: Int) -> (group: Entity, glowStrips: [ModelEntity]) {
+        let group = Entity()
+        group.name = "Coils"
+
+        let baseW = max(0.002, tubeRadius * 1.10)
+        let baseH = max(0.0015, tubeRadius * 0.60)
+        let baseD = max(0.002, tubeRadius * 0.90)
+
+        let glowW = baseW * 0.80
+        let glowH = baseH * 0.55
+        let glowD = baseD * 0.65
+
+        let baseMesh = MeshResource.generateBox(width: baseW, height: baseH, depth: baseD)
+        let glowMesh = MeshResource.generateBox(width: glowW, height: glowH, depth: glowD)
+
+        var baseMaterial = PhysicallyBasedMaterial()
+        baseMaterial.baseColor = .init(tint: CoreColors.copperBase)
+        baseMaterial.metallic = .init(floatLiteral: 0.85)
+        baseMaterial.roughness = .init(floatLiteral: 0.35)
+
+        var glowMaterial = UnlitMaterial()
+        glowMaterial.color = .init(tint: CoreColors.withAlpha(CoreColors.coilGlow, 0.25))
+        glowMaterial.blending = .transparent(opacity: 0.25)
+
+        var glows: [ModelEntity] = []
+
+        for i in 0..<max(1, count) {
+            let angle = Float(i) / Float(max(1, count)) * 2 * .pi
+            let radial = SIMD3<Float>(cos(angle), 0, sin(angle))
+
+            let base = ModelEntity(mesh: baseMesh, materials: [baseMaterial])
+            base.name = "CoilBase"
+            base.position = radial * (radius + tubeRadius * 0.55) + SIMD3<Float>(0, tubeRadius * 0.18, 0)
+            base.transform.rotation = simd_quatf(angle: angle, axis: [0, 1, 0])
+            group.addChild(base)
+
+            let glow = ModelEntity(mesh: glowMesh, materials: [glowMaterial])
+            glow.name = "CoilGlow"
+            glow.position = base.position
+            glow.transform.rotation = base.transform.rotation
+            group.addChild(glow)
+            glows.append(glow)
+        }
+
+        return (group: group, glowStrips: glows)
+    }
+
+    private static func createPointLight(
         name: String,
-        majorRadius: Float,
-        minorRadius: Float,
         color: UIColor,
-        metallic: Float,
-        roughness: Float
+        baseLumens: Float,
+        attenuationRadius: Float,
+        position: SIMD3<Float>
     ) -> Entity {
-        // Create torus mesh for ring
-        let mesh = MeshResource.generateTorus(
-            meanRadius: majorRadius,
-            tubeRadius: minorRadius
-        )
+        let lightEntity = Entity()
+        lightEntity.name = name
+        lightEntity.position = position
 
-        // Industrial metallic PBR material
+        var light = PointLightComponent()
+        light.color = .init(cgColor: color.cgColor)
+        light.intensity = baseLumens
+        light.attenuationRadius = attenuationRadius
+        lightEntity.components.set(light)
+
+        return lightEntity
+    }
+
+    private static func createDirectionalFillLight() -> Entity {
+        let lightEntity = Entity()
+        lightEntity.name = "FillLight"
+
+        var light = DirectionalLightComponent()
+        light.color = .init(white: 0.95, alpha: 1.0)
+        light.intensity = 650
+        lightEntity.components.set(light)
+
+        lightEntity.transform.rotation = simd_quatf(angle: -.pi / 3.2, axis: [1, 0, 0]) * simd_quatf(angle: .pi / 8, axis: [0, 1, 0])
+        return lightEntity
+    }
+
+    private static func makeRingBodyMaterial(roughness: Float) -> PhysicallyBasedMaterial {
         var material = PhysicallyBasedMaterial()
-        material.baseColor = .init(tint: color)
-        material.metallic = .init(floatLiteral: metallic)
-        material.roughness = .init(floatLiteral: roughness)
-
-        let entity = ModelEntity(mesh: mesh, materials: [material])
-        entity.name = name
-
-        return entity
+        material.baseColor = .init(tint: UIColor(red: 0.54, green: 0.61, blue: 0.66, alpha: 1.0))
+        material.metallic = .init(floatLiteral: 0.92)
+        material.roughness = .init(floatLiteral: max(0.05, min(1, roughness)))
+        return material
     }
 
-    private static func createCoilAssembly() -> Entity {
-        let assembly = Entity()
-        assembly.name = "CoilAssembly"
-
-        // Create copper coil segments between rings
-        let coilCount = 8
-        let innerCoilRadius: Float = 0.068
-        let outerCoilRadius: Float = 0.102
-
-        for i in 0..<coilCount {
-            let angle = Float(i) * (2 * .pi / Float(coilCount))
-
-            // Inner coil segment
-            let innerCoil = createCoilSegment(
-                radius: innerCoilRadius,
-                angle: angle,
-                height: 0.015,
-                intensity: 0.8
-            )
-            assembly.addChild(innerCoil)
-
-            // Outer coil segment
-            let outerCoil = createCoilSegment(
-                radius: outerCoilRadius,
-                angle: angle,
-                height: 0.018,
-                intensity: 0.6
-            )
-            assembly.addChild(outerCoil)
-        }
-
-        return assembly
+    private static func makeRingDetailMaterial(roughness: Float) -> PhysicallyBasedMaterial {
+        var material = PhysicallyBasedMaterial()
+        material.baseColor = .init(tint: UIColor(red: 0.18, green: 0.22, blue: 0.28, alpha: 1.0))
+        material.metallic = .init(floatLiteral: 0.95)
+        material.roughness = .init(floatLiteral: max(0.05, min(1, roughness)))
+        return material
     }
 
-    private static func createCoilSegment(
-        radius: Float,
-        angle: Float,
-        height: Float,
-        intensity: Float
-    ) -> Entity {
-        let mesh = MeshResource.generateCylinder(height: height, radius: 0.004)
-
-        // Copper emissive material (warm orange glow)
-        var material = UnlitMaterial()
-        let copperColor = UIColor(
-            red: CGFloat(0.85 * intensity + 0.15),
-            green: CGFloat(0.45 * intensity),
-            blue: CGFloat(0.15 * intensity),
-            alpha: 1.0
-        )
-        material.color = .init(tint: copperColor)
-
-        let entity = ModelEntity(mesh: mesh, materials: [material])
-        entity.name = "Coil"
-
-        // Position around the ring
-        let x = radius * cos(angle)
-        let z = radius * sin(angle)
-        entity.position = [x, 0, z]
-
-        return entity
+    private func makeRingBodyMaterial(roughness: Float) -> PhysicallyBasedMaterial {
+        Self.makeRingBodyMaterial(roughness: roughness)
     }
 
-    private static func createCenterCore() -> Entity {
-        let container = Entity()
-        container.name = "CenterCore"
-
-        // Outer translucent shell (ceramic/glass containment)
-        let shellMesh = MeshResource.generateSphere(radius: 0.035)
-        var shellMaterial = PhysicallyBasedMaterial()
-        shellMaterial.baseColor = .init(tint: .init(white: 0.9, alpha: 0.3))
-        shellMaterial.metallic = .init(floatLiteral: 0.1)
-        shellMaterial.roughness = .init(floatLiteral: 0.05)
-        shellMaterial.blending = .transparent(opacity: 0.3)
-
-        let shell = ModelEntity(mesh: shellMesh, materials: [shellMaterial])
-        shell.name = "CenterShell"
-
-        // Inner energy core (emissive glow)
-        let coreMesh = MeshResource.generateSphere(radius: 0.022)
-        var coreMaterial = UnlitMaterial()
-        // Electric blue-white glow
-        coreMaterial.color = .init(tint: .init(red: 0.6, green: 0.85, blue: 1.0, alpha: 1.0))
-
-        let core = ModelEntity(mesh: coreMesh, materials: [coreMaterial])
-        core.name = "EnergyCore"
-
-        container.addChild(shell)
-        container.addChild(core)
-
-        return container
+    private func makeRingDetailMaterial(roughness: Float) -> PhysicallyBasedMaterial {
+        Self.makeRingDetailMaterial(roughness: roughness)
     }
 
-    private static func createCenterLight() -> Entity {
-        let light = Entity()
-        light.name = "CenterLight"
-
-        // Point light component for glow effect
-        var pointLight = PointLightComponent()
-        pointLight.color = .init(red: 0.6, green: 0.85, blue: 1.0, alpha: 1.0)
-        pointLight.intensity = 800
-        pointLight.attenuationRadius = 0.3
-
-        light.components.set(pointLight)
-
-        return light
+    private func lerp(_ a: Float, _ b: Float, _ t: Float) -> Float {
+        a + (b - a) * clamp01(t)
     }
 
-    // MARK: - Material Control
-
-    /// Sets the emissive intensity for the specified component.
-    /// - Parameters:
-    ///   - intensity: Intensity value from 0.0 (dim) to 1.0 (bright)
-    ///   - component: The core component to modify
-    func setEmissiveIntensity(_ intensity: Float, for component: CoreComponent) {
-        switch component {
-        case .center:
-            updateCenterGlow(intensity: intensity)
-        case .coils:
-            updateCoilGlow(intensity: intensity)
-        default:
-            break
-        }
-    }
-
-    /// Sets the metallic roughness for ring components.
-    /// - Parameters:
-    ///   - roughness: Roughness value from 0.0 (mirror) to 1.0 (matte)
-    ///   - component: The core component to modify
-    func setMetallicRoughness(_ roughness: Float, for component: CoreComponent) {
-        guard let modelEntity = entityFor(component) as? ModelEntity else { return }
-        guard var material = modelEntity.model?.materials.first as? PhysicallyBasedMaterial else { return }
-
-        material.roughness = .init(floatLiteral: roughness)
-        modelEntity.model?.materials = [material]
-    }
-
-    /// Updates the center light intensity.
-    func setLightIntensity(_ intensity: Float) {
-        guard var light = centerLight.components[PointLightComponent.self] else { return }
-        light.intensity = intensity * 1200
-        centerLight.components.set(light)
-    }
-
-    private func updateCenterGlow(intensity: Float) {
-        guard let coreEntity = centerCore.findEntity(named: "EnergyCore") as? ModelEntity else { return }
-
-        var material = UnlitMaterial()
-        // Scale color brightness with intensity
-        let r = 0.4 + (0.6 * intensity)
-        let g = 0.7 + (0.3 * intensity)
-        let b = 0.9 + (0.1 * intensity)
-        material.color = .init(tint: .init(red: CGFloat(r), green: CGFloat(g), blue: CGFloat(b), alpha: 1.0))
-
-        coreEntity.model?.materials = [material]
-    }
-
-    private func updateCoilGlow(intensity: Float) {
-        for child in coilAssembly.children {
-            guard let modelEntity = child as? ModelEntity else { continue }
-
-            var material = UnlitMaterial()
-            // Copper glow scales with intensity
-            let r = 0.3 + (0.7 * intensity)
-            let g = 0.15 + (0.35 * intensity)
-            let b = 0.05 + (0.15 * intensity)
-            material.color = .init(tint: .init(red: CGFloat(r), green: CGFloat(g), blue: CGFloat(b), alpha: 1.0))
-
-            modelEntity.model?.materials = [material]
-        }
-    }
-
-    private func entityFor(_ component: CoreComponent) -> Entity? {
-        switch component {
-        case .outerRing: outerRing
-        case .middleRing: middleRing
-        case .innerRing: innerRing
-        case .coils: coilAssembly
-        case .center: centerCore
-        }
-    }
-
-    // MARK: - Ring Rotation (Physics-Driven)
-
-    /// Base tilt rotations for the "magnetic levitation" aesthetic
-    private static let outerBaseTilt = simd_quatf(angle: .pi * 0.02, axis: [1, 0, 0])
-    private static let middleBaseTilt = simd_quatf(angle: -.pi * 0.015, axis: [0, 0, 1])
-    private static let innerBaseTilt = simd_quatf(angle: .pi * 0.01, axis: [0, 0, 1])
-
-    /// Applies physics-driven ring rotations.
-    /// - Parameter rotations: SIMD3 containing rotation angles for [outer, middle, inner] rings in radians
-    func applyRingRotations(_ rotations: SIMD3<Float>) {
-        // Outer ring: base tilt + spin
-        let outerSpin = simd_quatf(angle: rotations.x, axis: [0, 1, 0])
-        outerRing.transform.rotation = Self.outerBaseTilt * outerSpin
-
-        // Middle ring: base tilt + spin (counter-rotates for visual interest)
-        let middleSpin = simd_quatf(angle: -rotations.y, axis: [0, 1, 0])
-        middleRing.transform.rotation = Self.middleBaseTilt * middleSpin
-
-        // Inner ring: base tilt + spin
-        let innerSpin = simd_quatf(angle: rotations.z, axis: [0, 1, 0])
-        innerRing.transform.rotation = Self.innerBaseTilt * innerSpin
-    }
-
-    /// Applies precession wobble to the rings based on device tilt.
-    /// - Parameters:
-    ///   - pitch: Device pitch (forward/back tilt) in radians
-    ///   - roll: Device roll (left/right tilt) in radians
-    ///   - intensity: Wobble intensity multiplier (0.0 to 1.0)
-    func applyPrecessionWobble(pitch: Float, roll: Float, intensity: Float) {
-        let wobbleScale = intensity * 0.05 // Subtle effect
-
-        // Apply slight tilt to coil assembly based on device orientation
-        let wobbleRotation = simd_quatf(angle: pitch * wobbleScale, axis: [1, 0, 0])
-            * simd_quatf(angle: roll * wobbleScale, axis: [0, 0, 1])
-        coilAssembly.transform.rotation = wobbleRotation
-    }
-
-    // MARK: - Visual Feedback
-
-    /// Ping animation state
-    private struct PingState {
-        var isActive: Bool = false
-        var startTime: Date = .now
-        let duration: TimeInterval = 0.3
-    }
-
-    /// Triggers a brief "ping" visual effect on the coils.
-    /// Creates a quick brightness pulse that fades out.
-    func triggerCoilPing() {
-        // Immediate bright flash
-        updateCoilGlow(intensity: 1.5)
-
-        // Schedule fade back to normal (handled by update loop in FusionCoreView)
-        // The view will call resetCoilPing() after the animation completes
-    }
-
-    /// Resets coil glow after ping animation.
-    /// - Parameter baseIntensity: The normal glow intensity to return to
-    func resetCoilPing(to baseIntensity: Float) {
-        updateCoilGlow(intensity: baseIntensity)
-    }
-
-    /// Triggers a brief center core pulse effect.
-    func triggerCorePulse() {
-        // Flash the center light
-        if var light = centerLight.components[PointLightComponent.self] {
-            light.intensity = 2000
-            centerLight.components.set(light)
-        }
-
-        // Update center glow
-        updateCenterGlow(intensity: 1.2)
-    }
-
-    /// Resets center core after pulse animation.
-    /// - Parameter baseIntensity: The normal glow intensity to return to
-    func resetCorePulse(to baseIntensity: Float) {
-        updateCenterGlow(intensity: baseIntensity)
-        setLightIntensity(baseIntensity)
-    }
-
-    // MARK: - Ring Alignment Jitter
-
-    /// Updates and applies ring alignment jitter based on adherence.
-    /// At lower adherence, rings have subtle misalignment that suggests instability.
-    /// - Parameters:
-    ///   - jitterAmount: Amount of jitter (0.0 = perfect alignment, 0.5 = max jitter)
-    ///   - deltaTime: Time since last update for smooth noise animation
-    func updateRingAlignmentJitter(jitterAmount: Float, deltaTime: Float) {
-        // Animate jitter phase for smooth random movement
-        jitterPhase += deltaTime * 2.0
-
-        // Generate smooth noise-like offsets
-        let jitterScale = jitterAmount * 0.015 // Max ~0.75 degrees
-
-        // Each ring gets slightly different jitter
-        outerJitterOffset = SIMD3<Float>(
-            sin(jitterPhase * 1.1) * jitterScale,
-            0,
-            cos(jitterPhase * 0.9) * jitterScale * 0.5
-        )
-
-        middleJitterOffset = SIMD3<Float>(
-            sin(jitterPhase * 1.3 + 1.0) * jitterScale * 0.8,
-            0,
-            cos(jitterPhase * 1.1 + 0.5) * jitterScale * 0.6
-        )
-
-        innerJitterOffset = SIMD3<Float>(
-            sin(jitterPhase * 1.5 + 2.0) * jitterScale * 0.6,
-            0,
-            cos(jitterPhase * 1.3 + 1.5) * jitterScale * 0.4
-        )
-    }
-
-    /// Applies physics-driven ring rotations with jitter overlay.
-    /// - Parameters:
-    ///   - rotations: SIMD3 containing rotation angles for [outer, middle, inner] rings in radians
-    ///   - jitterAmount: Amount of alignment jitter (0.0 to 0.5)
-    func applyRingRotationsWithJitter(_ rotations: SIMD3<Float>, jitterAmount: Float) {
-        // Outer ring: base tilt + spin + jitter
-        let outerSpin = simd_quatf(angle: rotations.x, axis: [0, 1, 0])
-        let outerJitter = simd_quatf(angle: outerJitterOffset.x, axis: [1, 0, 0])
-            * simd_quatf(angle: outerJitterOffset.z, axis: [0, 0, 1])
-        outerRing.transform.rotation = Self.outerBaseTilt * outerSpin * outerJitter
-
-        // Middle ring: base tilt + spin (counter-rotates) + jitter
-        let middleSpin = simd_quatf(angle: -rotations.y, axis: [0, 1, 0])
-        let middleJitter = simd_quatf(angle: middleJitterOffset.x, axis: [1, 0, 0])
-            * simd_quatf(angle: middleJitterOffset.z, axis: [0, 0, 1])
-        middleRing.transform.rotation = Self.middleBaseTilt * middleSpin * middleJitter
-
-        // Inner ring: base tilt + spin + jitter
-        let innerSpin = simd_quatf(angle: rotations.z, axis: [0, 1, 0])
-        let innerJitter = simd_quatf(angle: innerJitterOffset.x, axis: [1, 0, 0])
-            * simd_quatf(angle: innerJitterOffset.z, axis: [0, 0, 1])
-        innerRing.transform.rotation = Self.innerBaseTilt * innerSpin * innerJitter
-    }
-
-    // MARK: - Visual State Application
-
-    /// Applies all visual parameters from the state interpolator.
-    /// Call this every frame or when adherence changes.
-    func applyVisualState(from interpolator: StateInterpolator) {
-        // Center glow emissive
-        setEmissiveIntensity(interpolator.emissiveIntensity, for: .center)
-
-        // Coil brightness (unless in micro-feedback animation)
-        if !microFeedbackActive {
-            setEmissiveIntensity(interpolator.coilBrightness, for: .coils)
-        }
-
-        // Light intensity
-        setLightIntensity(interpolator.lightIntensity)
-
-        // Ring roughness (shinier at higher adherence)
-        setMetallicRoughness(interpolator.ringRoughness, for: .outerRing)
-        setMetallicRoughness(interpolator.ringRoughness * 0.9, for: .middleRing)
-        setMetallicRoughness(interpolator.ringRoughness * 0.8, for: .innerRing)
-    }
-
-    /// Applies visual state with reactor pulse modulation.
-    func applyVisualState(from interpolator: StateInterpolator, withPulse pulseValue: Float) {
-        // Apply pulse to emissive intensity
-        let pulsedEmissive = ReactorPulse.applyToEmissive(
-            baseIntensity: interpolator.emissiveIntensity,
-            pulseValue: pulseValue
-        )
-        setEmissiveIntensity(pulsedEmissive, for: .center)
-
-        // Coil brightness with subtle pulse (unless in micro-feedback)
-        if !microFeedbackActive {
-            let pulsedCoil = ReactorPulse.applyToEmissive(
-                baseIntensity: interpolator.coilBrightness,
-                pulseValue: pulseValue * 0.5 // Coils pulse more subtly
-            )
-            setEmissiveIntensity(pulsedCoil, for: .coils)
-        }
-
-        // Light intensity with pulse
-        let pulsedLight = ReactorPulse.applyToLight(
-            baseIntensity: interpolator.lightIntensity,
-            pulseValue: pulseValue
-        )
-        setLightIntensity(pulsedLight)
-
-        // Ring roughness (not pulsed)
-        setMetallicRoughness(interpolator.ringRoughness, for: .outerRing)
-        setMetallicRoughness(interpolator.ringRoughness * 0.9, for: .middleRing)
-        setMetallicRoughness(interpolator.ringRoughness * 0.8, for: .innerRing)
-    }
-
-    // MARK: - Micro-Feedback Animations
-
-    /// Triggers micro-feedback animation when user logs a meal.
-    /// - Parameter isOnTrack: Whether the meal was marked as on-track
-    func triggerMicroFeedback(isOnTrack: Bool) {
-        microFeedbackActive = true
-        microFeedbackIsOnTrack = isOnTrack
-        microFeedbackProgress = 0
-        microFeedbackDuration = isOnTrack ? 0.3 : 0.4 // On-track is snappier
-    }
-
-    /// Updates micro-feedback animation state.
-    /// - Parameters:
-    ///   - deltaTime: Time since last update in seconds
-    ///   - baseCoilIntensity: Base coil intensity from interpolator
-    ///   - baseDamping: Base damping from interpolator (for off-track feedback)
-    /// - Returns: Damping multiplier (1.0 if no effect, >1.0 for off-track spike)
-    func updateMicroFeedback(deltaTime: Float, baseCoilIntensity: Float, baseDamping: Float) -> Float {
-        guard microFeedbackActive else { return 1.0 }
-
-        microFeedbackProgress += deltaTime / microFeedbackDuration
-
-        if microFeedbackProgress >= 1.0 {
-            // Animation complete
-            microFeedbackActive = false
-            microFeedbackProgress = 0
-            setEmissiveIntensity(baseCoilIntensity, for: .coils)
-            return 1.0
-        }
-
-        // Ease-out animation curve
-        let t = 1.0 - pow(1.0 - microFeedbackProgress, 2.0)
-
-        if microFeedbackIsOnTrack {
-            // On-track: brief glow surge then settle
-            // Peak at t=0.3, then fade to normal
-            let glowCurve: Float
-            if t < 0.3 {
-                glowCurve = t / 0.3 // Ramp up to peak
-            } else {
-                glowCurve = 1.0 - (t - 0.3) / 0.7 // Fade down
-            }
-
-            let glowBoost = glowCurve * 0.3 // +30% at peak
-            setEmissiveIntensity(baseCoilIntensity + glowBoost, for: .coils)
-
-            // Also pulse the center glow briefly
-            if t < 0.3 {
-                updateCenterGlow(intensity: 1.0 + glowCurve * 0.2)
-            }
-
-            return 1.0 // No damping change for on-track
-        } else {
-            // Off-track: glow dims, damping spikes
-            // Glow softens
-            let dimFactor = 1.0 - (1.0 - t) * 0.2 // Dims by 20% at start, returns to normal
-            setEmissiveIntensity(baseCoilIntensity * dimFactor, for: .coils)
-
-            // Damping spikes and returns (affects physics)
-            let dampingSpike: Float
-            if t < 0.5 {
-                dampingSpike = 1.0 + (1.0 - t * 2.0) * 0.3 // Peak 1.3x at start
-            } else {
-                dampingSpike = 1.0 // Back to normal
-            }
-
-            return dampingSpike
-        }
-    }
-
-    /// Returns whether a micro-feedback animation is currently active.
-    var isMicroFeedbackActive: Bool {
-        microFeedbackActive
+    private func clamp01(_ x: Float) -> Float {
+        max(0, min(1, x))
     }
 }
 
-// MARK: - MeshResource Extensions
+// MARK: - Mesh
 
 extension MeshResource {
-    /// Generates a torus mesh (ring shape).
-    static func generateTorus(meanRadius: Float, tubeRadius: Float, segments: Int = 48, tubeSegments: Int = 24) -> MeshResource {
+    static func generateTorus(
+        meanRadius: Float,
+        tubeRadius: Float,
+        segments: Int = 48,
+        tubeSegments: Int = 24
+    ) -> MeshResource {
         var positions: [SIMD3<Float>] = []
         var normals: [SIMD3<Float>] = []
         var uvs: [SIMD2<Float>] = []
@@ -623,14 +393,12 @@ extension MeshResource {
                 let cosPhi = cos(phi)
                 let sinPhi = sin(phi)
 
-                // Position on torus surface
                 let x = (meanRadius + tubeRadius * cosPhi) * cosTheta
                 let y = tubeRadius * sinPhi
                 let z = (meanRadius + tubeRadius * cosPhi) * sinTheta
 
                 positions.append([x, y, z])
 
-                // Normal pointing outward from tube center
                 let nx = cosPhi * cosTheta
                 let ny = sinPhi
                 let nz = cosPhi * sinTheta
@@ -640,14 +408,12 @@ extension MeshResource {
             }
         }
 
-        // Generate triangle indices
         let tubeVertexCount = tubeSegments + 1
         for i in 0..<segments {
             for j in 0..<tubeSegments {
                 let current = UInt32(i * tubeVertexCount + j)
                 let next = UInt32((i + 1) * tubeVertexCount + j)
 
-                // Two triangles per quad
                 indices.append(contentsOf: [
                     current, next, current + 1,
                     next, next + 1, current + 1,
