@@ -312,6 +312,87 @@ final class FusionCoreScene {
         case .center: centerCore
         }
     }
+
+    // MARK: - Ring Rotation (Physics-Driven)
+
+    /// Base tilt rotations for the "magnetic levitation" aesthetic
+    private static let outerBaseTilt = simd_quatf(angle: .pi * 0.02, axis: [1, 0, 0])
+    private static let middleBaseTilt = simd_quatf(angle: -.pi * 0.015, axis: [0, 0, 1])
+    private static let innerBaseTilt = simd_quatf(angle: .pi * 0.01, axis: [0, 0, 1])
+
+    /// Applies physics-driven ring rotations.
+    /// - Parameter rotations: SIMD3 containing rotation angles for [outer, middle, inner] rings in radians
+    func applyRingRotations(_ rotations: SIMD3<Float>) {
+        // Outer ring: base tilt + spin
+        let outerSpin = simd_quatf(angle: rotations.x, axis: [0, 1, 0])
+        outerRing.transform.rotation = Self.outerBaseTilt * outerSpin
+
+        // Middle ring: base tilt + spin (counter-rotates for visual interest)
+        let middleSpin = simd_quatf(angle: -rotations.y, axis: [0, 1, 0])
+        middleRing.transform.rotation = Self.middleBaseTilt * middleSpin
+
+        // Inner ring: base tilt + spin
+        let innerSpin = simd_quatf(angle: rotations.z, axis: [0, 1, 0])
+        innerRing.transform.rotation = Self.innerBaseTilt * innerSpin
+    }
+
+    /// Applies precession wobble to the rings based on device tilt.
+    /// - Parameters:
+    ///   - pitch: Device pitch (forward/back tilt) in radians
+    ///   - roll: Device roll (left/right tilt) in radians
+    ///   - intensity: Wobble intensity multiplier (0.0 to 1.0)
+    func applyPrecessionWobble(pitch: Float, roll: Float, intensity: Float) {
+        let wobbleScale = intensity * 0.05 // Subtle effect
+
+        // Apply slight tilt to coil assembly based on device orientation
+        let wobbleRotation = simd_quatf(angle: pitch * wobbleScale, axis: [1, 0, 0])
+            * simd_quatf(angle: roll * wobbleScale, axis: [0, 0, 1])
+        coilAssembly.transform.rotation = wobbleRotation
+    }
+
+    // MARK: - Visual Feedback
+
+    /// Ping animation state
+    private struct PingState {
+        var isActive: Bool = false
+        var startTime: Date = .now
+        let duration: TimeInterval = 0.3
+    }
+
+    /// Triggers a brief "ping" visual effect on the coils.
+    /// Creates a quick brightness pulse that fades out.
+    func triggerCoilPing() {
+        // Immediate bright flash
+        updateCoilGlow(intensity: 1.5)
+
+        // Schedule fade back to normal (handled by update loop in FusionCoreView)
+        // The view will call resetCoilPing() after the animation completes
+    }
+
+    /// Resets coil glow after ping animation.
+    /// - Parameter baseIntensity: The normal glow intensity to return to
+    func resetCoilPing(to baseIntensity: Float) {
+        updateCoilGlow(intensity: baseIntensity)
+    }
+
+    /// Triggers a brief center core pulse effect.
+    func triggerCorePulse() {
+        // Flash the center light
+        if var light = centerLight.components[PointLightComponent.self] {
+            light.intensity = 2000
+            centerLight.components.set(light)
+        }
+
+        // Update center glow
+        updateCenterGlow(intensity: 1.2)
+    }
+
+    /// Resets center core after pulse animation.
+    /// - Parameter baseIntensity: The normal glow intensity to return to
+    func resetCorePulse(to baseIntensity: Float) {
+        updateCenterGlow(intensity: baseIntensity)
+        setLightIntensity(baseIntensity)
+    }
 }
 
 // MARK: - MeshResource Extensions

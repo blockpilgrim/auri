@@ -31,6 +31,8 @@
 		B1474001BBBBBBBB00474001 /* CoreComponent.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1474011BBBBBBBB00474011 /* CoreComponent.swift */; };
 		B1474002BBBBBBBB00474002 /* FusionCoreScene.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1474012BBBBBBBB00474012 /* FusionCoreScene.swift */; };
 		B1474003BBBBBBBB00474003 /* FusionCoreView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1474013BBBBBBBB00474013 /* FusionCoreView.swift */; };
+		B1475001BBBBBBBB00475001 /* SpinnerPhysics.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1475011BBBBBBBB00475011 /* SpinnerPhysics.swift */; };
+		B1475002BBBBBBBB00475002 /* MotionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1475012BBBBBBBB00475012 /* MotionManager.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -71,6 +73,8 @@
 		B1474011BBBBBBBB00474011 /* CoreComponent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreComponent.swift; sourceTree = "<group>"; };
 		B1474012BBBBBBBB00474012 /* FusionCoreScene.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FusionCoreScene.swift; sourceTree = "<group>"; };
 		B1474013BBBBBBBB00474013 /* FusionCoreView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FusionCoreView.swift; sourceTree = "<group>"; };
+		B1475011BBBBBBBB00475011 /* SpinnerPhysics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpinnerPhysics.swift; sourceTree = "<group>"; };
+		B1475012BBBBBBBB00475012 /* MotionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MotionManager.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -182,6 +186,8 @@
 				B1474011BBBBBBBB00474011 /* CoreComponent.swift */,
 				B1474012BBBBBBBB00474012 /* FusionCoreScene.swift */,
 				B1474013BBBBBBBB00474013 /* FusionCoreView.swift */,
+				B1475011BBBBBBBB00475011 /* SpinnerPhysics.swift */,
+				B1475012BBBBBBBB00475012 /* MotionManager.swift */,
 			);
 			path = 3D;
 			sourceTree = "<group>";
@@ -316,6 +322,8 @@
 				B1474001BBBBBBBB00474001 /* CoreComponent.swift in Sources */,
 				B1474002BBBBBBBB00474002 /* FusionCoreScene.swift in Sources */,
 				B1474003BBBBBBBB00474003 /* FusionCoreView.swift in Sources */,
+				B1475001BBBBBBBB00475001 /* SpinnerPhysics.swift in Sources */,
+				B1475002BBBBBBBB00475002 /* MotionManager.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
