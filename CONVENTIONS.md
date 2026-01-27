@@ -1287,3 +1287,106 @@ for ring in rings {
 - Avoids parallel arrays for entity-to-config mapping
 - Query-friendly: can iterate entities and access their configs
 - Type-safe: compiler ensures correct component usage
+
+---
+
+## Modular 3D Scene Architecture Pattern
+
+**When to use**: When building complex 3D scenes with multiple distinct visual systems.
+
+**Example**:
+```swift
+// Main scene orchestrator - owns all sub-systems
+@MainActor
+final class FusionCoreScene {
+    let rootEntity: Entity
+
+    private let reactorCore: ReactorCore      // Central energy field
+    private let spinnerRings: SpinnerRings    // Industrial spinning structure
+    private let particles: ParticleSystem     // Sparks, arcs, flashes
+
+    static func create() async -> FusionCoreScene {
+        let root = Entity()
+
+        let core = ReactorCore.create(unitScale: unitScale)
+        root.addChild(core.container)
+
+        let rings = SpinnerRings.create(unitScale: unitScale)
+        root.addChild(rings.container)
+
+        let particles = ParticleSystem(ringRadii: rings.ringRadii, unitScale: unitScale)
+        root.addChild(particles.container)
+
+        return FusionCoreScene(...)
+    }
+
+    func update(interpolator: StateInterpolator, ...) {
+        reactorCore.update(interpolator: interpolator, ...)
+        spinnerRings.update(interpolator: interpolator, ...)
+        particles.update(interpolator: interpolator, ...)
+    }
+}
+
+// Each sub-system manages its own Entity container
+@MainActor
+final class ReactorCore {
+    let container: Entity
+
+    static func create(unitScale: Float) -> ReactorCore {
+        let container = Entity()
+        // Build layer hierarchy...
+        return ReactorCore(container: container, ...)
+    }
+
+    func update(interpolator: StateInterpolator, ...) {
+        // Update internal entities
+    }
+}
+```
+
+**Why**:
+- Each visual system has a clear responsibility and API surface
+- Sub-systems can be developed and tested independently
+- StateInterpolator provides single source of truth for adherence-based parameters
+- Container entities allow clean hierarchy in scene graph
+- Factory methods (`create()`) encapsulate complex construction
+- Update methods accept interpolator for consistent state mapping
+
+---
+
+## Industrial 3D Geometry Pattern
+
+**When to use**: When creating machined/industrial-looking 3D objects.
+
+**Example**:
+```swift
+// Main body with brushed metal
+let body = ModelEntity(mesh: torusMesh, materials: [ringBodyMaterial(roughness: 0.35)])
+
+// Inner machined groove (smaller radius, darker)
+let innerGroove = ModelEntity(mesh: grooveMesh, materials: [grooveMaterial(roughness: 0.18)])
+
+// Outer machined groove
+let outerGroove = ModelEntity(mesh: outerGrooveMesh, materials: [grooveMaterial(roughness: 0.18)])
+
+// Segment dividers for turbine-blade look
+for i in 0..<segmentCount {
+    let angle = Float(i) / Float(segmentCount) * 2 * .pi
+    let segment = createSegmentDivider(radius: radius, angle: angle)
+    group.addChild(segment)
+}
+
+// Copper coil modules (offset from segments)
+for i in 0..<coilCount {
+    let angle = Float(i) / Float(coilCount) * 2 * .pi + offset
+    let coil = createCoilModule(radius: radius, angle: angle)
+    group.addChild(coil)
+}
+```
+
+**Why**:
+- Concentric grooves create machined precision feel
+- Segment dividers break up smooth torus into industrial sections
+- Coils offset from segments avoid visual collision
+- Different roughness values create material hierarchy (shiny grooves, matte body)
+- Smaller detail geometry (grooves, segments) uses higher roughness for contrast

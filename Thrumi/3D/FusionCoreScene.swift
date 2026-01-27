@@ -2,128 +2,103 @@ import RealityKit
 import UIKit
 import simd
 
+/// The Fusion Core 3D scene - a magnetically-levitated industrial fidget spinner
+/// inspired by arc reactor technology.
+///
+/// Design philosophy (per PRODUCT.md):
+/// - Machined precision plus alive glow
+/// - Materials: brushed palladium/steel, machined chamfers, exposed copper coils
+/// - Center: contained energy field (procedural glow)
+/// - Should feel like a functional power module, not a toy
 @MainActor
 final class FusionCoreScene {
-    static let unitScale: Float = 0.05
+    /// Unit scale converts design units to RealityKit meters.
+    /// All dimensions are authored at ~1.0 unit = full core radius.
+    static let unitScale: Float = 0.045
 
     let rootEntity: Entity
-    let particleManager: ParticleEffectsManager
+    let particleManager: ParticleSystem
 
-    private let glowLayers: CoreGlowLayers
+    private let reactorCore: ReactorCore
+    private let spinnerRings: SpinnerRings
     private let coreLight: Entity
-    private let coilLight: Entity
-
-    private struct RingSpec {
-        let innerRadius: Float
-        let outerRadius: Float
-        let direction: Float
-        let speedMultiplier: Float
-        let hasCoils: Bool
-        let coilCount: Int
-        let yOffset: Float
-    }
-
-    private struct RingNode {
-        let entity: Entity
-        let body: ModelEntity
-        let detail: [ModelEntity]
-        let coilGlows: [ModelEntity]
-        let direction: Float
-        let speedMultiplier: Float
-    }
-
-    private static let rings: [RingSpec] = [
-        RingSpec(innerRadius: 0.55, outerRadius: 0.70, direction: 1, speedMultiplier: 1.00, hasCoils: true, coilCount: 8, yOffset: 0.000),
-        RingSpec(innerRadius: 0.80, outerRadius: 0.95, direction: -1, speedMultiplier: 0.82, hasCoils: false, coilCount: 0, yOffset: 0.002),
-        RingSpec(innerRadius: 1.05, outerRadius: 1.25, direction: 1, speedMultiplier: 0.68, hasCoils: true, coilCount: 12, yOffset: -0.002),
-        RingSpec(innerRadius: 1.35, outerRadius: 1.50, direction: -1, speedMultiplier: 0.54, hasCoils: false, coilCount: 0, yOffset: 0.004),
-        RingSpec(innerRadius: 1.60, outerRadius: 1.80, direction: 1, speedMultiplier: 0.40, hasCoils: false, coilCount: 0, yOffset: -0.004),
-    ]
-
-    private var ringNodes: [RingNode]
-    private var coilGlowEntities: [ModelEntity]
-    private var lastRingRoughness: Float = -1
+    private let rimLight: Entity
 
     private init(
         rootEntity: Entity,
-        glowLayers: CoreGlowLayers,
-        ringNodes: [RingNode],
-        coilGlowEntities: [ModelEntity],
-        particleManager: ParticleEffectsManager,
+        reactorCore: ReactorCore,
+        spinnerRings: SpinnerRings,
+        particleManager: ParticleSystem,
         coreLight: Entity,
-        coilLight: Entity
+        rimLight: Entity
     ) {
         self.rootEntity = rootEntity
-        self.glowLayers = glowLayers
-        self.ringNodes = ringNodes
-        self.coilGlowEntities = coilGlowEntities
+        self.reactorCore = reactorCore
+        self.spinnerRings = spinnerRings
         self.particleManager = particleManager
         self.coreLight = coreLight
-        self.coilLight = coilLight
+        self.rimLight = rimLight
     }
+
+    // MARK: - Factory
 
     static func create() async -> FusionCoreScene {
         let root = Entity()
         root.name = "FusionCore"
 
-        // Hero scale for UI presentation (RealityKit units are meters).
-        // Tuned so the spinner reads large and central in the HUD.
-        root.scale = SIMD3<Float>(repeating: 4.5)
+        // Scale and position for hero presentation.
+        // RealityKit uses meters; we position the core in front of the default camera.
+        root.scale = SIMD3<Float>(repeating: 5.0)
+        root.position = [0, -0.04, -0.28]
 
-        // Place the spinner in front of the default camera.
-        // RealityKit units are meters; bring the scene closer so it reads at "hero" size.
-        root.position = [0, -0.05, -0.25]
-        // Simulate a fixed camera pitched down ~65° by pitching the scene up.
-        let pitch: Float = 65.0 * .pi / 180.0
+        // Pitch the scene to simulate a fixed camera looking down at ~60°.
+        let pitch: Float = 60.0 * .pi / 180.0
         root.transform.rotation = simd_quatf(angle: pitch, axis: [1, 0, 0])
 
-        let glow = CoreGlowLayers.create(unitScale: unitScale)
-        root.addChild(glow.container)
+        // Build the reactor core (central energy field).
+        let core = ReactorCore.create(unitScale: unitScale)
+        root.addChild(core.container)
 
-        var nodes: [RingNode] = []
-        var coilGlows: [ModelEntity] = []
+        // Build the spinning rings (industrial structure).
+        let rings = SpinnerRings.create(unitScale: unitScale)
+        root.addChild(rings.container)
 
-        for (index, spec) in rings.enumerated() {
-            let ring = createRing(spec: spec, unitScale: unitScale, name: "Ring\(index + 1)")
-            nodes.append(ring)
-            coilGlows.append(contentsOf: ring.coilGlows)
-            root.addChild(ring.entity)
-        }
-
+        // Create lighting.
         let coreLight = createPointLight(
             name: "CoreLight",
             color: CoreColors.coreTeal,
-            baseLumens: 1500,
-            attenuationRadius: 0.60,
+            intensity: 2000,
+            attenuationRadius: 0.5,
             position: [0, 0, 0]
         )
 
-        let coilLight = createPointLight(
-            name: "CoilLight",
+        let rimLight = createPointLight(
+            name: "RimLight",
             color: CoreColors.coilGlow,
-            baseLumens: 900,
-            attenuationRadius: 0.40,
-            position: [0, 0, 0]
+            intensity: 800,
+            attenuationRadius: 0.35,
+            position: [0, 0.02, 0]
         )
 
         root.addChild(coreLight)
-        root.addChild(coilLight)
-        root.addChild(createDirectionalFillLight())
+        root.addChild(rimLight)
+        root.addChild(createFillLight())
 
-        let meanRadii = rings.map { (($0.innerRadius + $0.outerRadius) * 0.5) * unitScale }
-        let particles = ParticleEffectsManager(ringRadii: meanRadii)
+        // Create particle system.
+        let particles = ParticleSystem(ringRadii: rings.ringRadii, unitScale: unitScale)
         root.addChild(particles.container)
 
         return FusionCoreScene(
             rootEntity: root,
-            glowLayers: glow,
-            ringNodes: nodes,
-            coilGlowEntities: coilGlows,
+            reactorCore: core,
+            spinnerRings: rings,
             particleManager: particles,
             coreLight: coreLight,
-            coilLight: coilLight
+            rimLight: rimLight
         )
     }
+
+    // MARK: - Update
 
     func update(
         interpolator: StateInterpolator,
@@ -135,226 +110,92 @@ final class FusionCoreScene {
         thermalParticleMultiplier: Float,
         showParticles: Bool
     ) {
-        glowLayers.update(
+        // Update reactor core glow.
+        reactorCore.update(
             interpolator: interpolator,
             pulse: pulse,
             deltaTime: deltaTime,
             bloomMultiplier: bloomMultiplier
         )
 
-        updateRingTransforms(spinAngle: spinAngle)
-        updateRingMaterialsIfNeeded(interpolator: interpolator)
-        updateCoilGlow(interpolator: interpolator, pulse: pulse)
+        // Update spinning rings.
+        spinnerRings.update(
+            spinAngle: spinAngle,
+            interpolator: interpolator,
+            pulse: pulse,
+            deltaTime: deltaTime
+        )
+
+        // Update lights.
         updateLights(interpolator: interpolator, pulse: pulse)
 
+        // Update particles.
         particleManager.update(
             interpolator: interpolator,
             deltaTime: deltaTime,
             currentTime: currentTime,
-            thermalParticleMultiplier: thermalParticleMultiplier,
-            showParticles: showParticles
+            thermalMultiplier: thermalParticleMultiplier,
+            enabled: showParticles
         )
     }
 
-    private func updateRingTransforms(spinAngle: Float) {
-        for ring in ringNodes {
-            let angle = spinAngle * ring.speedMultiplier * ring.direction
-            ring.entity.transform.rotation = simd_quatf(angle: angle, axis: [0, 1, 0])
-        }
-    }
-
-    private func updateRingMaterialsIfNeeded(interpolator: StateInterpolator) {
-        let roughness = interpolator.ringRoughness
-        guard abs(roughness - lastRingRoughness) > 0.002 else { return }
-        lastRingRoughness = roughness
-
-        for ring in ringNodes {
-            ring.body.model?.materials = [makeRingBodyMaterial(roughness: roughness)]
-            for detail in ring.detail {
-                detail.model?.materials = [makeRingDetailMaterial(roughness: max(0.12, roughness - 0.10))]
-            }
-        }
-    }
-
-    private func updateCoilGlow(interpolator: StateInterpolator, pulse: MultiFrequencyPulse.PulseValues) {
-        let base = interpolator.coilGlowIntensity
-        let pulsed = clamp01(base * (1.0 + pulse.primary * 0.8 + pulse.fast * 0.35 + pulse.ultraFast * 0.25))
-        let alpha = clamp01(0.15 + pulsed * 0.85)
-
-        var glowMaterial = UnlitMaterial()
-        glowMaterial.color = .init(tint: CoreColors.withAlpha(CoreColors.coilGlow, alpha))
-        glowMaterial.blending = .transparent(opacity: .init(floatLiteral: alpha))
-
-        for glow in coilGlowEntities {
-            glow.model?.materials = [glowMaterial]
-        }
-    }
+    // MARK: - Lighting
 
     private func updateLights(interpolator: StateInterpolator, pulse: MultiFrequencyPulse.PulseValues) {
-        let lightPulse = 1.0 + pulse.primary * 0.5
+        let lightPulse = 1.0 + pulse.primary * 0.4 + pulse.fast * 0.15
 
-        if var core = coreLight.components[PointLightComponent.self] {
-            core.intensity = 1500 * interpolator.coreLightIntensity * lightPulse
-            core.attenuationRadius = lerp(0.30, 0.70, interpolator.adherence)
-            coreLight.components.set(core)
+        if var light = coreLight.components[PointLightComponent.self] {
+            light.intensity = 2000 * interpolator.coreLightIntensity * lightPulse
+            light.attenuationRadius = lerp(0.25, 0.55, interpolator.adherence)
+            coreLight.components.set(light)
         }
 
-        if var coil = coilLight.components[PointLightComponent.self] {
-            coil.intensity = 900 * interpolator.coilLightIntensity * (1.0 + pulse.fast * 0.35)
-            coil.attenuationRadius = lerp(0.22, 0.50, interpolator.adherence)
-            coilLight.components.set(coil)
+        if var light = rimLight.components[PointLightComponent.self] {
+            light.intensity = 800 * interpolator.coilLightIntensity * (1.0 + pulse.fast * 0.25)
+            light.attenuationRadius = lerp(0.18, 0.40, interpolator.adherence)
+            rimLight.components.set(light)
         }
     }
 
-    private static func createRing(spec: RingSpec, unitScale: Float, name: String) -> RingNode {
-        let group = Entity()
-        group.name = name
-
-        let midRadius = ((spec.innerRadius + spec.outerRadius) * 0.5) * unitScale
-        let tubeRadius = ((spec.outerRadius - spec.innerRadius) * 0.5) * unitScale
-
-        let bodyMesh = MeshResource.generateTorus(meanRadius: midRadius, tubeRadius: tubeRadius, segments: 96, tubeSegments: 18)
-        let body = ModelEntity(mesh: bodyMesh, materials: [makeRingBodyMaterial(roughness: 0.35)])
-        body.name = "Body"
-        group.addChild(body)
-
-        // Machined details (groove bands)
-        let grooveA = ModelEntity(
-            mesh: MeshResource.generateTorus(meanRadius: midRadius - tubeRadius * 0.25, tubeRadius: max(0.0005, tubeRadius * 0.18), segments: 80, tubeSegments: 14),
-            materials: [makeRingDetailMaterial(roughness: 0.22)]
-        )
-        grooveA.name = "GrooveA"
-        group.addChild(grooveA)
-
-        let grooveB = ModelEntity(
-            mesh: MeshResource.generateTorus(meanRadius: midRadius + tubeRadius * 0.28, tubeRadius: max(0.0005, tubeRadius * 0.14), segments: 80, tubeSegments: 14),
-            materials: [makeRingDetailMaterial(roughness: 0.22)]
-        )
-        grooveB.name = "GrooveB"
-        group.addChild(grooveB)
-
-        group.position.y = spec.yOffset
-
-        var coilGlows: [ModelEntity] = []
-        if spec.hasCoils {
-            let coilGroup = createCoils(radius: midRadius, tubeRadius: tubeRadius, count: spec.coilCount)
-            group.addChild(coilGroup.group)
-            coilGlows = coilGroup.glowStrips
-        }
-
-        return RingNode(
-            entity: group,
-            body: body,
-            detail: [grooveA, grooveB],
-            coilGlows: coilGlows,
-            direction: spec.direction,
-            speedMultiplier: spec.speedMultiplier
-        )
-    }
-
-    private static func createCoils(radius: Float, tubeRadius: Float, count: Int) -> (group: Entity, glowStrips: [ModelEntity]) {
-        let group = Entity()
-        group.name = "Coils"
-
-        let baseW = max(0.002, tubeRadius * 1.10)
-        let baseH = max(0.0015, tubeRadius * 0.60)
-        let baseD = max(0.002, tubeRadius * 0.90)
-
-        let glowW = baseW * 0.80
-        let glowH = baseH * 0.55
-        let glowD = baseD * 0.65
-
-        let baseMesh = MeshResource.generateBox(width: baseW, height: baseH, depth: baseD)
-        let glowMesh = MeshResource.generateBox(width: glowW, height: glowH, depth: glowD)
-
-        var baseMaterial = PhysicallyBasedMaterial()
-        baseMaterial.baseColor = .init(tint: CoreColors.copperBase)
-        baseMaterial.metallic = .init(floatLiteral: 0.85)
-        baseMaterial.roughness = .init(floatLiteral: 0.35)
-
-        var glowMaterial = UnlitMaterial()
-        glowMaterial.color = .init(tint: CoreColors.withAlpha(CoreColors.coilGlow, 0.25))
-        glowMaterial.blending = .transparent(opacity: 0.25)
-
-        var glows: [ModelEntity] = []
-
-        for i in 0..<max(1, count) {
-            let angle = Float(i) / Float(max(1, count)) * 2 * .pi
-            let radial = SIMD3<Float>(cos(angle), 0, sin(angle))
-
-            let base = ModelEntity(mesh: baseMesh, materials: [baseMaterial])
-            base.name = "CoilBase"
-            base.position = radial * (radius + tubeRadius * 0.55) + SIMD3<Float>(0, tubeRadius * 0.18, 0)
-            base.transform.rotation = simd_quatf(angle: angle, axis: [0, 1, 0])
-            group.addChild(base)
-
-            let glow = ModelEntity(mesh: glowMesh, materials: [glowMaterial])
-            glow.name = "CoilGlow"
-            glow.position = base.position
-            glow.transform.rotation = base.transform.rotation
-            group.addChild(glow)
-            glows.append(glow)
-        }
-
-        return (group: group, glowStrips: glows)
-    }
+    // MARK: - Light Creation
 
     private static func createPointLight(
         name: String,
         color: UIColor,
-        baseLumens: Float,
+        intensity: Float,
         attenuationRadius: Float,
         position: SIMD3<Float>
     ) -> Entity {
-        let lightEntity = Entity()
-        lightEntity.name = name
-        lightEntity.position = position
+        let entity = Entity()
+        entity.name = name
+        entity.position = position
 
         var light = PointLightComponent()
         light.color = .init(cgColor: color.cgColor)
-        light.intensity = baseLumens
+        light.intensity = intensity
         light.attenuationRadius = attenuationRadius
-        lightEntity.components.set(light)
+        entity.components.set(light)
 
-        return lightEntity
+        return entity
     }
 
-    private static func createDirectionalFillLight() -> Entity {
-        let lightEntity = Entity()
-        lightEntity.name = "FillLight"
+    private static func createFillLight() -> Entity {
+        let entity = Entity()
+        entity.name = "FillLight"
 
         var light = DirectionalLightComponent()
-        light.color = .init(white: 0.95, alpha: 1.0)
-        light.intensity = 650
-        lightEntity.components.set(light)
+        light.color = .init(white: 0.92, alpha: 1.0)
+        light.intensity = 500
+        entity.components.set(light)
 
-        lightEntity.transform.rotation = simd_quatf(angle: -.pi / 3.2, axis: [1, 0, 0]) * simd_quatf(angle: .pi / 8, axis: [0, 1, 0])
-        return lightEntity
+        // Angle from upper-front.
+        entity.transform.rotation = simd_quatf(angle: -.pi / 3.5, axis: [1, 0, 0])
+            * simd_quatf(angle: .pi / 7, axis: [0, 1, 0])
+
+        return entity
     }
 
-    private static func makeRingBodyMaterial(roughness: Float) -> PhysicallyBasedMaterial {
-        var material = PhysicallyBasedMaterial()
-        material.baseColor = .init(tint: UIColor(red: 0.54, green: 0.61, blue: 0.66, alpha: 1.0))
-        material.metallic = .init(floatLiteral: 0.92)
-        material.roughness = .init(floatLiteral: max(0.05, min(1, roughness)))
-        return material
-    }
-
-    private static func makeRingDetailMaterial(roughness: Float) -> PhysicallyBasedMaterial {
-        var material = PhysicallyBasedMaterial()
-        material.baseColor = .init(tint: UIColor(red: 0.18, green: 0.22, blue: 0.28, alpha: 1.0))
-        material.metallic = .init(floatLiteral: 0.95)
-        material.roughness = .init(floatLiteral: max(0.05, min(1, roughness)))
-        return material
-    }
-
-    private func makeRingBodyMaterial(roughness: Float) -> PhysicallyBasedMaterial {
-        Self.makeRingBodyMaterial(roughness: roughness)
-    }
-
-    private func makeRingDetailMaterial(roughness: Float) -> PhysicallyBasedMaterial {
-        Self.makeRingDetailMaterial(roughness: roughness)
-    }
+    // MARK: - Utilities
 
     private func lerp(_ a: Float, _ b: Float, _ t: Float) -> Float {
         a + (b - a) * clamp01(t)
@@ -362,71 +203,5 @@ final class FusionCoreScene {
 
     private func clamp01(_ x: Float) -> Float {
         max(0, min(1, x))
-    }
-}
-
-// MARK: - Mesh
-
-extension MeshResource {
-    static func generateTorus(
-        meanRadius: Float,
-        tubeRadius: Float,
-        segments: Int = 48,
-        tubeSegments: Int = 24
-    ) -> MeshResource {
-        var positions: [SIMD3<Float>] = []
-        var normals: [SIMD3<Float>] = []
-        var uvs: [SIMD2<Float>] = []
-        var indices: [UInt32] = []
-
-        for i in 0...segments {
-            let u = Float(i) / Float(segments)
-            let theta = u * 2 * .pi
-
-            let cosTheta = cos(theta)
-            let sinTheta = sin(theta)
-
-            for j in 0...tubeSegments {
-                let v = Float(j) / Float(tubeSegments)
-                let phi = v * 2 * .pi
-
-                let cosPhi = cos(phi)
-                let sinPhi = sin(phi)
-
-                let x = (meanRadius + tubeRadius * cosPhi) * cosTheta
-                let y = tubeRadius * sinPhi
-                let z = (meanRadius + tubeRadius * cosPhi) * sinTheta
-
-                positions.append([x, y, z])
-
-                let nx = cosPhi * cosTheta
-                let ny = sinPhi
-                let nz = cosPhi * sinTheta
-                normals.append(normalize([nx, ny, nz]))
-
-                uvs.append([u, v])
-            }
-        }
-
-        let tubeVertexCount = tubeSegments + 1
-        for i in 0..<segments {
-            for j in 0..<tubeSegments {
-                let current = UInt32(i * tubeVertexCount + j)
-                let next = UInt32((i + 1) * tubeVertexCount + j)
-
-                indices.append(contentsOf: [
-                    current, next, current + 1,
-                    next, next + 1, current + 1,
-                ])
-            }
-        }
-
-        var descriptor = MeshDescriptor()
-        descriptor.positions = MeshBuffer(positions)
-        descriptor.normals = MeshBuffer(normals)
-        descriptor.textureCoordinates = MeshBuffer(uvs)
-        descriptor.primitives = .triangles(indices)
-
-        return try! MeshResource.generate(from: [descriptor])
     }
 }
