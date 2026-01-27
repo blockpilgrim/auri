@@ -42,6 +42,13 @@
 		B1478001BBBBBBBB00478001 /* CoreHUD.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1478011BBBBBBBB00478011 /* CoreHUD.swift */; };
 		B1478002BBBBBBBB00478002 /* CoreTooltip.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1478012BBBBBBBB00478012 /* CoreTooltip.swift */; };
 		B1478003BBBBBBBB00478003 /* DataViewButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1478013BBBBBBBB00478013 /* DataViewButton.swift */; };
+		B1479001BBBBBBBB00479001 /* MetricCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1479011BBBBBBBB00479011 /* MetricCard.swift */; };
+		B1479002BBBBBBBB00479002 /* MetricsSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1479012BBBBBBBB00479012 /* MetricsSection.swift */; };
+		B1479003BBBBBBBB00479003 /* EmptyHistoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1479013BBBBBBBB00479013 /* EmptyHistoryView.swift */; };
+		B1479004BBBBBBBB00479004 /* MealThumbnail.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1479014BBBBBBBB00479014 /* MealThumbnail.swift */; };
+		B1479005BBBBBBBB00479005 /* MealRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1479015BBBBBBBB00479015 /* MealRow.swift */; };
+		B1479006BBBBBBBB00479006 /* DaySection.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1479016BBBBBBBB00479016 /* DaySection.swift */; };
+		B1479007BBBBBBBB00479007 /* MealHistorySection.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1479017BBBBBBBB00479017 /* MealHistorySection.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -93,6 +100,13 @@
 		B1478011BBBBBBBB00478011 /* CoreHUD.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreHUD.swift; sourceTree = "<group>"; };
 		B1478012BBBBBBBB00478012 /* CoreTooltip.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreTooltip.swift; sourceTree = "<group>"; };
 		B1478013BBBBBBBB00478013 /* DataViewButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataViewButton.swift; sourceTree = "<group>"; };
+		B1479011BBBBBBBB00479011 /* MetricCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MetricCard.swift; sourceTree = "<group>"; };
+		B1479012BBBBBBBB00479012 /* MetricsSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MetricsSection.swift; sourceTree = "<group>"; };
+		B1479013BBBBBBBB00479013 /* EmptyHistoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmptyHistoryView.swift; sourceTree = "<group>"; };
+		B1479014BBBBBBBB00479014 /* MealThumbnail.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MealThumbnail.swift; sourceTree = "<group>"; };
+		B1479015BBBBBBBB00479015 /* MealRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MealRow.swift; sourceTree = "<group>"; };
+		B1479016BBBBBBBB00479016 /* DaySection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DaySection.swift; sourceTree = "<group>"; };
+		B1479017BBBBBBBB00479017 /* MealHistorySection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MealHistorySection.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -183,6 +197,13 @@
 				B1478011BBBBBBBB00478011 /* CoreHUD.swift */,
 				B1478012BBBBBBBB00478012 /* CoreTooltip.swift */,
 				B1478013BBBBBBBB00478013 /* DataViewButton.swift */,
+				B1479016BBBBBBBB00479016 /* DaySection.swift */,
+				B1479013BBBBBBBB00479013 /* EmptyHistoryView.swift */,
+				B1479017BBBBBBBB00479017 /* MealHistorySection.swift */,
+				B1479015BBBBBBBB00479015 /* MealRow.swift */,
+				B1479014BBBBBBBB00479014 /* MealThumbnail.swift */,
+				B1479011BBBBBBBB00479011 /* MetricCard.swift */,
+				B1479012BBBBBBBB00479012 /* MetricsSection.swift */,
 				B1477012BBBBBBBB00477012 /* PhotoCaptureSection.swift */,
 				B1477013BBBBBBBB00477013 /* TextEntrySection.swift */,
 				B1477014BBBBBBBB00477014 /* TrackingButtons.swift */,
@@ -368,6 +389,13 @@
 				B1478001BBBBBBBB00478001 /* CoreHUD.swift in Sources */,
 				B1478002BBBBBBBB00478002 /* CoreTooltip.swift in Sources */,
 				B1478003BBBBBBBB00478003 /* DataViewButton.swift in Sources */,
+				B1479001BBBBBBBB00479001 /* MetricCard.swift in Sources */,
+				B1479002BBBBBBBB00479002 /* MetricsSection.swift in Sources */,
+				B1479003BBBBBBBB00479003 /* EmptyHistoryView.swift in Sources */,
+				B1479004BBBBBBBB00479004 /* MealThumbnail.swift in Sources */,
+				B1479005BBBBBBBB00479005 /* MealRow.swift in Sources */,
+				B1479006BBBBBBBB00479006 /* DaySection.swift in Sources */,
+				B1479007BBBBBBBB00479007 /* MealHistorySection.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

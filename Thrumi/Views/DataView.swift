@@ -1,32 +1,25 @@
 import SwiftUI
-import UIKit
 
 struct DataView: View {
+    @Environment(\.mealService) private var mealService
+    @Environment(\.adherenceEngine) private var adherenceEngine
     @Environment(\.dismiss) private var dismiss
 
     var body: some View {
         NavigationStack {
-            VStack(spacing: 24) {
-                Image(systemName: "chart.bar.fill")
-                    .font(.system(size: 60))
-                    .foregroundStyle(.secondary)
+            ScrollView {
+                VStack(spacing: 24) {
+                    MetricsSection(state: adherenceEngine?.state)
 
-                Text("Data View")
-                    .font(.title2)
-                    .fontWeight(.medium)
-
-                Text("Adherence metrics and meal history will be displayed here")
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
-                    .multilineTextAlignment(.center)
-                    .padding(.horizontal)
+                    MealHistorySection(mealService: mealService)
+                }
+                .padding()
             }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(Color(uiColor: .systemGroupedBackground))
-            .navigationTitle("Your Progress")
+            .navigationTitle("Data")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
+                ToolbarItem(placement: .topBarTrailing) {
                     Button("Done") {
                         dismiss()
                     }

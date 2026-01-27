@@ -54,6 +54,18 @@ final class MealService {
         }
     }
 
+    func getAllMeals() -> [Meal] {
+        let descriptor = FetchDescriptor<Meal>(
+            sortBy: [SortDescriptor(\.timestamp, order: .reverse)]
+        )
+
+        do {
+            return try modelContext.fetch(descriptor)
+        } catch {
+            return []
+        }
+    }
+
     // MARK: - Photo Management
 
     func savePhoto(_ image: UIImage, for mealId: UUID) throws -> String {
