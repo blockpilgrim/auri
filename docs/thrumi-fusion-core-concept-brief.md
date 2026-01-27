@@ -292,18 +292,6 @@ Users select a goal during onboarding to contextualize “on track.”
 | Fusion Core | full visual + interaction spectrum |
 | Meal history | daily list, on/off markers |
 
-### Premium (Optional)
-
-Everything in Free, plus:
-
-| Feature | Details |
-|---|---|
-| AI estimates | calories + protein via photo |
-| Targets | optional caloric target |
-| Insights | trends and summaries |
-
-Premium should add precision without changing the emotional center.
-
 ---
 
 ## 13. Information Architecture
@@ -412,7 +400,3 @@ Target: under 60 seconds to first meaningful interaction.
 | **Past 30 Days** | rolling 30-day adherence ratio |
 | **Core adherence** | blended value that drives the Core’s visual + physical state |
 | **Phase-Locked** | peak state where the Core feels perfectly stable and coherent |
-
----
-
-*End of Document*
