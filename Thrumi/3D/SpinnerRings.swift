@@ -298,21 +298,22 @@ final class SpinnerRings {
 
     private func updateCoilGlow(interpolator: StateInterpolator, pulse: MultiFrequencyPulse.PulseValues) {
         let baseIntensity = interpolator.coilGlowIntensity
-        let pulsed = clamp01(baseIntensity * (1.0 + pulse.primary * 0.6 + pulse.fast * 0.25))
+        // Boosted pulse response for more dramatic glow.
+        let pulsed = clamp01(baseIntensity * (1.0 + pulse.primary * 0.9 + pulse.fast * 0.4))
 
-        // Blend copper toward orange glow.
-        let glowStrength = pulsed * 0.4
+        // Blend copper toward orange glow - more aggressive blending.
+        let glowStrength = pulsed * 0.6
         let baseColor = CoreColors.copperBase
         let glowColor = CoreColors.blend(baseColor, CoreColors.coilGlow, t: glowStrength)
 
         var material = PhysicallyBasedMaterial()
         material.baseColor = .init(tint: glowColor)
         material.metallic = .init(floatLiteral: 0.88)
-        material.roughness = .init(floatLiteral: lerp(0.35, 0.22, pulsed))
-        // Add emissive glow at higher adherence.
-        if pulsed > 0.3 {
-            material.emissiveColor = .init(color: CoreColors.withAlpha(CoreColors.coilGlow, pulsed * 0.5))
-            material.emissiveIntensity = pulsed * 0.6
+        material.roughness = .init(floatLiteral: lerp(0.32, 0.18, pulsed))
+        // Add emissive glow at lower threshold for more dramatic effect.
+        if pulsed > 0.15 {
+            material.emissiveColor = .init(color: CoreColors.withAlpha(CoreColors.coilGlow, pulsed * 0.75))
+            material.emissiveIntensity = pulsed * 1.2
         }
 
         for coil in coilEntities {

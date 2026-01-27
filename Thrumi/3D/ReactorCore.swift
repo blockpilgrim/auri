@@ -170,72 +170,72 @@ final class ReactorCore {
         atmosphere.isEnabled = interpolator.showAtmosphere
         fieldLayer2.isEnabled = interpolator.showEnergyField2
 
-        // Plasma center - always hot, shimmers with fast pulse.
+        // Plasma center - always hot, shimmers with fast pulse. Boosted for more glow.
         updateLayer(
             plasmaCenter,
             color: CoreColors.whiteHot,
-            opacity: clamp01(1.0 * (0.7 + 0.3 * glow) * (1.0 + fast * 0.6 + ultra * 0.3)),
-            scale: lerp(0.9, 1.15, glow) * (1.0 + fast * 0.08)
+            opacity: clamp01(1.0 * (0.8 + 0.2 * glow) * (1.0 + fast * 0.8 + ultra * 0.4)),
+            scale: lerp(1.0, 1.35, glow) * (1.0 + fast * 0.12)
         )
 
-        // Inner containment - bright, shifts color at high adherence.
+        // Inner containment - bright, shifts color at high adherence. Boosted.
         let innerColor = interpolator.innerCoreColor
         updateLayer(
             innerContainment,
             color: innerColor,
-            opacity: clamp01(0.85 * glow * (1.0 + primary * 0.5 + fast * 0.2)),
-            scale: lerp(0.95, 1.08, glow) * (1.0 + primary * 0.04)
+            opacity: clamp01(0.95 * glow * (1.0 + primary * 0.7 + fast * 0.3)),
+            scale: lerp(1.0, 1.2, glow) * (1.0 + primary * 0.06)
         )
 
-        // Outer containment - slower breathing.
+        // Outer containment - slower breathing. Boosted opacity.
         updateLayer(
             outerContainment,
             color: CoreColors.coreTeal,
-            opacity: clamp01(0.55 * glow * (1.0 + primary * 0.6)),
-            scale: lerp(1.0, 1.25, glow) * (1.0 + primary * 0.05)
+            opacity: clamp01(0.70 * glow * (1.0 + primary * 0.8)),
+            scale: lerp(1.0, 1.35, glow) * (1.0 + primary * 0.07)
         )
 
-        // Energy toroid - spins fast.
-        toroidAngle = wrap(toroidAngle + deltaTime * lerp(1.2, 3.5, adherence))
+        // Energy toroid - spins fast. Boosted.
+        toroidAngle = wrap(toroidAngle + deltaTime * lerp(1.5, 4.5, adherence))
         energyToroid.transform.rotation = simd_quatf(angle: toroidAngle, axis: [0, 1, 0])
         updateLayer(
             energyToroid,
             color: CoreColors.coreTeal,
-            opacity: clamp01(0.75 * glow * (1.0 + primary * 0.7 + fast * 0.2)),
-            scale: lerp(0.95, 1.08, glow) * (1.0 + primary * 0.03)
+            opacity: clamp01(0.88 * glow * (1.0 + primary * 0.9 + fast * 0.3)),
+            scale: lerp(1.0, 1.18, glow) * (1.0 + primary * 0.05)
         )
 
-        // Field layer 1 - slow tilt rotation.
+        // Field layer 1 - slow tilt rotation. Boosted opacity.
         if fieldLayer1.isEnabled {
-            field1Angle = wrap(field1Angle + deltaTime * lerp(0.2, 0.5, adherence))
+            field1Angle = wrap(field1Angle + deltaTime * lerp(0.25, 0.6, adherence))
             fieldLayer1.transform.rotation = simd_quatf(angle: field1Angle, axis: [0, 1, 0]) * field1Tilt
             updateLayer(
                 fieldLayer1,
+                color: CoreColors.coreTeal,
+                opacity: clamp01(0.35 * glow * (1.0 + primary * 0.4)),
+                scale: 1.0
+            )
+        }
+
+        // Field layer 2 - counter-rotation. Boosted opacity.
+        if fieldLayer2.isEnabled {
+            field2Angle = wrap(field2Angle - deltaTime * lerp(0.2, 0.5, adherence))
+            fieldLayer2.transform.rotation = simd_quatf(angle: field2Angle, axis: [0, 1, 0]) * field2Tilt
+            updateLayer(
+                fieldLayer2,
                 color: CoreColors.coreTeal,
                 opacity: clamp01(0.22 * glow * (1.0 + primary * 0.3)),
                 scale: 1.0
             )
         }
 
-        // Field layer 2 - counter-rotation.
-        if fieldLayer2.isEnabled {
-            field2Angle = wrap(field2Angle - deltaTime * lerp(0.15, 0.4, adherence))
-            fieldLayer2.transform.rotation = simd_quatf(angle: field2Angle, axis: [0, 1, 0]) * field2Tilt
-            updateLayer(
-                fieldLayer2,
-                color: CoreColors.coreTeal,
-                opacity: clamp01(0.12 * glow * (1.0 + primary * 0.2)),
-                scale: 1.0
-            )
-        }
-
-        // Atmosphere - subtle outer halo.
+        // Atmosphere - outer halo. Boosted for more dramatic bloom.
         if atmosphere.isEnabled {
             updateLayer(
                 atmosphere,
                 color: CoreColors.coreTeal,
-                opacity: clamp01(0.06 * glow),
-                scale: lerp(1.0, 1.4, glow)
+                opacity: clamp01(0.12 * glow),
+                scale: lerp(1.0, 1.6, glow)
             )
         }
     }

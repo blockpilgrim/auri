@@ -13,20 +13,21 @@ final class StateInterpolator {
 
     // MARK: - Visual
 
-    /// Bloom strength: 0% = 0.3, 50% = 1.0, 100% = 1.8
+    /// Bloom strength: 0% = 0.5, 50% = 1.4, 100% = 2.5 (boosted for more glow).
     var bloomStrength: Float {
-        piecewiseLerp(x: adherence, xMid: 0.5, y0: 0.3, yMid: 1.0, y1: 1.8)
+        piecewiseLerp(x: adherence, xMid: 0.5, y0: 0.5, yMid: 1.4, y1: 2.5)
     }
 
-    /// Pulse amplitude: 0% = 0.06, 50% = 0.20, 100% = 0.40
+    /// Pulse amplitude: 0% = 0.08, 50% = 0.28, 100% = 0.55 (boosted for more dramatic pulse).
     var pulseAmplitude: Float {
-        piecewiseLerp(x: adherence, xMid: 0.5, y0: 0.06, yMid: 0.20, y1: 0.40)
+        piecewiseLerp(x: adherence, xMid: 0.5, y0: 0.08, yMid: 0.28, y1: 0.55)
     }
 
     /// Overall core glow multiplier (used to scale layer opacity/size).
     var glowMultiplier: Float {
         // Keep Safe Mode elegant, but dramatically scale at high adherence.
-        lerp(0.55, 1.35, bloomStrength / 1.8)
+        // Boosted range for more dramatic glow.
+        lerp(0.65, 1.6, bloomStrength / 2.5)
     }
 
     /// At 80%+ adherence, inner core shifts toward white (max 30% at 100%).
@@ -39,21 +40,21 @@ final class StateInterpolator {
         piecewiseLerp(x: adherence, xMid: 0.5, y0: 0.55, yMid: 0.30, y1: 0.18)
     }
 
-    /// Coil glow intensity multiplier.
+    /// Coil glow intensity multiplier (boosted for more dramatic effect).
     var coilGlowIntensity: Float {
-        piecewiseLerp(x: adherence, xMid: 0.5, y0: 0.10, yMid: 0.45, y1: 1.00)
+        piecewiseLerp(x: adherence, xMid: 0.5, y0: 0.20, yMid: 0.60, y1: 1.25)
     }
 
     // MARK: - Lights
 
-    /// Core point light intensity: 1.0 at 0% → 5.0 at 100%
+    /// Core point light intensity: 1.5 at 0% → 8.0 at 100% (boosted for more glow).
     var coreLightIntensity: Float {
-        lerp(1.0, 5.0, adherence)
+        lerp(1.5, 8.0, adherence)
     }
 
-    /// Coil point light intensity: 0.3 at 0% → 1.5 at 100%
+    /// Coil point light intensity: 0.5 at 0% → 2.5 at 100% (boosted for more glow).
     var coilLightIntensity: Float {
-        lerp(0.3, 1.5, adherence)
+        lerp(0.5, 2.5, adherence)
     }
 
     // MARK: - Particles

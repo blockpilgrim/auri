@@ -8,9 +8,10 @@ struct MultiFrequencyPulse {
     private var fastPhase: Float = 0
     private var ultraFastPhase: Float = 0
 
-    private let primaryHz: Float = 1.5
-    private let fastHz: Float = 4.5
-    private let ultraFastHz: Float = 10.5
+    // Calm, slow breathing pulse rates.
+    private let primaryHz: Float = 0.4
+    private let fastHz: Float = 1.0
+    private let ultraFastHz: Float = 2.5
 
     private let ultraFastThreshold: Float = 0.70
 
@@ -29,11 +30,12 @@ struct MultiFrequencyPulse {
         fastPhase = wrap(fastPhase + deltaTime * fastHz * 2 * .pi)
         ultraFastPhase = wrap(ultraFastPhase + deltaTime * ultraFastHz * 2 * .pi)
 
+        // Primary pulse dominates for calm, steady breathing.
         let primary = sin(primaryPhase) * amplitude
-        let fast = sin(fastPhase) * amplitude * 0.60
+        let fast = sin(fastPhase) * amplitude * 0.35
 
         let ultraT = clamp01((adherence - ultraFastThreshold) / (1.0 - ultraFastThreshold))
-        let ultraFast = sin(ultraFastPhase) * amplitude * 0.30 * ultraT
+        let ultraFast = sin(ultraFastPhase) * amplitude * 0.18 * ultraT
 
         return PulseValues(primary: primary, fast: fast, ultraFast: ultraFast)
     }
