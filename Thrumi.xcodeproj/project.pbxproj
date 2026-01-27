@@ -8,8 +8,14 @@
 
 /* Begin PBXBuildFile section */
 		B1000001BBBBBBBB00000001 /* ThrumiApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000011BBBBBBBB00000011 /* ThrumiApp.swift */; };
-		B1000002BBBBBBBB00000002 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000012BBBBBBBB00000012 /* ContentView.swift */; };
 		B1000003BBBBBBBB00000003 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B1000013BBBBBBBB00000013 /* Assets.xcassets */; };
+		B1473001BBBBBBBB00473001 /* Environment+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1473011BBBBBBBB00473011 /* Environment+Extensions.swift */; };
+		B1473002BBBBBBBB00473002 /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1473012BBBBBBBB00473012 /* RootView.swift */; };
+		B1473003BBBBBBBB00473003 /* MainView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1473013BBBBBBBB00473013 /* MainView.swift */; };
+		B1473004BBBBBBBB00473004 /* CoreView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1473014BBBBBBBB00473014 /* CoreView.swift */; };
+		B1473005BBBBBBBB00473005 /* LogMealView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1473015BBBBBBBB00473015 /* LogMealView.swift */; };
+		B1473006BBBBBBBB00473006 /* DataView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1473016BBBBBBBB00473016 /* DataView.swift */; };
+		B1473007BBBBBBBB00473007 /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1473017BBBBBBBB00473017 /* OnboardingView.swift */; };
 		B1000004BBBBBBBB00000004 /* Meal.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000014BBBBBBBB00000014 /* Meal.swift */; };
 		B1000005BBBBBBBB00000005 /* UserSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000015BBBBBBBB00000015 /* UserSettings.swift */; };
 		B1000006BBBBBBBB00000006 /* AdherenceState.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000016BBBBBBBB00000016 /* AdherenceState.swift */; };
@@ -36,8 +42,14 @@
 
 /* Begin PBXFileReference section */
 		B1000011BBBBBBBB00000011 /* ThrumiApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThrumiApp.swift; sourceTree = "<group>"; };
-		B1000012BBBBBBBB00000012 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		B1000013BBBBBBBB00000013 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		B1473011BBBBBBBB00473011 /* Environment+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Environment+Extensions.swift"; sourceTree = "<group>"; };
+		B1473012BBBBBBBB00473012 /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
+		B1473013BBBBBBBB00473013 /* MainView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainView.swift; sourceTree = "<group>"; };
+		B1473014BBBBBBBB00473014 /* CoreView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreView.swift; sourceTree = "<group>"; };
+		B1473015BBBBBBBB00473015 /* LogMealView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogMealView.swift; sourceTree = "<group>"; };
+		B1473016BBBBBBBB00473016 /* DataView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataView.swift; sourceTree = "<group>"; };
+		B1473017BBBBBBBB00473017 /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingView.swift; sourceTree = "<group>"; };
 		B1000014BBBBBBBB00000014 /* Meal.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Meal.swift; sourceTree = "<group>"; };
 		B1000015BBBBBBBB00000015 /* UserSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserSettings.swift; sourceTree = "<group>"; };
 		B1000016BBBBBBBB00000016 /* AdherenceState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdherenceState.swift; sourceTree = "<group>"; };
@@ -117,6 +129,7 @@
 			isa = PBXGroup;
 			children = (
 				B1000011BBBBBBBB00000011 /* ThrumiApp.swift */,
+				B1473011BBBBBBBB00473011 /* Environment+Extensions.swift */,
 			);
 			path = App;
 			sourceTree = "<group>";
@@ -124,7 +137,12 @@
 		B1000045BBBBBBBB00000045 /* Views */ = {
 			isa = PBXGroup;
 			children = (
-				B1000012BBBBBBBB00000012 /* ContentView.swift */,
+				B1473012BBBBBBBB00473012 /* RootView.swift */,
+				B1473013BBBBBBBB00473013 /* MainView.swift */,
+				B1473014BBBBBBBB00473014 /* CoreView.swift */,
+				B1473015BBBBBBBB00473015 /* LogMealView.swift */,
+				B1473016BBBBBBBB00473016 /* DataView.swift */,
+				B1473017BBBBBBBB00473017 /* OnboardingView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -270,7 +288,13 @@
 			buildActionMask = 2147483647;
 			files = (
 				B1000001BBBBBBBB00000001 /* ThrumiApp.swift in Sources */,
-				B1000002BBBBBBBB00000002 /* ContentView.swift in Sources */,
+				B1473001BBBBBBBB00473001 /* Environment+Extensions.swift in Sources */,
+				B1473002BBBBBBBB00473002 /* RootView.swift in Sources */,
+				B1473003BBBBBBBB00473003 /* MainView.swift in Sources */,
+				B1473004BBBBBBBB00473004 /* CoreView.swift in Sources */,
+				B1473005BBBBBBBB00473005 /* LogMealView.swift in Sources */,
+				B1473006BBBBBBBB00473006 /* DataView.swift in Sources */,
+				B1473007BBBBBBBB00473007 /* OnboardingView.swift in Sources */,
 				B1000004BBBBBBBB00000004 /* Meal.swift in Sources */,
 				B1000005BBBBBBBB00000005 /* UserSettings.swift in Sources */,
 				B1000006BBBBBBBB00000006 /* AdherenceState.swift in Sources */,

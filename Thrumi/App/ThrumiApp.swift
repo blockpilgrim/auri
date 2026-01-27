@@ -3,7 +3,12 @@ import SwiftUI
 
 @main
 struct ThrumiApp: App {
-    var sharedModelContainer: ModelContainer = {
+    let sharedModelContainer: ModelContainer
+    let mealService: MealService
+    let adherenceEngine: AdherenceEngine
+    let userPreferencesService: UserPreferencesService
+
+    init() {
         let schema = Schema([
             Meal.self,
             UserSettings.self,
@@ -11,15 +16,23 @@ struct ThrumiApp: App {
         let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
 
         do {
-            return try ModelContainer(for: schema, configurations: [modelConfiguration])
+            sharedModelContainer = try ModelContainer(for: schema, configurations: [modelConfiguration])
         } catch {
             fatalError("Could not create ModelContainer: \(error)")
         }
-    }()
+
+        let context = sharedModelContainer.mainContext
+        mealService = MealService(modelContext: context)
+        adherenceEngine = AdherenceEngine(modelContext: context)
+        userPreferencesService = UserPreferencesService(modelContext: context)
+    }
 
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            RootView()
+                .environment(\.mealService, mealService)
+                .environment(\.adherenceEngine, adherenceEngine)
+                .environment(\.userPreferences, userPreferencesService)
         }
         .modelContainer(sharedModelContainer)
     }
