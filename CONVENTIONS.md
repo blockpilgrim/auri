@@ -295,3 +295,88 @@ struct SomeView: View {
 - Optional types allow views to work in previews without services
 - Services initialized once at app startup and shared via environment
 - Decouples views from specific service implementations
+
+---
+
+## RealityKit Scene Pattern
+
+**When to use**: When creating 3D scenes with RealityKit that need runtime material control.
+
+**Example**:
+```swift
+import RealityKit
+import UIKit
+
+@MainActor
+final class FusionCoreScene {
+    let rootEntity: Entity
+    let outerRing: Entity
+    // ... other component references
+
+    private init(rootEntity: Entity, outerRing: Entity, ...) {
+        self.rootEntity = rootEntity
+        self.outerRing = outerRing
+    }
+
+    static func create() async -> FusionCoreScene {
+        let root = Entity()
+        root.name = "FusionCore"
+
+        // Create components...
+        let outer = createRing(...)
+        root.addChild(outer)
+
+        return FusionCoreScene(rootEntity: root, outerRing: outer, ...)
+    }
+
+    func setEmissiveIntensity(_ intensity: Float, for component: CoreComponent) {
+        // Update materials at runtime
+    }
+}
+```
+
+**Why**:
+- `@MainActor` required for RealityKit entity manipulation
+- Async factory method (`create()`) for procedural generation
+- Store references to child entities for runtime material updates
+- `final class` because scene holds mutable entity state
+- Import UIKit for `UIColor` in iOS RealityKit code
+
+---
+
+## Custom Mesh Generation
+
+**When to use**: When RealityKit's built-in primitives don't provide the needed geometry.
+
+**Example**:
+```swift
+extension MeshResource {
+    static func generateTorus(
+        meanRadius: Float,
+        tubeRadius: Float,
+        segments: Int = 48,
+        tubeSegments: Int = 24
+    ) -> MeshResource {
+        var positions: [SIMD3<Float>] = []
+        var normals: [SIMD3<Float>] = []
+        var uvs: [SIMD2<Float>] = []
+        var indices: [UInt32] = []
+
+        // Generate vertex data...
+
+        var descriptor = MeshDescriptor()
+        descriptor.positions = MeshBuffer(positions)
+        descriptor.normals = MeshBuffer(normals)
+        descriptor.textureCoordinates = MeshBuffer(uvs)
+        descriptor.primitives = .triangles(indices)
+
+        return try! MeshResource.generate(from: [descriptor])
+    }
+}
+```
+
+**Why**:
+- Extension on `MeshResource` keeps custom generators with built-in ones
+- Use `MeshDescriptor` for full control over vertex attributes
+- Pre-compute positions, normals, UVs for efficient rendering
+- `try!` acceptable here since generation with valid inputs won't fail
