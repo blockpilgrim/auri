@@ -18,6 +18,10 @@
 		B1000009BBBBBBBB00000009 /* CoreTier.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000019BBBBBBBB00000019 /* CoreTier.swift */; };
 		B100000ABBBBBBBB0000000A /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = B100001ABBBBBBBB0000001A /* PrivacyInfo.xcprivacy */; };
 		B100000BBBBBBBBB0000000B /* ThrumiTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B100001BBBBBBBBB0000001B /* ThrumiTests.swift */; };
+		B1000080BBBBBBBB00000080 /* MealService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000090BBBBBBBB00000090 /* MealService.swift */; };
+		B1000081BBBBBBBB00000081 /* AdherenceEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000091BBBBBBBB00000091 /* AdherenceEngine.swift */; };
+		B1000082BBBBBBBB00000082 /* UserPreferencesService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000092BBBBBBBB00000092 /* UserPreferencesService.swift */; };
+		B1000083BBBBBBBB00000083 /* ServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000093BBBBBBBB00000093 /* ServiceTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -45,6 +49,10 @@
 		B100001CBBBBBBBB0000001C /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		B1000020BBBBBBBB00000020 /* Thrumi.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Thrumi.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B1000021BBBBBBBB00000021 /* ThrumiTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ThrumiTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		B1000090BBBBBBBB00000090 /* MealService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MealService.swift; sourceTree = "<group>"; };
+		B1000091BBBBBBBB00000091 /* AdherenceEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdherenceEngine.swift; sourceTree = "<group>"; };
+		B1000092BBBBBBBB00000092 /* UserPreferencesService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserPreferencesService.swift; sourceTree = "<group>"; };
+		B1000093BBBBBBBB00000093 /* ServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServiceTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -91,6 +99,7 @@
 			isa = PBXGroup;
 			children = (
 				B100001BBBBBBBBB0000001B /* ThrumiTests.swift */,
+				B1000093BBBBBBBB00000093 /* ServiceTests.swift */,
 			);
 			path = ThrumiTests;
 			sourceTree = "<group>";
@@ -136,6 +145,9 @@
 		B1000047BBBBBBBB00000047 /* Services */ = {
 			isa = PBXGroup;
 			children = (
+				B1000090BBBBBBBB00000090 /* MealService.swift */,
+				B1000091BBBBBBBB00000091 /* AdherenceEngine.swift */,
+				B1000092BBBBBBBB00000092 /* UserPreferencesService.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -265,6 +277,9 @@
 				B1000007BBBBBBBB00000007 /* MealSource.swift in Sources */,
 				B1000008BBBBBBBB00000008 /* DietaryGoal.swift in Sources */,
 				B1000009BBBBBBBB00000009 /* CoreTier.swift in Sources */,
+				B1000080BBBBBBBB00000080 /* MealService.swift in Sources */,
+				B1000081BBBBBBBB00000081 /* AdherenceEngine.swift in Sources */,
+				B1000082BBBBBBBB00000082 /* UserPreferencesService.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -273,6 +288,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				B100000BBBBBBBBB0000000B /* ThrumiTests.swift in Sources */,
+				B1000083BBBBBBBB00000083 /* ServiceTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

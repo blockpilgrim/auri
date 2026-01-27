@@ -154,3 +154,95 @@ struct ModelTests {
 ```
 
 **Why**: Swift Testing is the modern approach (vs XCTest). `@Suite` groups related tests. `#expect` provides clear assertions.
+
+---
+
+## Observable Service Pattern
+
+**When to use**: When creating services that manage data or business logic.
+
+**Example**:
+```swift
+import Foundation
+import SwiftData
+
+@Observable
+final class MealService {
+    private let modelContext: ModelContext
+
+    init(modelContext: ModelContext) {
+        self.modelContext = modelContext
+    }
+
+    func saveMeal(_ meal: Meal) throws {
+        modelContext.insert(meal)
+        try modelContext.save()
+    }
+}
+```
+
+**Why**:
+- `@Observable` enables SwiftUI reactivity without manual publishers
+- `final class` because services hold state and need reference semantics
+- Accept `ModelContext` in init for dependency injection and testability
+- Private `modelContext` prevents external mutation
+
+---
+
+## MainActor Tests for SwiftData
+
+**When to use**: When writing tests that use SwiftData or services that interact with ModelContext.
+
+**Example**:
+```swift
+@Suite("MealService Tests")
+@MainActor
+struct MealServiceTests {
+    @Test("Save and retrieve meal")
+    func saveMeal() throws {
+        let container = try createTestContainer()
+        let service = MealService(modelContext: container.mainContext)
+        // ...
+    }
+}
+
+@MainActor
+private func createTestContainer() throws -> ModelContainer {
+    let schema = Schema([Meal.self, UserSettings.self])
+    let config = ModelConfiguration(schema: schema, isStoredInMemoryOnly: true)
+    return try ModelContainer(for: schema, configurations: [config])
+}
+```
+
+**Why**:
+- Swift 6 strict concurrency requires MainActor for ModelContext access
+- `isStoredInMemoryOnly: true` creates isolated test containers
+- Each test gets a fresh container to prevent test pollution
+
+---
+
+## Photo Storage in Documents Directory
+
+**When to use**: When storing user-generated images locally.
+
+**Example**:
+```swift
+private static let photoDirectoryName = "MealPhotos"
+
+func savePhoto(_ image: UIImage, for mealId: UUID) throws -> String {
+    guard let data = image.jpegData(compressionQuality: 0.75) else {
+        throw MealServiceError.imageCompressionFailed
+    }
+    let filename = "\(mealId.uuidString).jpg"
+    let relativePath = "\(Self.photoDirectoryName)/\(filename)"
+    let fullURL = documentsDirectory.appendingPathComponent(relativePath)
+    try data.write(to: fullURL)
+    return relativePath  // Store relative path, not absolute
+}
+```
+
+**Why**:
+- Documents directory persists across app updates
+- Relative paths stored in database avoid issues if documents directory path changes
+- UUID-based filenames prevent collisions
+- JPEG compression ~0.75 balances quality and size (~200KB target)
