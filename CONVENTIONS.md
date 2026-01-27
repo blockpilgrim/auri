@@ -12,6 +12,7 @@ Emerging patterns and conventions for the Thrumi codebase.
 Thrumi/
 ├── App/           # App entry point and configuration
 ├── Views/         # SwiftUI views
+│   └── Components/  # Reusable view components
 ├── Models/        # SwiftData models and domain types
 ├── Services/      # Business logic and data operations
 ├── 3D/            # RealityKit assets and 3D-related code
@@ -636,6 +637,92 @@ func updateMicroFeedback(deltaTime: Float, ...) -> Float {
 - Returning multipliers (like damping) lets caller integrate with physics
 - Ease-out curve feels natural (quick start, smooth end)
 - On-track animations should feel snappier than off-track (positive reinforcement)
+
+---
+
+## UIViewControllerRepresentable for System UI
+
+**When to use**: When wrapping UIKit view controllers (camera, image picker, document picker) for use in SwiftUI.
+
+**Example**:
+```swift
+import SwiftUI
+import UIKit
+
+struct CameraView: UIViewControllerRepresentable {
+    @Binding var image: UIImage?
+    @Environment(\.dismiss) private var dismiss
+
+    func makeUIViewController(context: Context) -> UIImagePickerController {
+        let picker = UIImagePickerController()
+        picker.sourceType = .camera
+        picker.delegate = context.coordinator
+        return picker
+    }
+
+    func updateUIViewController(_ uiViewController: UIImagePickerController, context: Context) {}
+
+    func makeCoordinator() -> Coordinator {
+        Coordinator(self)
+    }
+
+    class Coordinator: NSObject, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
+        let parent: CameraView
+
+        init(_ parent: CameraView) {
+            self.parent = parent
+        }
+
+        func imagePickerController(
+            _ picker: UIImagePickerController,
+            didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey: Any]
+        ) {
+            if let image = info[.originalImage] as? UIImage {
+                parent.image = image
+            }
+            parent.dismiss()
+        }
+
+        func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
+            parent.dismiss()
+        }
+    }
+}
+```
+
+**Why**:
+- SwiftUI has no native camera API—UIImagePickerController is the standard approach
+- Coordinator pattern handles delegate callbacks
+- `@Environment(\.dismiss)` provides SwiftUI-native dismissal
+- Use `fullScreenCover` instead of `sheet` for camera to provide full-screen experience
+
+---
+
+## Permission Request on First Use
+
+**When to use**: When requesting system permissions (camera, photos, location).
+
+**Example**:
+```swift
+import AVFoundation
+
+func requestCameraPermission() async -> Bool {
+    let status = AVCaptureDevice.authorizationStatus(for: .video)
+    switch status {
+    case .authorized:
+        return true
+    case .notDetermined:
+        return await AVCaptureDevice.requestAccess(for: .video)
+    default:
+        return false
+    }
+}
+```
+
+**Why**:
+- Request permissions at the moment of use, not during onboarding (BUILD-STRATEGY.md Decision 5)
+- async/await provides clean handling of the permission dialog
+- Handle denied state gracefully with user-friendly messaging
 
 ---
 
