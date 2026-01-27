@@ -380,3 +380,155 @@ extension MeshResource {
 - Use `MeshDescriptor` for full control over vertex attributes
 - Pre-compute positions, normals, UVs for efficient rendering
 - `try!` acceptable here since generation with valid inputs won't fail
+
+---
+
+## Custom Physics System Pattern
+
+**When to use**: When implementing custom kinematic physics instead of using a physics engine.
+
+**Example**:
+```swift
+@Observable
+@MainActor
+final class SpinnerPhysics {
+    // Current state
+    var angularVelocity: SIMD3<Float> = .zero
+    var ringRotations: SIMD3<Float> = .zero
+
+    // Parameters (driven by external state)
+    var maxSpeed: Float = 10.0
+    var damping: Float = 0.98
+
+    // Tier-based presets
+    struct TierParameters {
+        let maxSpeed: Float
+        let damping: Float
+    }
+
+    static let tierPresets: [CoreTier: TierParameters] = [
+        .phaseLocked: TierParameters(maxSpeed: 15.0, damping: 0.992),
+        // ...
+    ]
+
+    func update(deltaTime: Float) {
+        angularVelocity *= damping
+        ringRotations += angularVelocity * deltaTime
+    }
+
+    func updateParameters(for state: AdherenceState) {
+        guard let preset = Self.tierPresets[state.tier] else { return }
+        maxSpeed = preset.maxSpeed
+        damping = preset.damping
+    }
+}
+```
+
+**Why**:
+- `@Observable` for SwiftUI reactivity
+- `@MainActor` for thread safety with RealityKit
+- SIMD types for efficient vector math
+- Tier-based presets keep physics tuning organized
+- Separate `update()` and `updateParameters()` methods for different update frequencies
+
+---
+
+## Display Link Update Loop Pattern
+
+**When to use**: When you need frame-synchronized updates (physics, animations) in SwiftUI.
+
+**Example**:
+```swift
+@MainActor
+final class DisplayLinkController {
+    private var displayLink: CADisplayLink?
+    private var lastTimestamp: CFTimeInterval = 0
+    private let onUpdate: (Float) -> Void
+
+    init(onUpdate: @escaping (Float) -> Void) {
+        self.onUpdate = onUpdate
+    }
+
+    func start() {
+        displayLink = CADisplayLink(target: DisplayLinkTarget(handler: { [weak self] link in
+            self?.handleDisplayLink(link)
+        }), selector: #selector(DisplayLinkTarget.handleDisplayLink(_:)))
+        displayLink?.preferredFrameRateRange = CAFrameRateRange(minimum: 60, maximum: 120, preferred: 120)
+        displayLink?.add(to: .main, forMode: .common)
+    }
+
+    func stop() {
+        displayLink?.invalidate()
+        displayLink = nil
+    }
+
+    private func handleDisplayLink(_ link: CADisplayLink) {
+        let deltaTime = Float(link.timestamp - lastTimestamp)
+        lastTimestamp = link.timestamp
+        onUpdate(min(deltaTime, 1.0 / 30.0)) // Cap to prevent physics explosions
+    }
+}
+
+// Helper for @objc selector requirement
+private class DisplayLinkTarget {
+    let handler: (CADisplayLink) -> Void
+    init(handler: @escaping (CADisplayLink) -> Void) { self.handler = handler }
+    @objc func handleDisplayLink(_ link: CADisplayLink) { handler(link) }
+}
+```
+
+**Why**:
+- CADisplayLink provides frame-synchronized callbacks
+- Helper class needed because CADisplayLink requires @objc selector
+- Cap deltaTime to prevent physics instability after app pause/resume
+- ProMotion support via `preferredFrameRateRange`
+- `@MainActor` for thread safety
+
+---
+
+## Gesture Velocity Tracking Pattern
+
+**When to use**: When DragGesture doesn't provide the velocity data you need.
+
+**Example**:
+```swift
+struct VelocityTracker {
+    private struct Sample {
+        let position: CGPoint
+        let time: Date
+    }
+
+    private var samples: [Sample] = []
+    private let maxSamples = 5
+    private let maxAge: TimeInterval = 0.1
+
+    var velocity: CGSize {
+        let now = Date.now
+        let recentSamples = samples.filter { now.timeIntervalSince($0.time) < maxAge }
+        guard recentSamples.count >= 2 else { return .zero }
+
+        let first = recentSamples.first!
+        let last = recentSamples.last!
+        let dt = last.time.timeIntervalSince(first.time)
+        guard dt > 0.001 else { return .zero }
+
+        return CGSize(
+            width: (last.position.x - first.position.x) / dt,
+            height: (last.position.y - first.position.y) / dt
+        )
+    }
+
+    mutating func addSample(position: CGPoint, time: Date) {
+        samples.append(Sample(position: position, time: time))
+        if samples.count > maxSamples { samples.removeFirst() }
+    }
+
+    mutating func reset() { samples.removeAll() }
+}
+```
+
+**Why**:
+- SwiftUI's DragGesture doesn't always provide reliable velocity on `.onEnded`
+- Tracking recent samples allows velocity calculation at any point
+- Time-based filtering ensures velocity reflects recent motion, not stale data
+- Struct with mutating functions for value semantics
