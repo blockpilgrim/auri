@@ -115,6 +115,20 @@ final class StateInterpolator {
         adherenceState.tier == .stabilizing
     }
 
+    // MARK: - Haptic Parameters
+
+    /// Haptic intensity multiplier (0.3 soft to 1.0 crisp)
+    /// High adherence = crisp micro-impulses, low adherence = softer feedback
+    var hapticIntensity: Float {
+        lerp(0.3, 1.0, normalizedPower)
+    }
+
+    /// Haptic sharpness multiplier (0.3 rounded to 1.0 sharp)
+    /// High adherence = sharp, precise feedback, low adherence = more damped
+    var hapticSharpness: Float {
+        lerp(0.3, 1.0, normalizedPower)
+    }
+
     // MARK: - Initialization
 
     init(adherenceState: AdherenceState = .empty) {

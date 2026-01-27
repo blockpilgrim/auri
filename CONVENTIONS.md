@@ -883,3 +883,144 @@ FusionCoreView(adherenceState: tutorialState)
 - Useful for tutorials or analytics where you need to observe without interfering
 - Velocity-based detection distinguishes flicks from slow drags
 - Keep detection logic simple—just observe, don't modify view state extensively
+
+---
+
+## Core Haptics Manager Pattern
+
+**When to use**: When providing tactile feedback that varies based on app state.
+
+**Example**:
+```swift
+import CoreHaptics
+
+@MainActor
+final class HapticsManager {
+    private var engine: CHHapticEngine?
+    private var isEngineRunning: Bool = false
+
+    // State-driven parameters
+    var intensityMultiplier: Float = 0.7
+    var sharpnessMultiplier: Float = 0.7
+
+    init() {
+        guard CHHapticEngine.capabilitiesForHardware().supportsHaptics else { return }
+        engine = try? CHHapticEngine()
+        engine?.resetHandler = { [weak self] in
+            Task { @MainActor in self?.restartEngine() }
+        }
+        try? engine?.start()
+    }
+
+    func playTransient(intensity: Float, sharpness: Float) {
+        guard let engine, isEngineRunning else { return }
+        let event = CHHapticEvent(
+            eventType: .hapticTransient,
+            parameters: [
+                CHHapticEventParameter(parameterID: .hapticIntensity, value: intensity * intensityMultiplier),
+                CHHapticEventParameter(parameterID: .hapticSharpness, value: sharpness * sharpnessMultiplier)
+            ],
+            relativeTime: 0
+        )
+        let pattern = try? CHHapticPattern(events: [event], parameters: [])
+        let player = try? engine.makePlayer(with: pattern!)
+        try? player?.start(atTime: CHHapticTimeImmediate)
+    }
+}
+```
+
+**Why**:
+- `@MainActor` for thread safety
+- State multipliers allow adherence-driven haptic quality (crisp at high, soft at low)
+- Handle engine reset/stop for app lifecycle
+- Check `supportsHaptics` for devices without Taptic Engine
+
+---
+
+## Thermal Management Pattern
+
+**When to use**: When reducing visual effects under device thermal pressure.
+
+**Example**:
+```swift
+@Observable
+@MainActor
+final class ThermalManager {
+    private(set) var thermalState: ProcessInfo.ThermalState = .nominal
+    private var observerToken: (any NSObjectProtocol)?
+
+    var effectMultiplier: Float {
+        switch thermalState {
+        case .nominal, .fair: return 1.0
+        case .serious: return 0.7  // 30% reduction
+        case .critical: return 0.4  // 60% reduction
+        @unknown default: return 1.0
+        }
+    }
+
+    init() {
+        thermalState = ProcessInfo.processInfo.thermalState
+        observerToken = NotificationCenter.default.addObserver(
+            forName: ProcessInfo.thermalStateDidChangeNotification,
+            object: nil, queue: .main
+        ) { [weak self] _ in
+            Task { @MainActor in
+                self?.thermalState = ProcessInfo.processInfo.thermalState
+            }
+        }
+    }
+}
+```
+
+**Why**:
+- Graceful degradation prevents thermal throttling
+- `effectMultiplier` can be applied to bloom, particles, animation complexity
+- Observe notification for real-time response
+- Multipliers (0.7, 0.4) preserve visual fidelity while reducing load
+
+---
+
+## Reduce Motion Accessibility Pattern
+
+**When to use**: When implementing accessibility support for users sensitive to motion.
+
+**Example**:
+```swift
+// Environment key
+private struct FusionCoreReducedMotionKey: EnvironmentKey {
+    static let defaultValue: Bool = false
+}
+
+extension EnvironmentValues {
+    var fusionCoreReducedMotion: Bool {
+        get { self[FusionCoreReducedMotionKey.self] }
+        set { self[FusionCoreReducedMotionKey.self] = newValue }
+    }
+}
+
+// Configuration struct
+struct ReducedMotionConfig {
+    let animationSpeed: Float       // 1.0 normal, 0.3 reduced
+    let precessionIntensity: Float  // 1.0 normal, 0.0 reduced
+    let showPulse: Bool             // true normal, false reduced
+    let jitterIntensity: Float      // 1.0 normal, 0.0 reduced
+
+    static let normal = ReducedMotionConfig(...)
+    static let reduced = ReducedMotionConfig(...)
+}
+
+// View modifier
+struct ReducedMotionModifier: ViewModifier {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
+    func body(content: Content) -> some View {
+        content.environment(\.fusionCoreReducedMotion, reduceMotion)
+    }
+}
+```
+
+**Why**:
+- Respect system Reduce Motion preference via `@Environment(\.accessibilityReduceMotion)`
+- Config struct centralizes reduced motion parameters
+- State differentiation preserved via color/intensity (not motion)
+- Haptics can still fire in reduced motion mode (tactile != visual motion)

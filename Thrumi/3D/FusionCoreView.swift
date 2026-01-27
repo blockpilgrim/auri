@@ -13,6 +13,13 @@ struct FusionCoreView: View {
     /// Optional reference to adherence engine for micro-feedback events
     var adherenceEngine: AdherenceEngine?
 
+    /// Optional haptics manager for tactile feedback
+    var hapticsManager: HapticsManager?
+
+    // MARK: - Environment
+
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
     // MARK: - Scene State
 
     @State private var scene: FusionCoreScene?
@@ -20,6 +27,8 @@ struct FusionCoreView: View {
     @State private var motionManager = MotionManager()
     @State private var stateInterpolator = StateInterpolator()
     @State private var reactorPulse = ReactorPulse()
+    @State private var thermalManager = ThermalManager()
+    @State private var motionSettings = MotionSettingsProvider()
 
     // MARK: - Camera State
 
@@ -60,8 +69,15 @@ struct FusionCoreView: View {
                     scene = fusionCore
                     stateInterpolator.update(with: adherenceState)
                     physics.applyParameters(from: stateInterpolator)
+                    motionSettings.update(reduceMotion: reduceMotion)
+                    hapticsManager?.updateParameters(
+                        intensity: stateInterpolator.hapticIntensity,
+                        sharpness: stateInterpolator.hapticSharpness
+                    )
                     startPhysicsLoop()
-                    motionManager.startUpdates()
+                    if !reduceMotion {
+                        motionManager.startUpdates()
+                    }
                 }
             } update: { content in
                 // Update handled by display link for smooth animation
@@ -73,10 +89,23 @@ struct FusionCoreView: View {
             .onDisappear {
                 stopPhysicsLoop()
                 motionManager.stopUpdates()
+                thermalManager.stopObserving()
             }
             .onChange(of: adherenceState) { _, newState in
                 stateInterpolator.update(with: newState)
                 physics.applyParameters(from: stateInterpolator)
+                hapticsManager?.updateParameters(
+                    intensity: stateInterpolator.hapticIntensity,
+                    sharpness: stateInterpolator.hapticSharpness
+                )
+            }
+            .onChange(of: reduceMotion) { _, newValue in
+                motionSettings.update(reduceMotion: newValue)
+                if newValue {
+                    motionManager.stopUpdates()
+                } else {
+                    motionManager.startUpdates()
+                }
             }
         }
     }
@@ -142,6 +171,8 @@ struct FusionCoreView: View {
                 // Only apply flick if it was a fast gesture
                 if speed > 200 {
                     physics.applyFlickTorque(velocity: velocity)
+                    // Play haptic feedback scaled by velocity
+                    hapticsManager?.playSpinFeedback(velocity: Float(speed) / 100.0)
                 }
 
                 lastDragValue = .zero
@@ -156,6 +187,8 @@ struct FusionCoreView: View {
                 // Direct velocity control during twist
                 let angularVelocity = Float(angle.radians) * 3.0
                 physics.setYawVelocity(angularVelocity)
+                // Subtle haptic during twist
+                hapticsManager?.playTwistFeedback(angularVelocity: angularVelocity)
             }
             .onEnded { _ in
                 // Let physics continue with current velocity
@@ -189,31 +222,43 @@ struct FusionCoreView: View {
     private func updatePhysics(deltaTime: Float) {
         guard let scene else { return }
 
+        // Get motion and thermal settings
+        let motionConfig = motionSettings.config
+        let thermalMultiplier = thermalManager.effectMultiplier
+
         // Check for pending micro-feedback from AdherenceEngine
         if let engine = adherenceEngine, let isOnTrack = engine.pendingMicroFeedback {
-            scene.triggerMicroFeedback(isOnTrack: isOnTrack)
+            if motionConfig.showMicroFeedback {
+                scene.triggerMicroFeedback(isOnTrack: isOnTrack)
+            }
+            // Always play haptic regardless of visual animation
+            hapticsManager?.playMicroFeedback(isOnTrack: isOnTrack)
             engine.clearMicroFeedback()
         }
         // Also check for local pending micro-feedback
         if let isOnTrack = pendingMicroFeedback {
-            scene.triggerMicroFeedback(isOnTrack: isOnTrack)
+            if motionConfig.showMicroFeedback {
+                scene.triggerMicroFeedback(isOnTrack: isOnTrack)
+            }
+            hapticsManager?.playMicroFeedback(isOnTrack: isOnTrack)
             pendingMicroFeedback = nil
         }
 
-        // Apply device motion precession
-        if motionManager.isActive && physics.isSpinning {
+        // Apply device motion precession (respect reduced motion)
+        let precessionIntensity = motionConfig.precessionIntensity * thermalMultiplier
+        if motionManager.isActive && physics.isSpinning && precessionIntensity > 0 {
             physics.applyPrecession(pitch: motionManager.pitch, roll: motionManager.roll)
             scene.applyPrecessionWobble(
                 pitch: motionManager.pitch,
                 roll: motionManager.roll,
-                intensity: physics.normalizedSpinSpeed
+                intensity: physics.normalizedSpinSpeed * precessionIntensity
             )
         }
 
         // Update micro-feedback animation and get damping multiplier
         let dampingMultiplier = scene.updateMicroFeedback(
-            deltaTime: deltaTime,
-            baseCoilIntensity: stateInterpolator.coilBrightness,
+            deltaTime: deltaTime * motionConfig.animationSpeed,
+            baseCoilIntensity: stateInterpolator.coilBrightness * thermalMultiplier,
             baseDamping: stateInterpolator.damping
         )
 
@@ -225,28 +270,35 @@ struct FusionCoreView: View {
         // Update physics simulation
         physics.update(deltaTime: deltaTime)
 
-        // Update ring alignment jitter
+        // Update ring alignment jitter (respect reduced motion and thermal)
+        let jitterAmount = stateInterpolator.ringAlignmentJitter * motionConfig.jitterIntensity * thermalMultiplier
         scene.updateRingAlignmentJitter(
-            jitterAmount: stateInterpolator.ringAlignmentJitter,
+            jitterAmount: jitterAmount,
             deltaTime: deltaTime
         )
 
         // Apply physics state to 3D entities with jitter overlay
         scene.applyRingRotationsWithJitter(
             physics.ringRotations,
-            jitterAmount: stateInterpolator.ringAlignmentJitter
+            jitterAmount: jitterAmount
         )
 
         // Update camera rotation
         scene.rootEntity.transform.rotation = simd_quatf(angle: -cameraAngle, axis: [0, 1, 0])
             * simd_quatf(angle: -cameraElevation, axis: [1, 0, 0])
 
-        // Update reactor pulse
-        let pulseValue = reactorPulse.update(
-            deltaTime: deltaTime,
-            amplitude: stateInterpolator.pulseAmplitude,
-            sharpness: stateInterpolator.pulseSharpness
-        )
+        // Update reactor pulse (or use static glow in reduced motion mode)
+        let pulseValue: Float
+        if motionConfig.showPulse {
+            pulseValue = reactorPulse.update(
+                deltaTime: deltaTime,
+                amplitude: stateInterpolator.pulseAmplitude * thermalMultiplier,
+                sharpness: stateInterpolator.pulseSharpness
+            )
+        } else {
+            // Reduced motion: no pulse, static glow
+            pulseValue = 0
+        }
 
         // Apply visual state with pulse (unless in micro-feedback)
         if !scene.isMicroFeedbackActive {
@@ -255,7 +307,8 @@ struct FusionCoreView: View {
 
         // Update ping animation
         if isPinging {
-            pingAnimationProgress += deltaTime * 3.0 // 0.33 second animation
+            let pingSpeed = 3.0 * motionConfig.glowTransitionSpeed
+            pingAnimationProgress += deltaTime * pingSpeed
             if pingAnimationProgress >= 1.0 {
                 pingAnimationProgress = 1.0
                 isPinging = false
@@ -290,6 +343,8 @@ struct FusionCoreView: View {
         pingAnimationProgress = 0.0
         scene.triggerCoilPing()
         physics.addPingImpulse()
+        // Play haptic tap ping
+        hapticsManager?.playTapPing()
     }
 }
 

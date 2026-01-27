@@ -3,6 +3,7 @@ import SwiftUI
 /// Core tutorial - third step of onboarding.
 /// Shows the actual Fusion Core and prompts user to flick it.
 struct CoreTutorialStep: View {
+    @Environment(\.hapticsManager) private var hapticsManager
     @State private var hasFlicked = false
 
     let onComplete: () -> Void
@@ -20,7 +21,8 @@ struct CoreTutorialStep: View {
             // Full-screen Fusion Core with flick detection
             FusionCoreView(
                 adherenceState: tutorialState,
-                adherenceEngine: nil
+                adherenceEngine: nil,
+                hapticsManager: hapticsManager
             )
             .ignoresSafeArea()
             // Add simultaneous gesture to detect flicks without blocking Core's gestures

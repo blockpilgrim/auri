@@ -2,6 +2,7 @@ import SwiftUI
 
 struct CoreView: View {
     @Environment(\.adherenceEngine) private var adherenceEngine
+    @Environment(\.hapticsManager) private var hapticsManager
 
     var body: some View {
         ZStack {
@@ -11,7 +12,8 @@ struct CoreView: View {
             // Fusion Core 3D View (full screen)
             FusionCoreView(
                 adherenceState: adherenceEngine?.state ?? .empty,
-                adherenceEngine: adherenceEngine
+                adherenceEngine: adherenceEngine,
+                hapticsManager: hapticsManager
             )
 
             // HUD Overlay

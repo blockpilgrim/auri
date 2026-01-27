@@ -7,6 +7,7 @@ struct ThrumiApp: App {
     let mealService: MealService
     let adherenceEngine: AdherenceEngine
     let userPreferencesService: UserPreferencesService
+    let hapticsManager: HapticsManager
 
     init() {
         let schema = Schema([
@@ -25,6 +26,7 @@ struct ThrumiApp: App {
         mealService = MealService(modelContext: context)
         adherenceEngine = AdherenceEngine(modelContext: context)
         userPreferencesService = UserPreferencesService(modelContext: context)
+        hapticsManager = HapticsManager()
     }
 
     var body: some Scene {
@@ -33,6 +35,7 @@ struct ThrumiApp: App {
                 .environment(\.mealService, mealService)
                 .environment(\.adherenceEngine, adherenceEngine)
                 .environment(\.userPreferences, userPreferencesService)
+                .environment(\.hapticsManager, hapticsManager)
         }
         .modelContainer(sharedModelContainer)
     }
