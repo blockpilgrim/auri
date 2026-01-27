@@ -12,7 +12,7 @@
 |---|---|---|
 | **Platform** | iOS-first (iPhone) | Product spec defines this. iPad support deferred to post-MVP. |
 | **Language** | Swift 6 | Current stable version, required for iOS 18+ SDK submission. |
-| **Minimum iOS** | iOS 17.0 | Enables SwiftData without fallbacks. Covers 90%+ of active devices. |
+| **Minimum iOS** | iOS 18.0 | Required for modern RealityKit APIs (RealityView content manipulation). SwiftData also available. Covers 85%+ of active devices in 2026. |
 
 ### UI Framework
 
