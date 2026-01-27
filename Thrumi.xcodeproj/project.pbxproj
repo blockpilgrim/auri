@@ -49,6 +49,11 @@
 		B1479005BBBBBBBB00479005 /* MealRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1479015BBBBBBBB00479015 /* MealRow.swift */; };
 		B1479006BBBBBBBB00479006 /* DaySection.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1479016BBBBBBBB00479016 /* DaySection.swift */; };
 		B1479007BBBBBBBB00479007 /* MealHistorySection.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1479017BBBBBBBB00479017 /* MealHistorySection.swift */; };
+		B1480001BBBBBBBB00480001 /* WelcomeStep.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1480011BBBBBBBB00480011 /* WelcomeStep.swift */; };
+		B1480002BBBBBBBB00480002 /* GoalButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1480012BBBBBBBB00480012 /* GoalButton.swift */; };
+		B1480003BBBBBBBB00480003 /* GoalSelectionStep.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1480013BBBBBBBB00480013 /* GoalSelectionStep.swift */; };
+		B1480004BBBBBBBB00480004 /* CoreTutorialStep.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1480014BBBBBBBB00480014 /* CoreTutorialStep.swift */; };
+		B1480005BBBBBBBB00480005 /* FirstMealPromptStep.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1480015BBBBBBBB00480015 /* FirstMealPromptStep.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -107,6 +112,11 @@
 		B1479015BBBBBBBB00479015 /* MealRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MealRow.swift; sourceTree = "<group>"; };
 		B1479016BBBBBBBB00479016 /* DaySection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DaySection.swift; sourceTree = "<group>"; };
 		B1479017BBBBBBBB00479017 /* MealHistorySection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MealHistorySection.swift; sourceTree = "<group>"; };
+		B1480011BBBBBBBB00480011 /* WelcomeStep.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeStep.swift; sourceTree = "<group>"; };
+		B1480012BBBBBBBB00480012 /* GoalButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoalButton.swift; sourceTree = "<group>"; };
+		B1480013BBBBBBBB00480013 /* GoalSelectionStep.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoalSelectionStep.swift; sourceTree = "<group>"; };
+		B1480014BBBBBBBB00480014 /* CoreTutorialStep.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreTutorialStep.swift; sourceTree = "<group>"; };
+		B1480015BBBBBBBB00480015 /* FirstMealPromptStep.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirstMealPromptStep.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -180,6 +190,7 @@
 			isa = PBXGroup;
 			children = (
 				B1477020BBBBBBBB00477020 /* Components */,
+				B1480020BBBBBBBB00480020 /* Onboarding */,
 				B1473012BBBBBBBB00473012 /* RootView.swift */,
 				B1473013BBBBBBBB00473013 /* MainView.swift */,
 				B1473014BBBBBBBB00473014 /* CoreView.swift */,
@@ -188,6 +199,18 @@
 				B1473017BBBBBBBB00473017 /* OnboardingView.swift */,
 			);
 			path = Views;
+			sourceTree = "<group>";
+		};
+		B1480020BBBBBBBB00480020 /* Onboarding */ = {
+			isa = PBXGroup;
+			children = (
+				B1480011BBBBBBBB00480011 /* WelcomeStep.swift */,
+				B1480012BBBBBBBB00480012 /* GoalButton.swift */,
+				B1480013BBBBBBBB00480013 /* GoalSelectionStep.swift */,
+				B1480014BBBBBBBB00480014 /* CoreTutorialStep.swift */,
+				B1480015BBBBBBBB00480015 /* FirstMealPromptStep.swift */,
+			);
+			path = Onboarding;
 			sourceTree = "<group>";
 		};
 		B1477020BBBBBBBB00477020 /* Components */ = {
@@ -396,6 +419,11 @@
 				B1479005BBBBBBBB00479005 /* MealRow.swift in Sources */,
 				B1479006BBBBBBBB00479006 /* DaySection.swift in Sources */,
 				B1479007BBBBBBBB00479007 /* MealHistorySection.swift in Sources */,
+				B1480001BBBBBBBB00480001 /* WelcomeStep.swift in Sources */,
+				B1480002BBBBBBBB00480002 /* GoalButton.swift in Sources */,
+				B1480003BBBBBBBB00480003 /* GoalSelectionStep.swift in Sources */,
+				B1480004BBBBBBBB00480004 /* CoreTutorialStep.swift in Sources */,
+				B1480005BBBBBBBB00480005 /* FirstMealPromptStep.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -809,3 +809,77 @@ func updateRingAlignmentJitter(jitterAmount: Float, deltaTime: Float) {
 - Different phase multipliers per element prevent synchronized movement
 - jitterAmount from interpolator ties to adherence state
 - Separate X/Z axes create natural-looking wobble
+
+---
+
+## Step-Based Onboarding Flow Pattern
+
+**When to use**: When implementing multi-step onboarding or wizard-style flows.
+
+**Example**:
+```swift
+struct OnboardingView: View {
+    @State private var currentStep: OnboardingStep = .welcome
+
+    enum OnboardingStep: CaseIterable {
+        case welcome
+        case goalSelection
+        case coreTutorial
+        case firstMealPrompt
+    }
+
+    var body: some View {
+        ZStack {
+            Color.black.ignoresSafeArea()
+
+            switch currentStep {
+            case .welcome:
+                WelcomeStep(onContinue: { currentStep = .goalSelection })
+            case .goalSelection:
+                GoalSelectionStep(onSelect: { goal in
+                    saveGoal(goal)
+                    currentStep = .coreTutorial
+                })
+            // ... other steps
+            }
+        }
+        .animation(.easeInOut(duration: 0.3), value: currentStep)
+    }
+}
+```
+
+**Why**:
+- Enum-based steps make flow explicit and type-safe
+- Each step is a separate view for isolation and testability
+- Single ZStack with switch enables smooth transitions
+- Animation on step change provides polished UX
+- Callbacks (`onContinue`, `onSelect`, `onComplete`) keep steps decoupled from navigation logic
+
+---
+
+## Simultaneous Gesture Detection Pattern
+
+**When to use**: When you need to detect gestures on a view that already has gesture handlers without blocking them.
+
+**Example**:
+```swift
+FusionCoreView(adherenceState: tutorialState)
+    .simultaneousGesture(
+        DragGesture(minimumDistance: 20)
+            .onEnded { value in
+                let velocity = sqrt(
+                    pow(value.velocity.width, 2) +
+                    pow(value.velocity.height, 2)
+                )
+                if velocity > 200 {
+                    hasFlicked = true
+                }
+            }
+    )
+```
+
+**Why**:
+- `simultaneousGesture` runs alongside existing gestures instead of blocking them
+- Useful for tutorials or analytics where you need to observe without interfering
+- Velocity-based detection distinguishes flicks from slow drags
+- Keep detection logic simple—just observe, don't modify view state extensively
