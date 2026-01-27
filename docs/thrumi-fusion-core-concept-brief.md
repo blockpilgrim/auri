@@ -1,10 +1,10 @@
-# Tend: Fusion Core — Concept Brief
+# Thrumi: Fusion Core — Concept Brief
 
 ---
 
 ## 1. Executive Summary
 
-Tend is a mobile diet-adherence tracker that makes progress **felt** rather than counted. Instead of spreadsheets, streak pressure, or macro dashboards as the primary experience, Tend centers a single interactive object: the **Fusion Core**—a magnetically-levitated, industrial high-tech **3D fidget spinner** that feels like a piece of bleeding-edge clean energy technology.
+Thrumi is a mobile diet-adherence tracker that makes progress **felt** rather than counted. Instead of spreadsheets, streak pressure, or macro dashboards as the primary experience, Thrumi centers a single interactive object: the **Fusion Core**—a magnetically-levitated, industrial high-tech **3D fidget spinner** that feels like a piece of bleeding-edge clean energy technology.
 
 The Fusion Core’s **spin quality, stability, speed ceiling, and light output** embody the user’s adherence on a 0–100% continuum. As adherence rises, the Core becomes smoother, faster, more visually striking, and more “impossible” in its levitation. As adherence falls, the Core enters a calm, safe low-power mode—still premium and beautiful, just less fidget-worthy.
 
@@ -32,7 +32,7 @@ There’s a large audience who wants to eat better but won’t sustain a spreads
 - immediate, emotionally resonant feedback
 - recovery that feels possible after a bad day
 
-Tend is designed for these users first.
+Thrumi is designed for these users first.
 
 ---
 
@@ -42,7 +42,7 @@ Tend is designed for these users first.
 
 In traditional trackers, **data equals feedback**.
 
-In Tend, **feel equals feedback**.
+In Thrumi, **feel equals feedback**.
 
 Numbers exist (for users who want them), but the primary motivator is a physical, satisfying object whose behavior is meaningfully tied to adherence.
 
@@ -140,7 +140,7 @@ No streak-break punishment. The experience is continuous and recoverable.
 
 ## 6. The Reward Curve (“Awesome” Calibration)
 
-To ensure **80% feels awesome** and **50% and below is not punishing**, Tend uses a non-linear mapping from adherence → “awesomeness.”
+To ensure **80% feels awesome** and **50% and below is not punishing**, Thrumi uses a non-linear mapping from adherence → “awesomeness.”
 
 Design behavior:
 
@@ -347,7 +347,7 @@ Then:
 
 Target: under 60 seconds to first meaningful interaction.
 
-1. Welcome: “Tend keeps your reactor online.”
+1. Welcome: “Thrumi keeps your reactor online.”
 2. Select dietary goal.
 3. Meet your Fusion Core: quick tutorial (flick to spin).
 4. Prompt to log your next meal.
