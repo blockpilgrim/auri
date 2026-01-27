@@ -8,41 +8,23 @@ struct CoreView: View {
             Color.black
                 .ignoresSafeArea()
 
-            VStack(spacing: 0) {
-                // Fusion Core 3D View
-                FusionCoreView(
-                    adherenceState: adherenceEngine?.state ?? .empty,
-                    adherenceEngine: adherenceEngine
-                )
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
+            // Fusion Core 3D View (full screen)
+            FusionCoreView(
+                adherenceState: adherenceEngine?.state ?? .empty,
+                adherenceEngine: adherenceEngine
+            )
 
-                // Today's adherence HUD
-                HStack {
-                    adherenceHUD
-                    Spacer()
-                }
-                .padding(.horizontal, 20)
-                .padding(.bottom, 16)
-            }
-        }
-    }
+            // HUD Overlay
+            CoreHUD(adherence: adherenceEngine?.state)
 
-    @ViewBuilder
-    private var adherenceHUD: some View {
-        let percentage = Int((adherenceEngine?.state.todayAdherence ?? 0) * 100)
-        VStack(alignment: .leading, spacing: 2) {
-            Text("TODAY")
-                .font(.caption2)
-                .fontWeight(.medium)
-                .foregroundStyle(.gray)
-            Text("\(percentage)%")
-                .font(.title3)
-                .fontWeight(.semibold)
-                .foregroundStyle(.white)
+            // First-week tooltip
+            CoreTooltip()
         }
-        .padding(.horizontal, 12)
-        .padding(.vertical, 8)
-        .background(.ultraThinMaterial.opacity(0.5), in: RoundedRectangle(cornerRadius: 8))
+        .onAppear {
+            // Recalculate adherence when view appears
+            // This ensures state is fresh after returning from other screens
+            adherenceEngine?.recalculate()
+        }
     }
 }
 

@@ -39,6 +39,9 @@
 		B1477002BBBBBBBB00477002 /* PhotoCaptureSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1477012BBBBBBBB00477012 /* PhotoCaptureSection.swift */; };
 		B1477003BBBBBBBB00477003 /* TextEntrySection.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1477013BBBBBBBB00477013 /* TextEntrySection.swift */; };
 		B1477004BBBBBBBB00477004 /* TrackingButtons.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1477014BBBBBBBB00477014 /* TrackingButtons.swift */; };
+		B1478001BBBBBBBB00478001 /* CoreHUD.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1478011BBBBBBBB00478011 /* CoreHUD.swift */; };
+		B1478002BBBBBBBB00478002 /* CoreTooltip.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1478012BBBBBBBB00478012 /* CoreTooltip.swift */; };
+		B1478003BBBBBBBB00478003 /* DataViewButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1478013BBBBBBBB00478013 /* DataViewButton.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -87,6 +90,9 @@
 		B1477012BBBBBBBB00477012 /* PhotoCaptureSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoCaptureSection.swift; sourceTree = "<group>"; };
 		B1477013BBBBBBBB00477013 /* TextEntrySection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextEntrySection.swift; sourceTree = "<group>"; };
 		B1477014BBBBBBBB00477014 /* TrackingButtons.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrackingButtons.swift; sourceTree = "<group>"; };
+		B1478011BBBBBBBB00478011 /* CoreHUD.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreHUD.swift; sourceTree = "<group>"; };
+		B1478012BBBBBBBB00478012 /* CoreTooltip.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreTooltip.swift; sourceTree = "<group>"; };
+		B1478013BBBBBBBB00478013 /* DataViewButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataViewButton.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -174,6 +180,9 @@
 			isa = PBXGroup;
 			children = (
 				B1477011BBBBBBBB00477011 /* CameraView.swift */,
+				B1478011BBBBBBBB00478011 /* CoreHUD.swift */,
+				B1478012BBBBBBBB00478012 /* CoreTooltip.swift */,
+				B1478013BBBBBBBB00478013 /* DataViewButton.swift */,
 				B1477012BBBBBBBB00477012 /* PhotoCaptureSection.swift */,
 				B1477013BBBBBBBB00477013 /* TextEntrySection.swift */,
 				B1477014BBBBBBBB00477014 /* TrackingButtons.swift */,
@@ -356,6 +365,9 @@
 				B1477002BBBBBBBB00477002 /* PhotoCaptureSection.swift in Sources */,
 				B1477003BBBBBBBB00477003 /* TextEntrySection.swift in Sources */,
 				B1477004BBBBBBBB00477004 /* TrackingButtons.swift in Sources */,
+				B1478001BBBBBBBB00478001 /* CoreHUD.swift in Sources */,
+				B1478002BBBBBBBB00478002 /* CoreTooltip.swift in Sources */,
+				B1478003BBBBBBBB00478003 /* DataViewButton.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

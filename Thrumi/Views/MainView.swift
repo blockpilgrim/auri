@@ -11,19 +11,9 @@ struct MainView: View {
             VStack {
                 HStack {
                     Spacer()
-
-                    Button {
-                        showDataView = true
-                    } label: {
-                        Image(systemName: "chart.bar.fill")
-                            .font(.title2)
-                            .foregroundStyle(.white.opacity(0.8))
-                            .padding(12)
-                            .background(.ultraThinMaterial)
-                            .clipShape(Circle())
-                    }
-                    .padding(.trailing, 20)
-                    .padding(.top, 8)
+                    DataViewButton { showDataView = true }
+                        .padding(.trailing, 20)
+                        .padding(.top, 8)
                 }
 
                 Spacer()
