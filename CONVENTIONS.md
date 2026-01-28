@@ -309,29 +309,25 @@ import RealityKit
 import UIKit
 
 @MainActor
-final class FusionCoreScene {
+final class WispOrbScene {
     let rootEntity: Entity
-    let outerRing: Entity
+    private var wisps: [Wisp] = []
     // ... other component references
 
-    private init(rootEntity: Entity, outerRing: Entity, ...) {
+    private init(rootEntity: Entity) {
         self.rootEntity = rootEntity
-        self.outerRing = outerRing
     }
 
-    static func create() async -> FusionCoreScene {
+    static func create() async -> WispOrbScene {
         let root = Entity()
-        root.name = "FusionCore"
+        root.name = "WispOrb"
 
-        // Create components...
-        let outer = createRing(...)
-        root.addChild(outer)
-
-        return FusionCoreScene(rootEntity: root, outerRing: outer, ...)
+        // Create initial wisps, add to root...
+        return WispOrbScene(rootEntity: root)
     }
 
-    func setEmissiveIntensity(_ intensity: Float, for component: CoreComponent) {
-        // Update materials at runtime
+    func update(interpolator: StateInterpolator, spinAngle: Float, deltaTime: Float, breathingPulse: Float) {
+        // Update wisp positions, colors, counts based on interpolator
     }
 }
 ```
@@ -863,7 +859,7 @@ struct OnboardingView: View {
 
 **Example**:
 ```swift
-FusionCoreView(adherenceState: tutorialState)
+WispOrbView(adherenceState: tutorialState)
     .simultaneousGesture(
         DragGesture(minimumDistance: 20)
             .onEnded { value in
@@ -987,14 +983,14 @@ final class ThermalManager {
 **Example**:
 ```swift
 // Environment key
-private struct FusionCoreReducedMotionKey: EnvironmentKey {
+private struct WispOrbReducedMotionKey: EnvironmentKey {
     static let defaultValue: Bool = false
 }
 
 extension EnvironmentValues {
-    var fusionCoreReducedMotion: Bool {
-        get { self[FusionCoreReducedMotionKey.self] }
-        set { self[FusionCoreReducedMotionKey.self] = newValue }
+    var wispOrbReducedMotion: Bool {
+        get { self[WispOrbReducedMotionKey.self] }
+        set { self[WispOrbReducedMotionKey.self] = newValue }
     }
 }
 
@@ -1014,7 +1010,7 @@ struct ReducedMotionModifier: ViewModifier {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     func body(content: Content) -> some View {
-        content.environment(\.fusionCoreReducedMotion, reduceMotion)
+        content.environment(\.wispOrbReducedMotion, reduceMotion)
     }
 }
 ```
@@ -1298,48 +1294,49 @@ for ring in rings {
 ```swift
 // Main scene orchestrator - owns all sub-systems
 @MainActor
-final class FusionCoreScene {
+final class WispOrbScene {
     let rootEntity: Entity
 
-    private let reactorCore: ReactorCore      // Central energy field
-    private let spinnerRings: SpinnerRings    // Industrial spinning structure
-    private let particles: ParticleSystem     // Sparks, arcs, flashes
+    private var wisps: [Wisp] = []       // Individual wisp entities
+    private var targetWispCount: Int = 5  // Changes with adherence
 
-    static func create() async -> FusionCoreScene {
+    static func create() async -> WispOrbScene {
         let root = Entity()
+        root.name = "WispOrb"
 
-        let core = ReactorCore.create(unitScale: unitScale)
-        root.addChild(core.container)
+        // Create initial wisps...
+        let scene = WispOrbScene(rootEntity: root)
+        await scene.initializeWisps(count: 5, palette: WispColors.palette(for: 0))
 
-        let rings = SpinnerRings.create(unitScale: unitScale)
-        root.addChild(rings.container)
-
-        let particles = ParticleSystem(ringRadii: rings.ringRadii, unitScale: unitScale)
-        root.addChild(particles.container)
-
-        return FusionCoreScene(...)
+        return scene
     }
 
-    func update(interpolator: StateInterpolator, ...) {
-        reactorCore.update(interpolator: interpolator, ...)
-        spinnerRings.update(interpolator: interpolator, ...)
-        particles.update(interpolator: interpolator, ...)
+    func update(interpolator: StateInterpolator, spinAngle: Float, deltaTime: Float, breathingPulse: Float) {
+        // Update wisp count based on adherence
+        adjustWispCount(deltaTime: deltaTime)
+
+        // Update each wisp position
+        for wisp in wisps {
+            wisp.update(deltaTime: deltaTime, globalSpinAngle: spinAngle, ...)
+        }
     }
 }
 
-// Each sub-system manages its own Entity container
+// Individual wisp entity wrapper
 @MainActor
-final class ReactorCore {
-    let container: Entity
+final class Wisp {
+    let entity: ModelEntity
+    var orbitRadius: Float
+    var orbitSpeed: Float
 
-    static func create(unitScale: Float) -> ReactorCore {
-        let container = Entity()
-        // Build layer hierarchy...
-        return ReactorCore(container: container, ...)
+    static func create(color: UIColor, orbitRadius: Float, brightness: Float, unitScale: Float) -> Wisp {
+        // Create sphere mesh with UnlitMaterial
+        // Randomize orbital parameters for organic feel
+        return Wisp(entity: entity, ...)
     }
 
-    func update(interpolator: StateInterpolator, ...) {
-        // Update internal entities
+    func update(deltaTime: Float, globalSpinAngle: Float, ...) {
+        // Update position on tilted orbital plane
     }
 }
 ```
@@ -1348,7 +1345,6 @@ final class ReactorCore {
 - Each visual system has a clear responsibility and API surface
 - Sub-systems can be developed and tested independently
 - StateInterpolator provides single source of truth for adherence-based parameters
-- Container entities allow clean hierarchy in scene graph
 - Factory methods (`create()`) encapsulate complex construction
 - Update methods accept interpolator for consistent state mapping
 

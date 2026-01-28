@@ -1,14 +1,14 @@
 import SwiftUI
 
 /// Core tutorial - third step of onboarding.
-/// Shows the actual Fusion Core and prompts user to flick it.
+/// Shows the Orb of Wisps and prompts user to flick it.
 struct CoreTutorialStep: View {
     @Environment(\.hapticsManager) private var hapticsManager
     @State private var hasFlicked = false
 
     let onComplete: () -> Void
 
-    /// Tutorial state shows the Core in a good "Online" state (80% adherence)
+    /// Tutorial state shows the Orb in a good "High" state (80% adherence)
     /// so it looks impressive but has room to improve
     private let tutorialState = AdherenceState(
         todayAdherence: 0.8,
@@ -18,8 +18,8 @@ struct CoreTutorialStep: View {
 
     var body: some View {
         ZStack {
-            // Full-screen Fusion Core with flick detection
-            FusionCoreView(
+            // Full-screen Wisp Orb with flick detection
+            WispOrbView(
                 adherenceState: tutorialState,
                 adherenceEngine: nil,
                 hapticsManager: hapticsManager
@@ -40,7 +40,7 @@ struct CoreTutorialStep: View {
                                 .font(.system(size: 32))
                                 .foregroundStyle(.cyan)
 
-                            Text("Flick to spin your Fusion Core")
+                            Text("Flick to spin the wisps")
                                 .font(.headline)
                                 .foregroundStyle(.white)
                         }
@@ -53,7 +53,7 @@ struct CoreTutorialStep: View {
                                 .font(.title2.bold())
                                 .foregroundStyle(.white)
 
-                            Text("Your Core's power reflects your choices")
+                            Text("Your Orb's energy reflects your choices")
                                 .font(.subheadline)
                                 .foregroundStyle(.white.opacity(0.7))
                                 .multilineTextAlignment(.center)
@@ -87,7 +87,7 @@ struct CoreTutorialStep: View {
 
     // MARK: - Flick Detection
 
-    /// Gesture that runs simultaneously with FusionCoreView's gestures
+    /// Gesture that runs simultaneously with WispOrbView's gestures
     /// to detect when user has flicked
     private var flickDetectionGesture: some Gesture {
         DragGesture(minimumDistance: 20)

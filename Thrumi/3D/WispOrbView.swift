@@ -2,10 +2,12 @@ import RealityKit
 import SwiftUI
 import UIKit
 
-/// Renders the Fusion Core 3D experience.
+/// Renders the Orb of Wisps 3D experience.
 ///
-/// Camera is fixed and presented as a ~65° downward view by transforming the rendered content.
-struct FusionCoreView: View {
+/// A magical orb with orbiting spirit-like wisps that respond to adherence state.
+/// Users can flick to spin the wisps faster. The number, speed, and brightness
+/// of wisps reflect the user's dietary adherence.
+struct WispOrbView: View {
     let adherenceState: AdherenceState
 
     var adherenceEngine: AdherenceEngine?
@@ -13,7 +15,7 @@ struct FusionCoreView: View {
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
-    @State private var scene: FusionCoreScene?
+    @State private var scene: WispOrbScene?
     @State private var physics = SpinnerPhysics()
     @State private var stateInterpolator = StateInterpolator()
     @State private var pulseSystem = MultiFrequencyPulse()
@@ -30,11 +32,11 @@ struct FusionCoreView: View {
 
     var body: some View {
         RealityView { content in
-            let fusionCore = await FusionCoreScene.create()
-            content.add(fusionCore.rootEntity)
+            let wispOrb = await WispOrbScene.create()
+            content.add(wispOrb.rootEntity)
 
             await MainActor.run {
-                scene = fusionCore
+                scene = wispOrb
 
                 stateInterpolator.update(with: adherenceState)
                 applyPhysicsParameters()
@@ -117,9 +119,8 @@ struct FusionCoreView: View {
         guard displayLink == nil else { return }
 
         displayLink = DisplayLinkController { deltaTime in
-            Task { @MainActor in
-                tick(deltaTime: deltaTime)
-            }
+            // DisplayLink already fires on main thread; avoid Task overhead.
+            tick(deltaTime: deltaTime)
         }
         displayLink?.start()
     }
@@ -132,13 +133,23 @@ struct FusionCoreView: View {
     private func tick(deltaTime: Float) {
         guard let scene else { return }
 
-        // Consume pending micro-feedback (haptics only).
+        // Consume pending micro-feedback.
         if let engine = adherenceEngine, let isOnTrack = engine.pendingMicroFeedback {
             hapticsManager?.playMicroFeedback(isOnTrack: isOnTrack)
+            if isOnTrack {
+                scene.triggerOnTrackFeedback()
+            } else {
+                scene.triggerOffTrackFeedback()
+            }
             engine.clearMicroFeedback()
         }
         if let isOnTrack = pendingMicroFeedback {
             hapticsManager?.playMicroFeedback(isOnTrack: isOnTrack)
+            if isOnTrack {
+                scene.triggerOnTrackFeedback()
+            } else {
+                scene.triggerOffTrackFeedback()
+            }
             pendingMicroFeedback = nil
         }
 
@@ -153,15 +164,14 @@ struct FusionCoreView: View {
         let amplitude: Float = motionConfig.showPulse ? (stateInterpolator.pulseAmplitude * thermalManager.effectMultiplier) : 0
         let pulseValues = pulseSystem.update(deltaTime: deltaTime, amplitude: amplitude, adherence: adherence)
 
+        // Use primary pulse for breathing animation.
+        let breathingPulse = pulseValues.primary
+
         scene.update(
             interpolator: stateInterpolator,
-            pulse: pulseValues,
-            deltaTime: deltaTime * motionConfig.animationSpeed,
             spinAngle: physics.spinAngle,
-            currentTime: currentTime,
-            bloomMultiplier: thermalManager.bloomMultiplier,
-            thermalParticleMultiplier: thermalManager.particleMultiplier,
-            showParticles: motionConfig.showParticles
+            deltaTime: deltaTime * motionConfig.animationSpeed,
+            breathingPulse: breathingPulse
         )
     }
 
@@ -273,8 +283,8 @@ struct VelocityTracker {
 
 // MARK: - Previews
 
-#Preview("Phase-Locked (100%)") {
-    FusionCoreView(
+#Preview("Peak (100%)") {
+    WispOrbView(
         adherenceState: AdherenceState(
             todayAdherence: 1.0,
             rolling7Adherence: 1.0,
@@ -284,8 +294,8 @@ struct VelocityTracker {
     .background(Color.black)
 }
 
-#Preview("Online (80%)") {
-    FusionCoreView(
+#Preview("High (80%)") {
+    WispOrbView(
         adherenceState: AdherenceState(
             todayAdherence: 0.8,
             rolling7Adherence: 0.8,
@@ -295,8 +305,8 @@ struct VelocityTracker {
     .background(Color.black)
 }
 
-#Preview("Stabilizing (60%)") {
-    FusionCoreView(
+#Preview("Medium (60%)") {
+    WispOrbView(
         adherenceState: AdherenceState(
             todayAdherence: 0.6,
             rolling7Adherence: 0.6,
@@ -306,8 +316,8 @@ struct VelocityTracker {
     .background(Color.black)
 }
 
-#Preview("Standby (40%)") {
-    FusionCoreView(
+#Preview("Low (40%)") {
+    WispOrbView(
         adherenceState: AdherenceState(
             todayAdherence: 0.4,
             rolling7Adherence: 0.4,
@@ -317,8 +327,8 @@ struct VelocityTracker {
     .background(Color.black)
 }
 
-#Preview("Safe Mode (20%)") {
-    FusionCoreView(
+#Preview("Minimal (20%)") {
+    WispOrbView(
         adherenceState: AdherenceState(
             todayAdherence: 0.2,
             rolling7Adherence: 0.2,

@@ -7,11 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		47C1BF84B4C8AD263C23D72D /* CoreColors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 065958F5C7947DEDCD514A2B /* CoreColors.swift */; };
+		05AF05EC708F0232F3E7E22B /* WispColors.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE25E748B7FD36FA3FEFAAD1 /* WispColors.swift */; };
+		0C9CEB5B9873F00953B521DA /* WispOrbScene.swift in Sources */ = {isa = PBXBuildFile; fileRef = D362CF7E254BA012A1D7C39A /* WispOrbScene.swift */; };
+		4FC44C2D83563532694D09AA /* WispOrbView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4DC7CB5D5DAC6523E5FD751D /* WispOrbView.swift */; };
 		8D186C37E93D82FD0DCCB047 /* MultiFrequencyPulse.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3EA8EA4976A5DFF255DD36A /* MultiFrequencyPulse.swift */; };
-		A1NEWCORE001BBBBBBBB00001 /* ReactorCore.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1NEWCORE011BBBBBBBB00011 /* ReactorCore.swift */; };
-		A1NEWCORE002BBBBBBBB00002 /* SpinnerRings.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1NEWCORE012BBBBBBBB00012 /* SpinnerRings.swift */; };
-		A1NEWCORE003BBBBBBBB00003 /* ParticleSystem.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1NEWCORE013BBBBBBBB00013 /* ParticleSystem.swift */; };
 		B1000001BBBBBBBB00000001 /* ThrumiApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000011BBBBBBBB00000011 /* ThrumiApp.swift */; };
 		B1000003BBBBBBBB00000003 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B1000013BBBBBBBB00000013 /* Assets.xcassets */; };
 		B1000004BBBBBBBB00000004 /* Meal.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000014BBBBBBBB00000014 /* Meal.swift */; };
@@ -33,8 +32,6 @@
 		B1473005BBBBBBBB00473005 /* LogMealView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1473015BBBBBBBB00473015 /* LogMealView.swift */; };
 		B1473006BBBBBBBB00473006 /* DataView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1473016BBBBBBBB00473016 /* DataView.swift */; };
 		B1473007BBBBBBBB00473007 /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1473017BBBBBBBB00473017 /* OnboardingView.swift */; };
-		B1474002BBBBBBBB00474002 /* FusionCoreScene.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1474012BBBBBBBB00474012 /* FusionCoreScene.swift */; };
-		B1474003BBBBBBBB00474003 /* FusionCoreView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1474013BBBBBBBB00474013 /* FusionCoreView.swift */; };
 		B1475001BBBBBBBB00475001 /* SpinnerPhysics.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1475011BBBBBBBB00475011 /* SpinnerPhysics.swift */; };
 		B1475002BBBBBBBB00475002 /* MotionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1475012BBBBBBBB00475012 /* MotionManager.swift */; };
 		B1476001BBBBBBBB00476001 /* StateInterpolator.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1476011BBBBBBBB00476011 /* StateInterpolator.swift */; };
@@ -60,6 +57,7 @@
 		B1481372BBBBBBBB00481418 /* ThermalManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1481E3BBBBBBBBB00481BFC /* ThermalManager.swift */; };
 		B1481421BBBBBBBB00481525 /* HapticsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B148122DBBBBBBBB004818A7 /* HapticsManager.swift */; };
 		B1481924BBBBBBBB00481ADC /* ReducedMotionSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1481BAEBBBBBBBB0048149A /* ReducedMotionSupport.swift */; };
+		E356EFE08000515E5E404063 /* Wisp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04AFA3C914787350B0A8E61F /* Wisp.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -73,10 +71,9 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		065958F5C7947DEDCD514A2B /* CoreColors.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CoreColors.swift; sourceTree = "<group>"; };
-		A1NEWCORE011BBBBBBBB00011 /* ReactorCore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReactorCore.swift; sourceTree = "<group>"; };
-		A1NEWCORE012BBBBBBBB00012 /* SpinnerRings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpinnerRings.swift; sourceTree = "<group>"; };
-		A1NEWCORE013BBBBBBBB00013 /* ParticleSystem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParticleSystem.swift; sourceTree = "<group>"; };
+		04AFA3C914787350B0A8E61F /* Wisp.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Wisp.swift; sourceTree = "<group>"; };
+		4DC7CB5D5DAC6523E5FD751D /* WispOrbView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = WispOrbView.swift; sourceTree = "<group>"; };
+		AE25E748B7FD36FA3FEFAAD1 /* WispColors.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = WispColors.swift; sourceTree = "<group>"; };
 		B1000011BBBBBBBB00000011 /* ThrumiApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThrumiApp.swift; sourceTree = "<group>"; };
 		B1000013BBBBBBBB00000013 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		B1000014BBBBBBBB00000014 /* Meal.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Meal.swift; sourceTree = "<group>"; };
@@ -101,8 +98,6 @@
 		B1473015BBBBBBBB00473015 /* LogMealView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogMealView.swift; sourceTree = "<group>"; };
 		B1473016BBBBBBBB00473016 /* DataView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataView.swift; sourceTree = "<group>"; };
 		B1473017BBBBBBBB00473017 /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingView.swift; sourceTree = "<group>"; };
-		B1474012BBBBBBBB00474012 /* FusionCoreScene.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FusionCoreScene.swift; sourceTree = "<group>"; };
-		B1474013BBBBBBBB00474013 /* FusionCoreView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FusionCoreView.swift; sourceTree = "<group>"; };
 		B1475011BBBBBBBB00475011 /* SpinnerPhysics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpinnerPhysics.swift; sourceTree = "<group>"; };
 		B1475012BBBBBBBB00475012 /* MotionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MotionManager.swift; sourceTree = "<group>"; };
 		B1476011BBBBBBBB00476011 /* StateInterpolator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StateInterpolator.swift; sourceTree = "<group>"; };
@@ -128,6 +123,7 @@
 		B148122DBBBBBBBB004818A7 /* HapticsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HapticsManager.swift; sourceTree = "<group>"; };
 		B1481BAEBBBBBBBB0048149A /* ReducedMotionSupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReducedMotionSupport.swift; sourceTree = "<group>"; };
 		B1481E3BBBBBBBBB00481BFC /* ThermalManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThermalManager.swift; sourceTree = "<group>"; };
+		D362CF7E254BA012A1D7C39A /* WispOrbScene.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = WispOrbScene.swift; sourceTree = "<group>"; };
 		D3EA8EA4976A5DFF255DD36A /* MultiFrequencyPulse.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = MultiFrequencyPulse.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -242,16 +238,14 @@
 			children = (
 				B1481BAEBBBBBBBB0048149A /* ReducedMotionSupport.swift */,
 				B148122DBBBBBBBB004818A7 /* HapticsManager.swift */,
-				B1474012BBBBBBBB00474012 /* FusionCoreScene.swift */,
-				B1474013BBBBBBBB00474013 /* FusionCoreView.swift */,
 				B1475011BBBBBBBB00475011 /* SpinnerPhysics.swift */,
 				B1475012BBBBBBBB00475012 /* MotionManager.swift */,
 				B1476011BBBBBBBB00476011 /* StateInterpolator.swift */,
 				D3EA8EA4976A5DFF255DD36A /* MultiFrequencyPulse.swift */,
-				065958F5C7947DEDCD514A2B /* CoreColors.swift */,
-				A1NEWCORE011BBBBBBBB00011 /* ReactorCore.swift */,
-				A1NEWCORE012BBBBBBBB00012 /* SpinnerRings.swift */,
-				A1NEWCORE013BBBBBBBB00013 /* ParticleSystem.swift */,
+				AE25E748B7FD36FA3FEFAAD1 /* WispColors.swift */,
+				04AFA3C914787350B0A8E61F /* Wisp.swift */,
+				D362CF7E254BA012A1D7C39A /* WispOrbScene.swift */,
+				4DC7CB5D5DAC6523E5FD751D /* WispOrbView.swift */,
 			);
 			path = 3D;
 			sourceTree = "<group>";
@@ -424,11 +418,6 @@
 				B1000080BBBBBBBB00000080 /* MealService.swift in Sources */,
 				B1000081BBBBBBBB00000081 /* AdherenceEngine.swift in Sources */,
 				B1000082BBBBBBBB00000082 /* UserPreferencesService.swift in Sources */,
-				B1474002BBBBBBBB00474002 /* FusionCoreScene.swift in Sources */,
-				B1474003BBBBBBBB00474003 /* FusionCoreView.swift in Sources */,
-				A1NEWCORE001BBBBBBBB00001 /* ReactorCore.swift in Sources */,
-				A1NEWCORE002BBBBBBBB00002 /* SpinnerRings.swift in Sources */,
-				A1NEWCORE003BBBBBBBB00003 /* ParticleSystem.swift in Sources */,
 				B1481372BBBBBBBB00481418 /* ThermalManager.swift in Sources */,
 				B1481924BBBBBBBB00481ADC /* ReducedMotionSupport.swift in Sources */,
 				B1481421BBBBBBBB00481525 /* HapticsManager.swift in Sources */,
@@ -455,7 +444,10 @@
 				B1480004BBBBBBBB00480004 /* CoreTutorialStep.swift in Sources */,
 				B1480005BBBBBBBB00480005 /* FirstMealPromptStep.swift in Sources */,
 				8D186C37E93D82FD0DCCB047 /* MultiFrequencyPulse.swift in Sources */,
-				47C1BF84B4C8AD263C23D72D /* CoreColors.swift in Sources */,
+				05AF05EC708F0232F3E7E22B /* WispColors.swift in Sources */,
+				E356EFE08000515E5E404063 /* Wisp.swift in Sources */,
+				0C9CEB5B9873F00953B521DA /* WispOrbScene.swift in Sources */,
+				4FC44C2D83563532694D09AA /* WispOrbView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -9,8 +9,8 @@ struct CoreView: View {
             Color.black
                 .ignoresSafeArea()
 
-            // Fusion Core 3D View (full screen)
-            FusionCoreView(
+            // Wisp Orb 3D View (full screen)
+            WispOrbView(
                 adherenceState: adherenceEngine?.state ?? .empty,
                 adherenceEngine: adherenceEngine,
                 hapticsManager: hapticsManager

@@ -1,23 +1,23 @@
 import SwiftUI
 
-/// Environment key for Fusion Core reduced motion mode.
+/// Environment key for Wisp Orb reduced motion mode.
 ///
-/// When true, the Core displays a "calm mode" experience:
+/// When true, the Orb displays a "calm mode" experience:
 /// - Slower animation speeds
-/// - Less precession
+/// - Less orbital motion
 /// - Static glow instead of pulsing
 /// - Fewer secondary effects
 /// - State differentiation preserved via color/intensity (not motion)
-private struct FusionCoreReducedMotionKey: EnvironmentKey {
+private struct WispOrbReducedMotionKey: EnvironmentKey {
     static let defaultValue: Bool = false
 }
 
 extension EnvironmentValues {
-    /// Whether the Fusion Core should use reduced motion mode.
+    /// Whether the Wisp Orb should use reduced motion mode.
     /// Automatically syncs with system Reduce Motion setting.
-    var fusionCoreReducedMotion: Bool {
-        get { self[FusionCoreReducedMotionKey.self] }
-        set { self[FusionCoreReducedMotionKey.self] = newValue }
+    var wispOrbReducedMotion: Bool {
+        get { self[WispOrbReducedMotionKey.self] }
+        set { self[WispOrbReducedMotionKey.self] = newValue }
     }
 }
 
@@ -31,10 +31,10 @@ struct ReducedMotionConfig {
     /// Multiplier for precession effects (0.0 = none, 1.0 = normal)
     let precessionIntensity: Float
 
-    /// Whether to show the reactor pulse animation
+    /// Whether to show the breathing pulse animation
     let showPulse: Bool
 
-    /// Whether to show particle effects (sparks, arcs, flashes)
+    /// Whether to show particle effects (trails at high adherence)
     let showParticles: Bool
 
     /// Multiplier for jitter effects (0.0 = none, 1.0 = normal)
@@ -73,18 +73,18 @@ struct ReducedMotionConfig {
 
 // MARK: - View Modifier
 
-/// Applies reduced motion settings to the Fusion Core view hierarchy.
+/// Applies reduced motion settings to the Wisp Orb view hierarchy.
 struct ReducedMotionModifier: ViewModifier {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     func body(content: Content) -> some View {
         content
-            .environment(\.fusionCoreReducedMotion, reduceMotion)
+            .environment(\.wispOrbReducedMotion, reduceMotion)
     }
 }
 
 extension View {
-    /// Applies system Reduce Motion preference to Fusion Core effects.
+    /// Applies system Reduce Motion preference to Wisp Orb effects.
     func respectsReduceMotion() -> some View {
         modifier(ReducedMotionModifier())
     }
@@ -122,7 +122,7 @@ final class MotionSettingsProvider {
     /// Whether to show pulse animation
     var showPulse: Bool { config.showPulse }
 
-    /// Whether to show particle effects (sparks, arcs, flashes)
+    /// Whether to show particle effects (trails at high adherence)
     var showParticles: Bool { config.showParticles }
 
     /// Jitter intensity multiplier
@@ -138,36 +138,29 @@ final class MotionSettingsProvider {
 ///
 /// When motion is reduced, state differentiation is preserved through:
 /// - Color intensity (brighter = higher adherence)
-/// - Light brightness (more glow = higher adherence)
-/// - Ring roughness (shinier = higher adherence)
+/// - Wisp count (more wisps = higher adherence)
+/// - Color palette (warmer colors = higher adherence)
 ///
-/// These non-motion cues ensure the Core remains informative even
+/// These non-motion cues ensure the Orb remains informative even
 /// when animations are minimized.
 struct ReducedMotionStateHints {
-    /// Whether the Core is in a "high power" state (70%+ adherence)
-    let isHighPower: Bool
+    /// Whether the Orb is in a "high energy" state (70%+ adherence)
+    let isHighEnergy: Bool
 
-    /// Whether the Core is in peak state (90%+ adherence)
+    /// Whether the Orb is in peak state (85%+ adherence)
     let isPeakState: Bool
 
-    /// Suggested static glow intensity (0.2 to 1.0)
-    let staticGlowIntensity: Float
+    /// Suggested static brightness (0.4 to 1.0)
+    let staticBrightness: Float
 
-    /// Suggested ring shine level (0.15 to 0.4 roughness)
-    let ringRoughness: Float
-
-    /// Creates hints from normalized power value
+    /// Creates hints from adherence value
     /// - Parameters:
-    ///   - normalizedPower: Normalized power from StateInterpolator (0.0 to 1.0)
     ///   - coreAdherence: Raw core adherence value (0.0 to 1.0)
-    init(normalizedPower: Float, coreAdherence: Double) {
-        isHighPower = coreAdherence >= 0.70
-        isPeakState = coreAdherence >= 0.90
+    init(coreAdherence: Double) {
+        isHighEnergy = coreAdherence >= 0.70
+        isPeakState = coreAdherence >= 0.85
 
-        // Map power to static glow (no pulse, just steady brightness)
-        staticGlowIntensity = 0.2 + (normalizedPower * 0.8)
-
-        // Map power to roughness (inverted - lower roughness = shinier)
-        ringRoughness = 0.4 - (normalizedPower * 0.25)
+        // Map adherence to static brightness (no pulse, just steady brightness)
+        staticBrightness = 0.4 + (Float(coreAdherence) * 0.6)
     }
 }
