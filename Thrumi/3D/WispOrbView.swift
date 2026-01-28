@@ -361,7 +361,8 @@ struct WispOrbView: View {
             interpolator: stateInterpolator,
             spinAngle: physics.spinAngle,
             deltaTime: deltaTime * motionConfig.animationSpeed,
-            breathingPulse: breathingPulse
+            breathingPulse: breathingPulse,
+            motionConfig: motionConfig
         )
     }
 

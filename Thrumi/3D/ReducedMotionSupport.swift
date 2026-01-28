@@ -5,7 +5,6 @@ import SwiftUI
 /// When true, the Orb displays a "calm mode" experience:
 /// - Slower animation speeds
 /// - Less orbital motion
-/// - Static glow instead of pulsing
 /// - Fewer secondary effects
 /// - State differentiation preserved via color/intensity (not motion)
 private struct WispOrbReducedMotionKey: EnvironmentKey {
@@ -37,14 +36,17 @@ struct ReducedMotionConfig {
     /// Whether to show particle effects (trails at high adherence)
     let showParticles: Bool
 
+    /// Whether to show ambient motes (floating dust particles)
+    let showMotes: Bool
+
+    /// Whether to show tier transition effects
+    let showTierTransitions: Bool
+
     /// Multiplier for jitter effects (0.0 = none, 1.0 = normal)
     let jitterIntensity: Float
 
     /// Whether to show micro-feedback animations
     let showMicroFeedback: Bool
-
-    /// Multiplier for glow transitions (higher = faster transitions)
-    let glowTransitionSpeed: Float
 
     // MARK: - Presets
 
@@ -54,9 +56,10 @@ struct ReducedMotionConfig {
         precessionIntensity: 1.0,
         showPulse: true,
         showParticles: true,
+        showMotes: true,
+        showTierTransitions: true,
         jitterIntensity: 1.0,
-        showMicroFeedback: true,
-        glowTransitionSpeed: 1.0
+        showMicroFeedback: true
     )
 
     /// Reduced motion mode - calm experience
@@ -65,9 +68,10 @@ struct ReducedMotionConfig {
         precessionIntensity: 0.0,
         showPulse: false,
         showParticles: false,
+        showMotes: false,
+        showTierTransitions: false,
         jitterIntensity: 0.0,
-        showMicroFeedback: false,
-        glowTransitionSpeed: 2.0 // Faster transitions = less motion
+        showMicroFeedback: false
     )
 }
 
@@ -124,6 +128,12 @@ final class MotionSettingsProvider {
 
     /// Whether to show particle effects (trails at high adherence)
     var showParticles: Bool { config.showParticles }
+
+    /// Whether to show ambient motes
+    var showMotes: Bool { config.showMotes }
+
+    /// Whether to show tier transition effects
+    var showTierTransitions: Bool { config.showTierTransitions }
 
     /// Jitter intensity multiplier
     var jitterIntensity: Float { config.jitterIntensity }

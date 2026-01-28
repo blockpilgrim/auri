@@ -10,7 +10,6 @@ import UIKit
 /// - wispBrightness: Brightness of wisps
 /// - colorPalette: Color palette for current adherence level
 /// - breathingAmplitude: Scale pulse amplitude for wisp "breathing"
-/// - showTrails: Whether to show particle trails (high adherence only)
 @Observable
 @MainActor
 final class StateInterpolator {
@@ -26,20 +25,20 @@ final class StateInterpolator {
     ///
     /// | Adherence | Count |
     /// |-----------|-------|
-    /// | 0-20%     | 3-5   |
-    /// | 20-50%    | 6-12  |
-    /// | 50-80%    | 12-22 |
-    /// | 80-100%   | 22-30 |
+    /// | 0-20%     | 8-12  |
+    /// | 20-50%    | 12-24 |
+    /// | 50-80%    | 24-40 |
+    /// | 80-100%   | 40-55 |
     var wispCount: Int {
         switch adherence {
         case 0..<0.2:
-            return Int(lerp(3, 5, adherence / 0.2))
+            return Int(lerp(8, 12, adherence / 0.2))
         case 0.2..<0.5:
-            return Int(lerp(6, 12, (adherence - 0.2) / 0.3))
+            return Int(lerp(12, 24, (adherence - 0.2) / 0.3))
         case 0.5..<0.8:
-            return Int(lerp(12, 22, (adherence - 0.5) / 0.3))
+            return Int(lerp(24, 40, (adherence - 0.5) / 0.3))
         default:
-            return Int(lerp(22, 30, (adherence - 0.8) / 0.2))
+            return Int(lerp(40, 55, (adherence - 0.8) / 0.2))
         }
     }
 
@@ -80,11 +79,16 @@ final class StateInterpolator {
         piecewiseLerp(x: adherence, xMid: 0.5, y0: 0.08, yMid: 0.20, y1: 0.40)
     }
 
-    // MARK: - Trails (Future Enhancement)
+    // MARK: - Ambient Motes
 
-    /// Whether to show particle trails (70%+ adherence).
-    var showTrails: Bool {
-        adherence >= 0.7
+    /// Number of ambient motes to display (8 at low, 40 at high).
+    var moteCount: Int {
+        Int(lerp(8, 40, adherence))
+    }
+
+    /// Brightness of ambient motes.
+    var moteBrightness: Float {
+        piecewiseLerp(x: adherence, xMid: 0.5, y0: 0.15, yMid: 0.25, y1: 0.45)
     }
 
     // MARK: - Interaction/Spin

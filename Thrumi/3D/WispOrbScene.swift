@@ -53,6 +53,20 @@ final class WispOrbScene {
     /// Global excitement multiplier
     private var globalExcitement: Float = 1.0
 
+
+    /// Ambient mote system for floating particles
+    private var moteSystem: AmbientMoteSystem?
+
+
+
+    /// Tier transition effect
+    private var tierTransitionEffect: TierTransitionEffect?
+    private var lastTier: OrbTier = .dreaming
+
+
+    /// Accumulated time for mote animation
+    private var accumulatedTime: Float = 0
+
     // MARK: - Initialization
 
     private init(rootEntity: Entity) {
@@ -77,7 +91,17 @@ final class WispOrbScene {
         let ambientLight = createAmbientLight()
         root.addChild(ambientLight)
 
+        // Create ambient mote system
+        let moteSystem = AmbientMoteSystem(unitScale: unitScale)
+        root.addChild(moteSystem.containerEntity)
+
+        // Create tier transition effect
+        let tierTransitionEffect = TierTransitionEffect(unitScale: unitScale)
+        root.addChild(tierTransitionEffect.containerEntity)
+
         let scene = WispOrbScene(rootEntity: root)
+        scene.moteSystem = moteSystem
+        scene.tierTransitionEffect = tierTransitionEffect
 
         // Create initial wisps (low adherence default).
         await scene.initializeWisps(count: 5, palette: WispColors.palette(for: 0))
@@ -106,11 +130,13 @@ final class WispOrbScene {
     ///   - spinAngle: Global spin angle from physics (user flick response)
     ///   - deltaTime: Frame delta time
     ///   - breathingPulse: Pulse value for breathing animation
+    ///   - motionConfig: Reduced motion configuration (optional, defaults to normal)
     func update(
         interpolator: StateInterpolator,
         spinAngle: Float,
         deltaTime: Float,
-        breathingPulse: Float
+        breathingPulse: Float,
+        motionConfig: ReducedMotionConfig = .normal
     ) {
         // Update target wisp count and palette from interpolator.
         let newTarget = interpolator.wispCount
@@ -157,6 +183,39 @@ final class WispOrbScene {
 
         // Update sparkles.
         updateSparkles(deltaTime: deltaTime)
+
+        // Update ambient mote system (respects reduced motion).
+        accumulatedTime += deltaTime
+        let showMotes = motionConfig.showMotes
+        if showMotes {
+            moteSystem?.update(
+                deltaTime: deltaTime,
+                targetCount: interpolator.moteCount,
+                brightness: interpolator.moteBrightness,
+                palette: currentPalette,
+                time: accumulatedTime
+            )
+        } else {
+            moteSystem?.removeAllMotes()
+        }
+
+        // Check for tier transition and update effect (respects reduced motion).
+        let currentTier = OrbTier.from(adherence: Double(interpolator.adherence))
+        if currentTier != lastTier {
+            let isUpgrade = tierValue(currentTier) > tierValue(lastTier)
+            if motionConfig.showTierTransitions {
+                tierTransitionEffect?.trigger(isUpgrade: isUpgrade, palette: currentPalette)
+            }
+            lastTier = currentTier
+        }
+
+        if motionConfig.showTierTransitions, let transitionEffect = tierTransitionEffect {
+            let shouldSparkle = transitionEffect.update(deltaTime: deltaTime)
+            if shouldSparkle {
+                // Trigger a mini sparkle burst for the celebration
+                triggerDoubleTapBurst()
+            }
+        }
 
         // Remove fully faded wisps (iterate backwards to avoid index issues).
         var i = wisps.count - 1
@@ -209,9 +268,9 @@ final class WispOrbScene {
     private func createNewWisp() -> Wisp {
         let color = WispColors.randomColor(from: currentPalette)
 
-        // Vary orbit radius for depth.
-        let baseRadius: Float = 0.4 * Self.unitScale
-        let radiusVariation = Float.random(in: 0.6...1.4)
+        // Vary orbit radius for depth - larger area for more visual impact.
+        let baseRadius: Float = 0.6 * Self.unitScale
+        let radiusVariation = Float.random(in: 0.5...1.5)
 
         return Wisp.create(
             color: color,
@@ -371,6 +430,19 @@ final class WispOrbScene {
 
         return entity
     }
+
+    // MARK: - Tier Helpers
+
+    private func tierValue(_ tier: OrbTier) -> Int {
+        switch tier {
+        case .dreaming: return 0
+        case .resting: return 1
+        case .awakening: return 2
+        case .vibrant: return 3
+        case .radiant: return 4
+        }
+    }
+
 }
 
 // MARK: - Sparkle Particle

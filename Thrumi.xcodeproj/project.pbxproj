@@ -9,7 +9,9 @@
 /* Begin PBXBuildFile section */
 		05AF05EC708F0232F3E7E22B /* WispColors.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE25E748B7FD36FA3FEFAAD1 /* WispColors.swift */; };
 		0C9CEB5B9873F00953B521DA /* WispOrbScene.swift in Sources */ = {isa = PBXBuildFile; fileRef = D362CF7E254BA012A1D7C39A /* WispOrbScene.swift */; };
+		0CBE285A49C66A30F74A186B /* AmbientMoteSystem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9CAF714F02DC77ED1E4E8099 /* AmbientMoteSystem.swift */; };
 		4FC44C2D83563532694D09AA /* WispOrbView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4DC7CB5D5DAC6523E5FD751D /* WispOrbView.swift */; };
+		7A7F02BCCE67313828759C7D /* TierTransitionEffect.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1499F471A26B9C490985AD2 /* TierTransitionEffect.swift */; };
 		8D186C37E93D82FD0DCCB047 /* MultiFrequencyPulse.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3EA8EA4976A5DFF255DD36A /* MultiFrequencyPulse.swift */; };
 		9CE3FABBB962E37E767F21E9 /* OrbTier.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0B39317CCC1E724E2CFFCCB /* OrbTier.swift */; };
 		B1000001BBBBBBBB00000001 /* ThrumiApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000011BBBBBBBB00000011 /* ThrumiApp.swift */; };
@@ -73,6 +75,7 @@
 /* Begin PBXFileReference section */
 		04AFA3C914787350B0A8E61F /* Wisp.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Wisp.swift; sourceTree = "<group>"; };
 		4DC7CB5D5DAC6523E5FD751D /* WispOrbView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = WispOrbView.swift; sourceTree = "<group>"; };
+		9CAF714F02DC77ED1E4E8099 /* AmbientMoteSystem.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AmbientMoteSystem.swift; sourceTree = "<group>"; };
 		AE25E748B7FD36FA3FEFAAD1 /* WispColors.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = WispColors.swift; sourceTree = "<group>"; };
 		B1000011BBBBBBBB00000011 /* ThrumiApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThrumiApp.swift; sourceTree = "<group>"; };
 		B1000013BBBBBBBB00000013 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -122,6 +125,7 @@
 		B148122DBBBBBBBB004818A7 /* HapticsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HapticsManager.swift; sourceTree = "<group>"; };
 		B1481BAEBBBBBBBB0048149A /* ReducedMotionSupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReducedMotionSupport.swift; sourceTree = "<group>"; };
 		B1481E3BBBBBBBBB00481BFC /* ThermalManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThermalManager.swift; sourceTree = "<group>"; };
+		B1499F471A26B9C490985AD2 /* TierTransitionEffect.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = TierTransitionEffect.swift; sourceTree = "<group>"; };
 		D362CF7E254BA012A1D7C39A /* WispOrbScene.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = WispOrbScene.swift; sourceTree = "<group>"; };
 		D3EA8EA4976A5DFF255DD36A /* MultiFrequencyPulse.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = MultiFrequencyPulse.swift; sourceTree = "<group>"; };
 		F0B39317CCC1E724E2CFFCCB /* OrbTier.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = OrbTier.swift; sourceTree = "<group>"; };
@@ -246,6 +250,8 @@
 				04AFA3C914787350B0A8E61F /* Wisp.swift */,
 				D362CF7E254BA012A1D7C39A /* WispOrbScene.swift */,
 				4DC7CB5D5DAC6523E5FD751D /* WispOrbView.swift */,
+				9CAF714F02DC77ED1E4E8099 /* AmbientMoteSystem.swift */,
+				B1499F471A26B9C490985AD2 /* TierTransitionEffect.swift */,
 			);
 			path = 3D;
 			sourceTree = "<group>";
@@ -448,6 +454,8 @@
 				0C9CEB5B9873F00953B521DA /* WispOrbScene.swift in Sources */,
 				4FC44C2D83563532694D09AA /* WispOrbView.swift in Sources */,
 				9CE3FABBB962E37E767F21E9 /* OrbTier.swift in Sources */,
+				0CBE285A49C66A30F74A186B /* AmbientMoteSystem.swift in Sources */,
+				7A7F02BCCE67313828759C7D /* TierTransitionEffect.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
