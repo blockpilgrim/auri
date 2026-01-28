@@ -1,13 +1,13 @@
 import CoreHaptics
 import Foundation
 
-/// Manages haptic feedback for the Fusion Core interactions.
+/// Manages haptic feedback for the Orb of Wisps interactions.
 ///
-/// Per PRODUCT.md Section 8, haptics amplify "machined precision":
-/// - High adherence: crisp micro-impulses on phase-lock events and clean collisions
-/// - Low adherence: softer, more damped feedback
+/// Haptics amplify the magical feel:
+/// - High adherence: crisp, sparkly feedback
+/// - Low adherence: softer, more ethereal feedback
 ///
-/// Haptics are modulated by the current adherence state to reinforce the "feel equals feedback" philosophy.
+/// Rich haptic vocabulary for all interactions: spin, tap, burst, attract, pinch, twist, shake.
 @MainActor
 final class HapticsManager {
     // MARK: - Engine State
@@ -163,6 +163,59 @@ final class HapticsManager {
         let sharpness = 0.5 * sharpnessMultiplier
 
         playTransient(intensity: intensity, sharpness: sharpness)
+    }
+
+    // MARK: - Attraction Feedback
+
+    /// Plays gentle continuous feedback while attracting wisps.
+    func playAttractionFeedback() {
+        guard isEnabled, isEngineRunning else { return }
+
+        let intensity: Float = 0.25 * intensityMultiplier
+        let sharpness: Float = 0.4 * sharpnessMultiplier
+
+        playContinuous(intensity: intensity, sharpness: sharpness, duration: 0.1)
+    }
+
+    // MARK: - Burst Feedback
+
+    /// Plays a satisfying burst haptic pattern for double-tap sparkle effect.
+    func playBurstFeedback() {
+        guard isEnabled, isEngineRunning else { return }
+
+        // Play a quick sequence for "magical burst" feel
+        playTransient(intensity: 0.7 * intensityMultiplier, sharpness: 0.9 * sharpnessMultiplier)
+
+        // Schedule a follow-up softer hit
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.08) { [weak self] in
+            self?.playTransient(intensity: 0.4 * (self?.intensityMultiplier ?? 1.0),
+                               sharpness: 0.6 * (self?.sharpnessMultiplier ?? 1.0))
+        }
+    }
+
+    // MARK: - Scatter Feedback
+
+    /// Plays a light scatter haptic for tap gesture.
+    func playScatterFeedback() {
+        guard isEnabled, isEngineRunning else { return }
+
+        let intensity: Float = 0.5 * intensityMultiplier
+        let sharpness: Float = 0.7 * sharpnessMultiplier
+
+        playTransient(intensity: intensity, sharpness: sharpness)
+    }
+
+    // MARK: - Chaos Feedback
+
+    /// Plays chaotic haptic pattern for shake gesture.
+    /// - Parameter intensity: Shake intensity (0.0 to 1.0)
+    func playChaosFeedback(intensity shakeIntensity: Float) {
+        guard isEnabled, isEngineRunning else { return }
+
+        let intensity = min(shakeIntensity, 1.0) * 0.6 * intensityMultiplier
+        let sharpness: Float = 0.8 * sharpnessMultiplier
+
+        playContinuous(intensity: intensity, sharpness: sharpness, duration: 0.15)
     }
 
     // MARK: - Low-Level Haptic Playback

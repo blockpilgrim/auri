@@ -9,6 +9,18 @@ import simd
 /// bright, saturated cel-shaded appearance.
 @MainActor
 final class Wisp {
+    // Shared mesh resource to avoid creating new meshes for each wisp
+    private static var sharedMesh: MeshResource?
+
+    private static func getSharedMesh(radius: Float) -> MeshResource {
+        if let mesh = sharedMesh {
+            return mesh
+        }
+        let mesh = MeshResource.generateSphere(radius: radius)
+        sharedMesh = mesh
+        return mesh
+    }
+
     let entity: ModelEntity
 
     // MARK: - Orbital Parameters
@@ -35,6 +47,26 @@ final class Wisp {
 
     private var breathingPhase: Float
     private var currentAngle: Float = 0
+
+    // MARK: - Interaction State
+
+    /// Offset from orbital position (for scatter/attract effects)
+    var positionOffset: SIMD3<Float> = .zero
+
+    /// Velocity for position offset (decays over time)
+    var offsetVelocity: SIMD3<Float> = .zero
+
+    /// Target position for attraction (nil = return to orbit)
+    var attractionTarget: SIMD3<Float>? = nil
+
+    /// Excitement multiplier (1.0 = normal, higher = more energetic)
+    var excitement: Float = 1.0
+
+    /// Chaos factor (0 = normal orbit, 1 = fully chaotic)
+    var chaosFactor: Float = 0
+
+    /// Random chaos direction for this wisp
+    private var chaosDirection: SIMD3<Float> = .zero
 
     // MARK: - Fade State
 
@@ -90,10 +122,9 @@ final class Wisp {
         brightness: Float,
         unitScale: Float
     ) -> Wisp {
-        // Create elongated sphere mesh for teardrop/flame shape.
-        // Scale Y axis for elongation.
+        // Use shared mesh for teardrop/flame shape (reuse across all wisps).
         let baseRadius: Float = 0.025 * unitScale
-        let mesh = MeshResource.generateSphere(radius: baseRadius)
+        let mesh = getSharedMesh(radius: baseRadius)
 
         // Bright UnlitMaterial - cel-shaded look.
         var material = UnlitMaterial()
@@ -147,59 +178,175 @@ final class Wisp {
     ///   - baseOrbitSpeed: Base orbit speed from state interpolator
     ///   - breathingPulse: Breathing animation pulse value (-1 to 1)
     ///   - breathingAmplitude: Breathing scale amplitude
+    ///   - orbitScale: Multiplier for orbit radius (for pinch gesture)
     func update(
         deltaTime: Float,
         globalSpinAngle: Float,
         baseOrbitSpeed: Float,
         breathingPulse: Float,
-        breathingAmplitude: Float
+        breathingAmplitude: Float,
+        orbitScale: Float = 1.0
     ) {
         // Update fade state.
         updateFade(deltaTime: deltaTime)
 
         guard !isFullyFaded else { return }
 
-        // Update breathing phase.
-        breathingPhase += deltaTime * 2.0 * .pi * 0.5 // 0.5 Hz breathing
+        // Update breathing phase (faster when excited).
+        let breathingSpeed: Float = 0.5 * excitement
+        breathingPhase += deltaTime * 2.0 * .pi * breathingSpeed
         if breathingPhase > 2 * .pi {
             breathingPhase -= 2 * .pi
         }
 
+        // Decay excitement back to normal (approximation of pow(0.95, dt*60)).
+        let excitementDecay = 1.0 - deltaTime * 3.0 // ~0.95^60 per second
+        excitement = 1.0 + (excitement - 1.0) * max(0, excitementDecay)
+
+        // Decay chaos factor.
+        let chaosDecay = 1.0 - deltaTime * 1.8 // ~0.97^60 per second
+        chaosFactor *= max(0, chaosDecay)
+        if chaosFactor < 0.01 { chaosFactor = 0 }
+
         // Calculate current orbital angle.
         // Combines base orbit speed with global spin from user interaction.
-        currentAngle = orbitPhase + globalSpinAngle * speedMultiplier + baseOrbitSpeed * speedMultiplier
+        let effectiveSpeed = baseOrbitSpeed * speedMultiplier * excitement
+        currentAngle = orbitPhase + globalSpinAngle * speedMultiplier + effectiveSpeed
 
-        // Calculate position on circular orbit.
-        var position = SIMD3<Float>(
-            orbitRadius * cos(currentAngle),
+        // Calculate base position on circular orbit.
+        let effectiveRadius = orbitRadius * orbitScale
+        var orbitalPosition = SIMD3<Float>(
+            effectiveRadius * cos(currentAngle),
             0,
-            orbitRadius * sin(currentAngle)
+            effectiveRadius * sin(currentAngle)
         )
 
         // Apply individual orbital tilt.
-        position = orbitTilt.act(position)
+        orbitalPosition = orbitTilt.act(orbitalPosition)
 
-        entity.position = position
+        // Apply chaos perturbation.
+        if chaosFactor > 0 {
+            let chaosOffset = chaosDirection * chaosFactor * effectiveRadius * 0.5
+            orbitalPosition += chaosOffset
+        }
 
-        // Orient wisp along direction of travel (tangent).
-        let tangent = SIMD3<Float>(-sin(currentAngle), 0, cos(currentAngle))
-        let tiltedTangent = orbitTilt.act(tangent)
-        if length(tiltedTangent) > 0.001 {
-            // Point the elongated end in direction of travel.
-            let forward = normalize(tiltedTangent)
+        // Calculate attraction force if target exists.
+        if let target = attractionTarget {
+            let toTarget = target - orbitalPosition
+            let distance = length(toTarget)
+            if distance > 0.001 {
+                let attractionStrength: Float = 8.0
+                let force = normalize(toTarget) * attractionStrength * deltaTime
+                offsetVelocity += force
+            }
+        } else {
+            // Return to orbit - spring force toward zero offset.
+            let returnStrength: Float = 12.0
+            offsetVelocity -= positionOffset * returnStrength * deltaTime
+        }
+
+        // Update position offset with velocity.
+        positionOffset += offsetVelocity * deltaTime
+
+        // Apply damping to velocity (approximation of pow(0.92, dt*60)).
+        let damping = 1.0 - deltaTime * 5.0 // ~0.92^60 per second
+        offsetVelocity *= max(0, damping)
+
+        // Clamp offset to prevent wisps going too far.
+        let maxOffset = effectiveRadius * 2.0
+        let offsetLengthSq = simd_length_squared(positionOffset)
+        let maxOffsetSq = maxOffset * maxOffset
+        if offsetLengthSq > maxOffsetSq {
+            positionOffset *= maxOffset / sqrt(offsetLengthSq)
+        }
+
+        // Final position.
+        let finalPosition = orbitalPosition + positionOffset
+        entity.position = finalPosition
+
+        // Orient wisp along direction of travel (optimized).
+        let velocityLengthSq = simd_length_squared(offsetVelocity)
+        var movementDirection: SIMD3<Float>
+
+        if velocityLengthSq < 0.0001 {
+            // Use orbital tangent when not moving (precomputed sin/cos already available).
+            let tangent = SIMD3<Float>(-sin(currentAngle), 0, cos(currentAngle))
+            movementDirection = orbitTilt.act(tangent)
+        } else {
+            movementDirection = offsetVelocity
+        }
+
+        let moveLengthSq = simd_length_squared(movementDirection)
+        if moveLengthSq > 0.000001 {
+            let invLen = 1.0 / sqrt(moveLengthSq)
+            let forward = movementDirection * invLen
+
             let up = SIMD3<Float>(0, 1, 0)
-            let right = normalize(cross(up, forward))
+            var right = cross(up, forward)
+            let rightLengthSq = simd_length_squared(right)
+
+            if rightLengthSq < 0.000001 {
+                right = SIMD3<Float>(1, 0, 0)
+            } else {
+                right *= 1.0 / sqrt(rightLengthSq)
+            }
             let correctedUp = cross(forward, right)
 
             let rotationMatrix = simd_float3x3(columns: (right, correctedUp, forward))
             entity.transform.rotation = simd_quatf(rotationMatrix)
         }
 
-        // Apply breathing scale animation.
-        let breathScale = 1.0 + sin(breathingPhase) * breathingAmplitude
+        // Apply breathing scale animation (amplified by excitement).
+        let breathAmplitude = breathingAmplitude * (1.0 + (excitement - 1.0) * 0.5)
+        let breathScale = 1.0 + sin(breathingPhase) * breathAmplitude
         let fadeScale = isFadingIn ? fadeProgress : (isFadingOut ? 1.0 - fadeProgress : 1.0)
         let totalScale = baseScale * breathScale * fadeScale
         entity.scale = [totalScale, totalScale * 1.4, totalScale] // Maintain elongation
+    }
+
+    // MARK: - Interaction Methods
+
+    /// Applies a scatter impulse away from a point.
+    func scatter(from point: SIMD3<Float>, strength: Float = 1.0) {
+        let direction = entity.position - point
+        let distance = length(direction)
+        guard distance > 0.001 else { return }
+
+        let normalizedDir = normalize(direction)
+        let force = normalizedDir * strength * (1.0 / max(distance, 0.1))
+        offsetVelocity += force
+        excitement = min(3.0, excitement + 0.5)
+    }
+
+    /// Sets attraction target (nil to release).
+    func attract(to point: SIMD3<Float>?) {
+        attractionTarget = point
+        if point != nil {
+            excitement = min(2.5, excitement + 0.3)
+        }
+    }
+
+    /// Applies chaos (random perturbation).
+    func applyChaosFactor(_ chaos: Float) {
+        chaosFactor = min(1.0, chaosFactor + chaos)
+        // Generate new random chaos direction.
+        chaosDirection = normalize(SIMD3<Float>(
+            Float.random(in: -1...1),
+            Float.random(in: -0.5...0.5),
+            Float.random(in: -1...1)
+        ))
+        excitement = min(3.0, excitement + chaos)
+    }
+
+    /// Applies a ripple disturbance from a nearby point.
+    func ripple(from point: SIMD3<Float>, radius: Float, strength: Float) {
+        let distance = length(entity.position - point)
+        guard distance < radius else { return }
+
+        let falloff = 1.0 - (distance / radius)
+        let perpendicular = normalize(cross(entity.position - point, SIMD3<Float>(0, 1, 0)))
+        offsetVelocity += perpendicular * strength * falloff
+        excitement = min(2.0, excitement + 0.2 * falloff)
     }
 
     // MARK: - Fade Animations
