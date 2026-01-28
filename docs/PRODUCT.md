@@ -1,16 +1,16 @@
-# Thrumi: Fusion Core — Concept Brief
+# Thrumi: Orb of Wisps — Concept Brief
 
 ---
 
 ## 1. Executive Summary
 
-Thrumi is a mobile diet-adherence tracker that makes progress **felt** rather than counted. Instead of spreadsheets, streak pressure, or macro dashboards as the primary experience, Thrumi centers a single interactive object: the **Fusion Core**—a magnetically-levitated, industrial high-tech **3D fidget spinner** that feels like a piece of bleeding-edge clean energy technology.
+Thrumi is a mobile diet-adherence tracker that makes progress **felt** rather than counted. Instead of spreadsheets, streak pressure, or macro dashboards as the primary experience, Thrumi centers a single interactive object: the **Orb of Wisps**—a magical, stylized 3D orb containing orbiting spirit-like entities that feels like something from a fantasy game or Studio Ghibli film.
 
-The Fusion Core’s **spin quality, stability, speed ceiling, and light output** embody the user’s adherence on a 0–100% continuum. As adherence rises, the Core becomes smoother, faster, more visually striking, and more “impossible” in its levitation. As adherence falls, the Core enters a calm, safe low-power mode—still premium and beautiful, just less fidget-worthy.
+The Orb's **wisp count, orbital speed, color richness, and brightness** embody the user's adherence on a 0–100% continuum. As adherence rises, the Orb becomes more vibrant, more populated with wisps, faster, and more mesmerizing. As adherence falls, the Orb enters a calm, gentle state—still beautiful and magical, just more subdued.
 
 The app is a trojan horse: the underlying system is evidence-based (dietary adherence and habit tracking), but the interface replaces judgmental numbers with an object users want to return to.
 
-> **One-line pitch:** Keep your reactor online—aligned choices make your Fusion Core faster, smoother, and more electric to play with.
+> **One-line pitch:** Keep your wisps thriving—aligned choices make your Orb more vibrant, more alive, and more magical to play with.
 
 ---
 
@@ -20,13 +20,13 @@ The app is a trojan horse: the underlying system is evidence-based (dietary adhe
 
 Most diet apps lose users because:
 
-- **Logging feels like homework.** Many products require precision and attention users don’t want to give.
-- **Feedback is abstract.** Charts and progress bars don’t create a visceral reward.
-- **Slip-ups trigger avoidance.** Red days, broken streaks, and “failure” messaging cause shame and churn.
+- **Logging feels like homework.** Many products require precision and attention users don't want to give.
+- **Feedback is abstract.** Charts and progress bars don't create a visceral reward.
+- **Slip-ups trigger avoidance.** Red days, broken streaks, and "failure" messaging cause shame and churn.
 
 ### The Opportunity
 
-There’s a large audience who wants to eat better but won’t sustain a spreadsheet experience. They value:
+There's a large audience who wants to eat better but won't sustain a spreadsheet experience. They value:
 
 - simplicity over completeness
 - immediate, emotionally resonant feedback
@@ -44,56 +44,61 @@ In traditional trackers, **data equals feedback**.
 
 In Thrumi, **feel equals feedback**.
 
-Numbers exist (for users who want them), but the primary motivator is a physical, satisfying object whose behavior is meaningfully tied to adherence.
+Numbers exist (for users who want them), but the primary motivator is a magical, satisfying object whose behavior is meaningfully tied to adherence.
 
 ### Emotional Design Principles
 
-- **Non-judgmental:** the Core never scolds.
-- **Recoverable:** the Core never “dies,” breaks, or becomes ugly.
-- **Embodied reward:** better choices make the Core *better to use*, not just “more green.”
-- **Stability over drama:** low adherence is “standby,” not collapse.
+- **Non-judgmental:** the Orb never scolds.
+- **Recoverable:** the Orb never "dies," breaks, or becomes ugly.
+- **Embodied reward:** better choices make the Orb *better to interact with*, not just "more green."
+- **Stability over drama:** low adherence is "resting," not collapse.
 
 ---
 
-## 4. The Fusion Core
+## 4. The Orb of Wisps
 
-The Fusion Core is a procedural 3D fidget spinner inspired by Tony Stark's arc reactor: **machined precision** plus an **alive** glow. It should feel like a functional power module, not a toy.
+The Orb of Wisps is a procedural 3D magical orb inspired by fantasy mana orbs, Studio Ghibli magic, and games like Ori and the Blind Forest. It should feel like a living, mystical artifact—not a toy or a game UI element.
 
-### Visual Language (Industrial High-Tech)
+### Visual Language (Magical / Stylized)
 
-- **Materials:** brushed palladium/steel, machined chamfers, exposed copper coils, translucent ceramic/glass elements.
-- **Center:** contained energy field (procedural glow), *not* fluid simulation.
+- **Style:** Cel-shaded, stylized—NOT photorealistic
+- **Materials:** `UnlitMaterial` with bright, saturated colors for flat, magical appearance
+- **Colors:** Soft, magical palette—teals, purples, pinks, golds, cool blues
+- **Center:** Translucent or invisible container with orbiting wisp spirits
 
-### Particle Effects
+### Wisps
 
-Particles are essential for communicating power state. They scale with adherence.
+Wisps are the core visual element—small teardrop/flame-shaped spirits that orbit the center.
 
-**Sparks:**
-- Small glowing particles (teal or orange, randomized) emitting from ring positions
-- Appear at 20%+ adherence
-- Drift outward/upward, fade over 0.3-0.8 seconds
-- Frequency: none at 0%, occasional at 50%, constant stream at 100%
+**Wisp Properties:**
+- Geometry: Small elongated spheres (teardrop/flame shape)
+- Size variation: 0.8x to 1.2x base size for organic feel
+- Orbit on individual tilted planes (not all on same plane)
+- Each wisp has unique speed multiplier for organic motion
 
-**Energy Arcs:**
-- Lightning-like jagged lines
-- Appear at 50%+ adherence only
-- Last 100-250ms, then disappear
-- More frequent and brighter at higher power
+**Wisp Count by Adherence:**
+| Adherence | Wisp Count |
+|-----------|------------|
+| 0-20%     | 3-5 wisps (minimal, calm) |
+| 20-50%    | 6-12 wisps |
+| 50-80%    | 12-22 wisps |
+| 80-100%   | 22-30 wisps (vibrant, full) |
 
-**Flashes:**
-- Bright burst pulses at the core (quick expand then fade)
-- Appear at 60%+ adherence only
-- At 80%+, increased amount of spawn around spinner
-- Duration: 150-250ms
+**Colors by Adherence:**
+| Adherence | Color Palette |
+|-----------|---------------|
+| 0-30%     | Cool blues, dim |
+| 30-50%    | Blue-teal |
+| 50-70%    | Teal-purple |
+| 70-85%    | Gold-teal-pink |
+| 85-100%   | Full spectrum, white cores |
 
-**At 0-20% adherence:** No particles. The Core is calm and quiet.
+### The Breathing Animation (Alive without anxiety)
 
-### The Reactor Pulse (Alive without anxiety)
+The Orb has a slow, steady **breathing pulse**: a gentle scale swell on each wisp that suggests living energy.
 
-The Core has a slow, steady **power pulse** (visual only): a gentle emissive swell that suggests a running system.
-
-- **Pulse rate is constant** (not tied to adherence) to avoid “heart rate” associations.
-- Adherence affects **amplitude, sharpness, and harmonic richness** of the light (not the tempo).
+- **Pulse rate is constant** (not tied to adherence) to avoid "heart rate" associations.
+- Adherence affects **amplitude** of the breathing (subtle at low, pronounced at high).
 
 ---
 
@@ -104,16 +109,16 @@ The Core has a slow, steady **power pulse** (visual only): a gentle emissive swe
 1. User opens the app.
 2. Logs a meal (photo or text).
 3. Taps **On track** or **Off track** (user-defined).
-4. Fusion Core updates instantly.
-5. User optionally spins the Core because it’s satisfying.
+4. Orb updates instantly—wisps brighten or dim, one may appear or fade.
+5. User optionally plays with the Orb because it's satisfying.
 
-### What Drives the Core
+### What Drives the Orb
 
 **Primary driver: adherence percentage** derived from on/off-track tags.
 
-#### Blended State (Core Behavior)
+#### Blended State (Orb Behavior)
 
-The Fusion Core’s *overall* state is driven by a blend of:
+The Orb's *overall* state is driven by a blend of:
 
 - **Today adherence**
 - **Past 7 Days adherence (rolling)**
@@ -127,15 +132,15 @@ coreAdherence = 0.60 * todayAdherence + 0.40 * rolling7Adherence
 Design intent:
 
 - Today matters immediately.
-- One bad day doesn’t erase the experience.
-- Patterns still show up in the Core.
+- One bad day doesn't erase the experience.
+- Patterns still show up in the Orb.
 
 #### Micro-Feedback (Per Log)
 
 Even though the baseline is blended, each meal produces immediate feedback:
 
-- **On track:** a brief “field alignment” beat (particle effects, glow brightens).
-- **Off track:** a brief “stabilization” beat (lessening effects, glow softens).
+- **On track:** wisps briefly accelerate and pulse brighter; a new wisp may fade in.
+- **Off track:** wisps briefly slow; one wisp gently fades out.
 
 This keeps the app responsive moment-to-moment.
 
@@ -148,15 +153,15 @@ No streak-break punishment. The experience is continuous and recoverable.
 
 ---
 
-## 6. The Reward Curve (“Awesome” Calibration)
+## 6. The Reward Curve ("Awesome" Calibration)
 
-To ensure **80% feels awesome** and **50% and below is not punishing**, Thrumi uses a non-linear mapping from adherence → “awesomeness.”
+To ensure **80% feels awesome** and **50% and below is not punishing**, Thrumi uses a non-linear mapping from adherence → "awesomeness."
 
 Design behavior:
 
-- **0–50%:** reduced capability (lower speed ceiling, higher damping) but still premium.
-- **50–80%:** biggest gains (smoothness, stability authority, glow richness).
-- **80–100%:** refinement and signature coherence; 100% is peak and always-on.
+- **0–50%:** fewer wisps, slower orbit, cooler colors—but still beautiful.
+- **50–80%:** biggest gains (more wisps, richer colors, faster orbits).
+- **80–100%:** refinement and peak vibrancy; 100% is unmistakably magical.
 
 Implementation hint (one option): apply an ease-out curve to perceived power:
 
@@ -170,92 +175,101 @@ This makes improvements feel meaningful early, while keeping 80–100 close.
 
 ## 7. State Spectrum (Five-Tier Framework)
 
-The Fusion Core transitions smoothly across 0–100%, but these tiers are a shared vocabulary.
+The Orb transitions smoothly across 0–100%, but these tiers are a shared vocabulary.
 
-| Core Adherence | State | Metaphor | Core Impression |
+| Core Adherence | State | Metaphor | Orb Impression |
 |---:|---|---|---|
-| 90–100% | **Phase-Locked** | sustained coherent field | peak stability and speed; perfect concentric levitation; richest light |
-| 70–89% | **Online** | reactor stable | very smooth, bright, high-speed, satisfying |
-| 50–69% | **Stabilizing** | output building | solid fidget feel; moderate glow; minor field noise |
-| 30–49% | **Standby** | conservation mode | lower speed ceiling; higher damping; simplified effects |
-| 0–29% | **Safe Mode** | containment prioritized | gentle, calm spin; minimal bloom; still elegant |
+| 90–100% | **Radiant** | full magical resonance | Peak vibrancy; maximum wisps; full color spectrum; fastest orbits |
+| 70–89% | **Vibrant** | strong magical energy | Many wisps; warm colors; satisfying speed |
+| 50–69% | **Awakening** | gathering energy | Moderate wisps; teal-purple tones; steady motion |
+| 30–49% | **Resting** | conserving energy | Fewer wisps; cooler colors; gentle drift |
+| 0–29% | **Dreaming** | deep rest | Minimal wisps; dim cool blues; very calm |
 
 ### Tier Detail (What Actually Changes)
 
-**Phase-Locked (90–100%) — Always-on peak (100% is unmistakable):**
+**Radiant (90–100%) — Peak magic (100% is unmistakable):**
 
-- Highest speed ceiling; longest spin persistence.
-- Light is bright but controlled: rich bloom, crisp highlights, subtle volumetric rays.
+- Maximum wisp count (22-30)
+- Full color spectrum including white cores
+- Fastest orbital speed, longest spin persistence
+- Breathing animation most pronounced
 
-**Online (70–89%):**
+**Vibrant (70–89%):**
 
-- Very smooth; strong stabilization.
-- High speed, satisfying persistence.
-- Glow and coil illumination are strong; field effects present but restrained.
+- Many wisps (15-22)
+- Warm colors: golds, teals, pinks
+- High orbital speed, satisfying spin persistence
+- Strong brightness
 
-**Stabilizing (50–69%):**
+**Awakening (50–69%):**
 
-- Good fidget feel; stability is present but less assertive.
-- Moderate speed ceiling.
-- Simplified glow; occasional minor “field noise” (tiny alignment drift that self-corrects).
+- Moderate wisp count (10-14)
+- Teal and purple tones
+- Medium orbital speed
+- Visible but not overwhelming
 
-**Standby (30–49%):**
+**Resting (30–49%):**
 
-- Damping noticeably higher; spins slow sooner.
-- Lower speed ceiling.
-- Glow is quieter; bloom reduced; fewer secondary effects.
+- Fewer wisps (6-9)
+- Blue-teal colors
+- Gentle orbital drift
+- Subdued brightness
 
-**Safe Mode (0–29%):**
+**Dreaming (0–29%):**
 
-- Very calm; containment prioritized.
-- Lowest speed ceiling and persistence.
-- Minimal bloom; core reads as “protected,” not broken.
+- Minimal wisps (3-5)
+- Cool blues only
+- Very slow drift
+- Calm and peaceful, not broken
 
-**Guardrail:** low tiers must still look intentional, premium, and worth opening.
+**Guardrail:** low tiers must still look intentional, beautiful, and worth opening.
 
 ---
 
-## 8. Interaction Model (Fusion Core-First)
+## 8. Interaction Model (Orb-First)
 
 ### Meal Logging
 
 - **Primary:** photo capture → confirm → **On track** / **Off track**
 - **Alternative:** quick text entry → **On track** / **Off track**
 
-The app does not interpret what “on track” means. The user defines alignment relative to their goal.
+The app does not interpret what "on track" means. The user defines alignment relative to their goal.
 
 ### Fidget Interactions
 
-The Fusion Core should be genuinely satisfying even when a user is idle.
+The Orb should be genuinely satisfying even when a user is idle. Rich interactivity is key.
 
 | Gesture | Response | What adherence modulates |
 |---|---|---|
-| Flick / swipe | imparts torque and spin | max speed, spin persistence, smoothness |
-| Two-finger twist | precise spin control | fine control resolution, micro-jitter |
-| Tilt (device motion) | subtle gyroscopic precession | precession clarity and damping |
-| Tap | localized coil “ping” (light tick) | intensity and crispness |
+| Flick / swipe | imparts spin to wisps | max speed, spin persistence |
+| Tap | wisps scatter outward, then return | scatter intensity |
+| Double tap | sparkle burst effect | burst intensity |
+| Long press + drag | wisps attracted to finger | attraction strength |
+| Pinch | expand/contract orbital radius | radius limits |
+| Two-finger twist | tilt orbital plane | tilt range |
+| Device shake | chaos mode (erratic orbits) | chaos intensity |
 
-### Haptics (Optional)
+### Haptics
 
-Haptics can amplify “machined precision” without adding shame:
+Haptics amplify the magical feel:
 
-- high adherence: crisp micro-impulses on phase-lock events and clean collisions
-- low adherence: softer, more damped feedback
+- high adherence: crisp, sparkly feedback
+- low adherence: softer, more ethereal feedback
 
 Sound is intentionally not required for the core experience.
 
 ---
 
-## 9. Emotional Design: The Failure Mode
+## 9. Emotional Design: The Low State
 
 Low adherence should never feel like punishment. The narrative is:
 
-- **Standby / Safe Mode = stabilization and conservation**
-- the system is waiting to be brought back online
+- **Resting / Dreaming = the Orb is conserving energy, waiting**
+- the wisps are patient, ready to awaken
 
 Avoid:
 
-- harsh red “error” states
+- harsh red "error" states
 - streak loss language
 - dramatic collapse animations
 - copy implying moral failure
@@ -264,16 +278,16 @@ Avoid:
 
 ## 10. Why Users Will Return
 
-1. **It’s a real fidget object.** Users will open the app just to spin the Core.
-2. **Progress is embodied.** Better adherence makes the Core objectively more satisfying.
-3. **Recovery is immediate.** One aligned meal produces a noticeable stabilization shift.
-4. **It’s not shame-based.** The Core is always dignified; it only changes power mode.
+1. **It's a real fidget object.** Users will open the app just to play with the Orb.
+2. **Progress is embodied.** Better adherence makes the Orb objectively more magical.
+3. **Recovery is immediate.** One aligned meal produces a noticeable brightening.
+4. **It's not shame-based.** The Orb is always beautiful; it only changes energy level.
 
 ---
 
 ## 11. Dietary Goals (MVP)
 
-Users select a goal during onboarding to contextualize “on track.”
+Users select a goal during onboarding to contextualize "on track."
 
 - Keto / low-carb
 - Vegetarian
@@ -296,7 +310,7 @@ Users select a goal during onboarding to contextualize “on track.”
 | Meal logging | photo or text, unlimited |
 | Adherence tracking | on track / off track tagging |
 | Metrics | Today, Past 7 Days (rolling), Past 30 Days (rolling) |
-| Fusion Core | full visual + interaction spectrum |
+| Orb of Wisps | full visual + interaction spectrum |
 | Meal history | daily list, on/off markers |
 
 ---
@@ -305,23 +319,23 @@ Users select a goal during onboarding to contextualize “on track.”
 
 ### Primary Screens
 
-1. **Core View (Home)** — full-screen Fusion Core
+1. **Orb View (Home)** — full-screen Orb of Wisps
 2. **Log Meal** — capture + on/off track
 3. **Data View** — metrics + history
 4. **Premium Insights** (if upgraded)
 
 ### Number Surfaces
 
-#### Core View (Home)
+#### Orb View (Home)
 
-Display **Today’s adherence** subtly (not dashboard-y):
+Display **Today's adherence** subtly (not dashboard-y):
 
 - small HUD text anchored top-left or bottom-left
 - format: `TODAY 82%`
 
-The Fusion Core itself reflects the blended state (Today + Past 7 Days). To avoid confusion without adding labels on Home:
+The Orb itself reflects the blended state (Today + Past 7 Days). To avoid confusion without adding labels on Home:
 
-- use a one-time tooltip in week one (e.g., “Core reflects Today + Past 7 Days”)
+- use a one-time tooltip in week one (e.g., "Orb reflects Today + Past 7 Days")
 - keep the explanation in the Data view.
 
 #### Data View
@@ -342,9 +356,9 @@ Then:
 
 Target: under 60 seconds to first meaningful interaction.
 
-1. Welcome: “Thrumi keeps your reactor online.”
+1. Welcome: "Meet your Orb of Wisps."
 2. Select dietary goal.
-3. Meet your Fusion Core: quick tutorial (flick to spin).
+3. Meet your Orb: quick tutorial (flick to spin the wisps).
 4. Prompt to log your next meal.
 
 ---
@@ -357,22 +371,23 @@ Target: under 60 seconds to first meaningful interaction.
 
 ### Rendering
 
-- Prefer a modern 3D pipeline (RealityKit/SceneKit/Metal) with physically-based materials.
-- Procedural geometry or modular kit-bashed components assembled procedurally.
-- Bloom/volumetric glow tuned to feel premium but performant.
+- RealityKit with `UnlitMaterial` for cel-shaded, flat-color aesthetic.
+- Procedural wisp entities with individual orbital parameters.
+- No bloom/glow shaders needed—brightness achieved through color saturation.
 
-### Motion & “Feel”
+### Motion & "Feel"
 
-- Spinner physics model tuned for satisfaction (torque response, damping, stability control).
+- Spinner physics model tuned for satisfaction (torque response, damping).
 - State interpolation across adherence for:
-  - max angular velocity
-  - damping/friction
-  - stabilization authority (wobble suppression)
-  - light output and effect density
+  - wisp count
+  - orbital speed
+  - color palette
+  - brightness
+  - breathing amplitude
 
 ### Accessibility
 
-- Reduce Motion: offer a calmer mode (less precession and fewer secondary effects) while preserving state differentiation.
+- Reduce Motion: offer a calmer mode (slower orbits, no trails) while preserving state differentiation through color/brightness.
 
 ---
 
@@ -380,15 +395,16 @@ Target: under 60 seconds to first meaningful interaction.
 
 ### In Scope
 
-- Fusion Core 3D spinner (unique procedural design, not a prop copy)
+- Orb of Wisps 3D visualization (stylized magical orb with orbiting wisps)
 - Full state spectrum driven by blended adherence (Today + rolling 7)
 - Non-linear reward curve so 80% is near-peak
+- Rich fidget interactions (flick, tap, double-tap, long-press, pinch, twist, shake)
 - Meal logging (photo/text) with on/off track
 - Data view with Today / Past 7 / Past 30 + meal history
 
 ### Out of Scope (MVP)
 
-- Fluid simulation
+- Photorealistic rendering
 - Shame mechanics (broken streaks, punitive visuals)
 - Social features (sharing, leaderboards)
 - Notifications
@@ -400,10 +416,11 @@ Target: under 60 seconds to first meaningful interaction.
 
 | Term | Definition |
 |---|---|
-| **Fusion Core** | the central 3D levitating fidget spinner that visualizes adherence |
+| **Orb of Wisps** | the central 3D magical orb that visualizes adherence |
+| **Wisp** | an individual spirit-like entity orbiting within the Orb |
 | **On track / Off track** | user-tagged alignment of a meal with their chosen dietary goal |
 | **Today adherence** | ratio of on-track meals to total meals logged today |
 | **Past 7 Days** | rolling 7-day adherence ratio |
 | **Past 30 Days** | rolling 30-day adherence ratio |
-| **Core adherence** | blended value that drives the Core’s visual + physical state |
-| **Phase-Locked** | peak state where the Core feels perfectly stable and coherent |
+| **Core adherence** | blended value that drives the Orb's visual + interaction state |
+| **Radiant** | peak state where the Orb is at maximum vibrancy |

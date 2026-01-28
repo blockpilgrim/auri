@@ -110,20 +110,20 @@ struct AdherenceState: Equatable {
 
 **Example**:
 ```swift
-enum CoreTier: String, Codable, CaseIterable {
-    case safeMode       // 0-29%
-    case standby        // 30-49%
-    case stabilizing    // 50-69%
-    case online         // 70-89%
-    case phaseLocked    // 90-100%
+enum OrbTier: String, Codable, CaseIterable {
+    case dreaming       // 0-29%  (deep rest)
+    case resting        // 30-49% (conserving energy)
+    case awakening      // 50-69% (gathering energy)
+    case vibrant        // 70-89% (strong magical energy)
+    case radiant        // 90-100% (full magical resonance)
 
-    static func from(adherence: Double) -> CoreTier {
+    static func from(adherence: Double) -> OrbTier {
         switch adherence {
-        case 0..<0.30: .safeMode
-        case 0.30..<0.50: .standby
-        case 0.50..<0.70: .stabilizing
-        case 0.70..<0.90: .online
-        default: .phaseLocked
+        case 0..<0.30: .dreaming
+        case 0.30..<0.50: .resting
+        case 0.50..<0.70: .awakening
+        case 0.70..<0.90: .vibrant
+        default: .radiant
         }
     }
 }
@@ -390,33 +390,33 @@ extension MeshResource {
 @MainActor
 final class SpinnerPhysics {
     // Current state
-    var angularVelocity: SIMD3<Float> = .zero
-    var ringRotations: SIMD3<Float> = .zero
+    var angularVelocity: Float = 0
+    var spinAngle: Float = 0  // Accumulated spin for orbital motion
 
     // Parameters (driven by external state)
-    var maxSpeed: Float = 10.0
-    var damping: Float = 0.98
+    var maxSpinSpeed: Float = 10.0
+    var dampingPerFrame: Float = 0.98
 
     // Tier-based presets
     struct TierParameters {
-        let maxSpeed: Float
-        let damping: Float
+        let maxSpinSpeed: Float
+        let dampingPerFrame: Float
     }
 
-    static let tierPresets: [CoreTier: TierParameters] = [
-        .phaseLocked: TierParameters(maxSpeed: 15.0, damping: 0.992),
+    static let tierPresets: [OrbTier: TierParameters] = [
+        .radiant: TierParameters(maxSpinSpeed: 15.0, dampingPerFrame: 0.992),
         // ...
     ]
 
     func update(deltaTime: Float) {
-        angularVelocity *= damping
-        ringRotations += angularVelocity * deltaTime
+        angularVelocity *= dampingPerFrame
+        spinAngle += angularVelocity * deltaTime
     }
 
     func updateParameters(for state: AdherenceState) {
         guard let preset = Self.tierPresets[state.tier] else { return }
-        maxSpeed = preset.maxSpeed
-        damping = preset.damping
+        maxSpinSpeed = preset.maxSpinSpeed
+        dampingPerFrame = preset.dampingPerFrame
     }
 }
 ```
@@ -424,7 +424,7 @@ final class SpinnerPhysics {
 **Why**:
 - `@Observable` for SwiftUI reactivity
 - `@MainActor` for thread safety with RealityKit
-- SIMD types for efficient vector math
+- Float for scalar spin physics (simpler than SIMD for 1D rotation)
 - Tier-based presets keep physics tuning organized
 - Separate `update()` and `updateParameters()` methods for different update frequencies
 
@@ -573,7 +573,7 @@ final class StateInterpolator {
 
 **Example**:
 ```swift
-struct ReactorPulse {
+struct BreathingPulse {
     private var phase: Float = 0
     let frequency: Float = 0.5  // Hz - CONSTANT, never changes
 
@@ -774,37 +774,6 @@ struct FeatureTooltip: View {
 - Time-window logic (first week) prevents tooltip fatigue for returning users
 - Delayed appearance (1.5s) prevents jarring immediate overlay on view load
 - Animation on show/hide creates polished feel
-
----
-
-## Ring Alignment Jitter Pattern
-
-**When to use**: When visual instability should increase smoothly at lower state values.
-
-**Example**:
-```swift
-private var jitterPhase: Float = 0
-
-func updateRingAlignmentJitter(jitterAmount: Float, deltaTime: Float) {
-    jitterPhase += deltaTime * 2.0  // Animate for smooth movement
-
-    let jitterScale = jitterAmount * 0.015  // Max rotation in radians
-
-    // Each element gets different phase for organic feel
-    outerJitterOffset = SIMD3<Float>(
-        sin(jitterPhase * 1.1) * jitterScale,
-        0,
-        cos(jitterPhase * 0.9) * jitterScale * 0.5
-    )
-    // ... similar for other elements
-}
-```
-
-**Why**:
-- Phase-based animation creates smooth, continuous jitter (not random noise)
-- Different phase multipliers per element prevent synchronized movement
-- jitterAmount from interpolator ties to adherence state
-- Separate X/Z axes create natural-looking wobble
 
 ---
 
@@ -1023,50 +992,6 @@ struct ReducedMotionModifier: ViewModifier {
 
 ---
 
-## Multi-Layer Glow System Pattern
-
-**When to use**: When creating complex glow effects with multiple overlapping layers that respond to state.
-
-**Example**:
-```swift
-@MainActor
-final class CoreGlowLayers {
-    let container: Entity
-    private let hotCenter: ModelEntity     // Always visible, scales with power
-    private let innerCore: ModelEntity     // Always visible, color shifts at high power
-    private let outerGlow: ModelEntity     // Always visible, pulses slower
-    private let energyField1: ModelEntity  // Visible at 30%+, rotates
-    private let energyField2: ModelEntity  // Visible at 50%+, counter-rotates
-    private let atmosphere: ModelEntity    // Visible at 40%+, outermost halo
-    private let energyRing: ModelEntity    // Torus, rotates fast
-
-    static func create() -> CoreGlowLayers {
-        let container = Entity()
-        // Create layers as spheres with UnlitMaterial for glow effect
-        // Add in order (outer first) for proper transparency layering
-        container.addChild(atmosphere)
-        container.addChild(energyField2)
-        // ...
-        container.addChild(hotCenter)
-        return CoreGlowLayers(...)
-    }
-
-    func update(adherence: Double, normalizedPower: Float, pulseValues: PulseValues, deltaTime: Float) {
-        // Toggle visibility based on thresholds
-        energyField1.isEnabled = adherence >= 0.30
-        // Update materials based on pulse and power
-    }
-}
-```
-
-**Why**:
-- Each layer can be independently animated (rotation, pulse, opacity)
-- Visibility thresholds create progressive visual complexity as state improves
-- UnlitMaterial with transparent blending creates additive glow appearance
-- Layer order in scene graph affects transparency compositing
-
----
-
 ## Multi-Frequency Pulse Pattern
 
 **When to use**: When a single pulse frequency isn't visually rich enough, or different elements need different animation rates.
@@ -1183,109 +1108,6 @@ func updateSparks(...) {
 
 ---
 
-## Prototype-First Visual Translation Pattern
-
-**When to use**: When rebuilding visual systems based on a working reference implementation (e.g., HTML/Three.js prototype).
-
-**Example approach**:
-```
-1. Read entire prototype file first - understand structure before writing code
-2. Document prototype's architecture in code comments:
-   - Camera setup (position, lookAt, behavior)
-   - Scene structure (what entities, their hierarchy)
-   - Animation/update loop structure
-   - Interpolation values for state mapping
-3. Translate with explicit line number references:
-```
-
-```swift
-/// Translated from thrumi-prototype.html buildFusionCore() (lines 891-947).
-///
-/// Ring configuration per prototype:
-/// | Index | Inner R | Outer R | Thickness | Speed | Direction |
-/// |-------|---------|---------|-----------|-------|-----------|
-/// | 0     | 0.55    | 0.70    | 0.08      | 1.0   | CW        |
-/// | 1     | 0.80    | 0.95    | 0.06      | 0.8   | CCW       |
-/// ...
-
-private static let ringConfigs: [RingConfig] = [
-    RingConfig(innerRadius: 0.55, outerRadius: 0.70, thickness: 0.08, speedMultiplier: 1.0, direction: 1, ...),
-    RingConfig(innerRadius: 0.80, outerRadius: 0.95, thickness: 0.06, speedMultiplier: 0.8, direction: -1, ...),
-]
-```
-
-**Why**:
-- Line number references make future debugging easier ("why is this 0.55?")
-- Explicit mapping tables catch scale/unit translation errors
-- Comments serve as specification when prototype file is no longer available
-- Prevents "improvisation" drift from reference implementation
-
----
-
-## Fixed Camera Position Pattern (RealityKit)
-
-**When to use**: When the 3D scene requires a fixed viewing angle, not user-controlled orbit.
-
-**Example**:
-```swift
-// In View body:
-RealityView { content in
-    let scene = await FusionCoreScene.create()
-    content.add(scene.rootEntity)
-}
-// Apply fixed camera angle as 3D rotation on the view
-.rotation3DEffect(
-    .degrees(-63),  // Camera elevation angle
-    axis: (x: 1, y: 0, z: 0),
-    perspective: 0.5
-)
-```
-
-**Why**:
-- RealityKit's camera is managed by the view system, not scene objects
-- Applying rotation to the view simulates camera angle
-- No orbit controls means consistent framing across sessions
-- Document the prototype's camera position (e.g., `(0, 5, 2.5)` looking at origin) to explain the rotation value
-
----
-
-## Ring Configuration Component Pattern
-
-**When to use**: When multiple similar entities need individual runtime parameters.
-
-**Example**:
-```swift
-// Custom component for per-entity data
-struct RingConfigComponent: Component {
-    let speedMultiplier: Float
-    let direction: Float // 1 = CW, -1 = CCW
-    let index: Int
-}
-
-// Attach during creation
-let ringGroup = Entity()
-ringGroup.components.set(RingConfigComponent(
-    speedMultiplier: config.speedMultiplier,
-    direction: config.direction,
-    index: index
-))
-
-// Read during update
-for ring in rings {
-    guard let config = ring.components[RingConfigComponent.self] else { continue }
-    let rotation = baseRotation * config.speedMultiplier * config.direction
-    ring.transform.rotation = simd_quatf(angle: rotation, axis: [0, 1, 0])
-}
-```
-
-**Why**:
-- RealityKit's Component system provides entity-attached data
-- Avoids parallel arrays for entity-to-config mapping
-- Query-friendly: can iterate entities and access their configs
-- Type-safe: compiler ensures correct component usage
-
----
-
 ## Modular 3D Scene Architecture Pattern
 
 **When to use**: When building complex 3D scenes with multiple distinct visual systems.
@@ -1348,41 +1170,3 @@ final class Wisp {
 - Factory methods (`create()`) encapsulate complex construction
 - Update methods accept interpolator for consistent state mapping
 
----
-
-## Industrial 3D Geometry Pattern
-
-**When to use**: When creating machined/industrial-looking 3D objects.
-
-**Example**:
-```swift
-// Main body with brushed metal
-let body = ModelEntity(mesh: torusMesh, materials: [ringBodyMaterial(roughness: 0.35)])
-
-// Inner machined groove (smaller radius, darker)
-let innerGroove = ModelEntity(mesh: grooveMesh, materials: [grooveMaterial(roughness: 0.18)])
-
-// Outer machined groove
-let outerGroove = ModelEntity(mesh: outerGrooveMesh, materials: [grooveMaterial(roughness: 0.18)])
-
-// Segment dividers for turbine-blade look
-for i in 0..<segmentCount {
-    let angle = Float(i) / Float(segmentCount) * 2 * .pi
-    let segment = createSegmentDivider(radius: radius, angle: angle)
-    group.addChild(segment)
-}
-
-// Copper coil modules (offset from segments)
-for i in 0..<coilCount {
-    let angle = Float(i) / Float(coilCount) * 2 * .pi + offset
-    let coil = createCoilModule(radius: radius, angle: angle)
-    group.addChild(coil)
-}
-```
-
-**Why**:
-- Concentric grooves create machined precision feel
-- Segment dividers break up smooth torus into industrial sections
-- Coils offset from segments avoid visual collision
-- Different roughness values create material hierarchy (shiny grooves, matte body)
-- Smaller detail geometry (grooves, segments) uses higher roughness for contrast

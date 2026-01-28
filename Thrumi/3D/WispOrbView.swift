@@ -165,7 +165,7 @@ struct WispOrbView: View {
                         // Double tap - sparkle burst!
                         tapCount = 0
                         scene?.triggerDoubleTapBurst()
-                        hapticsManager?.playPhaseLockPulse()
+                        hapticsManager?.playRadiantPulse()
                     } else {
                         // Single tap - scatter
                         tapCount = 1

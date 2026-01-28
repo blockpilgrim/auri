@@ -114,14 +114,14 @@ final class HapticsManager {
         playTransient(intensity: intensity, sharpness: sharpness)
     }
 
-    // MARK: - Phase-Lock Pulse
+    // MARK: - Radiant Pulse
 
-    /// Plays a sharp, satisfying pulse when phase-lock state is achieved.
-    /// Only appropriate at high adherence (70%+).
-    func playPhaseLockPulse() {
+    /// Plays a sharp, satisfying pulse for radiant moments (sparkle bursts, etc).
+    /// Feels magical and celebratory.
+    func playRadiantPulse() {
         guard isEnabled, isEngineRunning else { return }
 
-        // Phase-lock is a premium moment - always crisp
+        // Radiant pulse is a premium moment - always crisp
         let intensity: Float = 0.8
         let sharpness: Float = 1.0
 

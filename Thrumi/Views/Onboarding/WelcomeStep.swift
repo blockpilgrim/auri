@@ -38,7 +38,7 @@ struct WelcomeStep: View {
                     .font(.system(size: 42, weight: .bold, design: .rounded))
                     .foregroundStyle(.white)
 
-                Text("Keep your reactor online")
+                Text("Keep your wisps thriving")
                     .font(.title3)
                     .foregroundStyle(.white.opacity(0.7))
             }
