@@ -12,8 +12,9 @@ final class UserPreferencesService {
         self.settings = Self.fetchOrCreateSettings(in: modelContext)
     }
 
-    func updateDietaryGoal(_ goal: DietaryGoal) throws {
+    func updateDietaryGoal(_ goal: DietaryGoal, customName: String? = nil) throws {
         settings.dietaryGoal = goal
+        settings.customDietName = goal == .custom ? customName : nil
         try modelContext.save()
     }
 

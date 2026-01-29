@@ -3,8 +3,13 @@ import SwiftUI
 /// A sheet allowing the user to change their dietary goal.
 struct DietPickerSheet: View {
     let currentGoal: DietaryGoal
-    let onSelect: (DietaryGoal) -> Void
+    let currentCustomName: String?
+    let onSelect: (DietaryGoal, String?) -> Void
     @Environment(\.dismiss) private var dismiss
+
+    @State private var showingCustomInput = false
+    @State private var customText = ""
+    @FocusState private var customFieldFocused: Bool
 
     private let columns = [
         GridItem(.flexible(), spacing: 12),
@@ -23,18 +28,56 @@ struct DietPickerSheet: View {
 
                     LazyVGrid(columns: columns, spacing: 12) {
                         ForEach(DietaryGoal.allCases, id: \.self) { goal in
-                            DietOptionButton(
-                                goal: goal,
-                                isSelected: goal == currentGoal
-                            ) {
-                                onSelect(goal)
-                                dismiss()
+                            if goal == .custom {
+                                DietOptionButton(
+                                    goal: goal,
+                                    isSelected: currentGoal == .custom && !showingCustomInput
+                                ) {
+                                    showingCustomInput = true
+                                    customFieldFocused = true
+                                }
+                            } else {
+                                DietOptionButton(
+                                    goal: goal,
+                                    isSelected: goal == currentGoal && !showingCustomInput
+                                ) {
+                                    onSelect(goal, nil)
+                                    dismiss()
+                                }
                             }
                         }
+                    }
+
+                    if showingCustomInput {
+                        VStack(spacing: 12) {
+                            TextField("e.g. Carnivore, Lion Diet", text: $customText)
+                                .font(.body)
+                                .padding(12)
+                                .background(Color(.secondarySystemGroupedBackground))
+                                .clipShape(RoundedRectangle(cornerRadius: 12))
+                                .focused($customFieldFocused)
+                                .submitLabel(.done)
+                                .onSubmit { saveCustom() }
+
+                            Button(action: saveCustom) {
+                                Text("Save")
+                                    .font(.subheadline.weight(.semibold))
+                                    .foregroundStyle(.white)
+                                    .frame(maxWidth: .infinity)
+                                    .padding(.vertical, 14)
+                                    .background(customText.trimmingCharacters(in: .whitespaces).isEmpty
+                                        ? Color.accentColor.opacity(0.4)
+                                        : Color.accentColor)
+                                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                            }
+                            .disabled(customText.trimmingCharacters(in: .whitespaces).isEmpty)
+                        }
+                        .transition(.opacity.combined(with: .move(edge: .top)))
                     }
                 }
                 .padding(.horizontal, 24)
                 .padding(.bottom, 24)
+                .animation(.easeInOut(duration: 0.2), value: showingCustomInput)
             }
             .navigationTitle("Diet")
             .navigationBarTitleDisplayMode(.inline)
@@ -44,8 +87,20 @@ struct DietPickerSheet: View {
                 }
             }
         }
-        .presentationDetents([.medium])
+        .presentationDetents([.medium, .large])
         .presentationDragIndicator(.visible)
+        .onAppear {
+            if currentGoal == .custom {
+                customText = currentCustomName ?? ""
+            }
+        }
+    }
+
+    private func saveCustom() {
+        let trimmed = customText.trimmingCharacters(in: .whitespaces)
+        guard !trimmed.isEmpty else { return }
+        onSelect(.custom, trimmed)
+        dismiss()
     }
 }
 
@@ -84,5 +139,9 @@ private struct DietOptionButton: View {
 }
 
 #Preview {
-    DietPickerSheet(currentGoal: .keto, onSelect: { _ in })
+    DietPickerSheet(currentGoal: .keto, currentCustomName: nil, onSelect: { _, _ in })
+}
+
+#Preview("Custom Selected") {
+    DietPickerSheet(currentGoal: .custom, currentCustomName: "Carnivore", onSelect: { _, _ in })
 }

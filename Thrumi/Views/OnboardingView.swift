@@ -49,8 +49,8 @@ struct OnboardingView: View {
             ))
 
         case .goalSelection:
-            GoalSelectionStep(onSelect: { goal in
-                saveGoal(goal)
+            GoalSelectionStep(onSelect: { goal, customName in
+                saveGoal(goal, customName: customName)
                 currentStep = .coreTutorial
             })
             .transition(.asymmetric(
@@ -78,8 +78,8 @@ struct OnboardingView: View {
 
     // MARK: - Actions
 
-    private func saveGoal(_ goal: DietaryGoal) {
-        try? userPreferences?.updateDietaryGoal(goal)
+    private func saveGoal(_ goal: DietaryGoal, customName: String?) {
+        try? userPreferences?.updateDietaryGoal(goal, customName: customName)
     }
 
     private func completeOnboarding() {

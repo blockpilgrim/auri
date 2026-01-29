@@ -12,8 +12,8 @@ struct DataView: View {
         NavigationStack {
             ScrollView {
                 VStack(spacing: 24) {
-                    if let goal = userPreferences?.settings.dietaryGoal {
-                        DietBadge(goal: goal) {
+                    if let settings = userPreferences?.settings {
+                        DietBadge(displayName: settings.dietDisplayName) {
                             showingDietPicker = true
                         }
                     }
@@ -35,9 +35,12 @@ struct DataView: View {
                 }
             }
             .sheet(isPresented: $showingDietPicker) {
-                if let goal = userPreferences?.settings.dietaryGoal {
-                    DietPickerSheet(currentGoal: goal) { newGoal in
-                        try? userPreferences?.updateDietaryGoal(newGoal)
+                if let settings = userPreferences?.settings {
+                    DietPickerSheet(
+                        currentGoal: settings.dietaryGoal,
+                        currentCustomName: settings.customDietName
+                    ) { goal, customName in
+                        try? userPreferences?.updateDietaryGoal(goal, customName: customName)
                     }
                 }
             }

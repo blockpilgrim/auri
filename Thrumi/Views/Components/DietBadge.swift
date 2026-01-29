@@ -3,7 +3,7 @@ import SwiftUI
 /// Displays the user's current dietary goal as a tappable pill.
 /// Tapping opens a sheet to reconfigure the diet choice.
 struct DietBadge: View {
-    let goal: DietaryGoal
+    let displayName: String
     let onTap: () -> Void
 
     var body: some View {
@@ -13,7 +13,7 @@ struct DietBadge: View {
                     .font(.caption)
                     .foregroundStyle(.secondary)
 
-                Text(goal.displayName)
+                Text(displayName)
                     .font(.subheadline.weight(.medium))
                     .foregroundStyle(.primary)
 
@@ -35,11 +35,11 @@ struct DietBadge: View {
 }
 
 #Preview {
-    DietBadge(goal: .keto, onTap: {})
+    DietBadge(displayName: "Keto / Low-Carb", onTap: {})
         .padding()
 }
 
-#Preview("Long Name") {
-    DietBadge(goal: .wholeFood, onTap: {})
+#Preview("Custom") {
+    DietBadge(displayName: "Carnivore", onTap: {})
         .padding()
 }

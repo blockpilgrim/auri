@@ -3,10 +3,10 @@ import SwiftUI
 /// A button for selecting a dietary goal during onboarding.
 struct GoalButton: View {
     let goal: DietaryGoal
-    let onSelect: (DietaryGoal) -> Void
+    let action: () -> Void
 
     var body: some View {
-        Button(action: { onSelect(goal) }) {
+        Button(action: action) {
             Text(goal.displayName)
                 .font(.subheadline)
                 .fontWeight(.medium)
@@ -25,9 +25,9 @@ struct GoalButton: View {
 
 #Preview {
     VStack(spacing: 12) {
-        GoalButton(goal: .keto, onSelect: { _ in })
-        GoalButton(goal: .vegetarian, onSelect: { _ in })
-        GoalButton(goal: .custom, onSelect: { _ in })
+        GoalButton(goal: .keto, action: {})
+        GoalButton(goal: .vegetarian, action: {})
+        GoalButton(goal: .custom, action: {})
     }
     .padding()
     .background(Color.black)
