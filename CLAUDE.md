@@ -1,6 +1,77 @@
-## Custom Instructions
+# CLAUDE.md
 
-### Session Startup Protocol
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
+## Project Overview
+
+Auri (codenamed "Thrumi") is an iOS diet-adherence tracker that visualizes progress as a 3D orb of orbiting sparks using RealityKit. Instead of charts and numbers, adherence drives the visual richness of the orb — spark count, speed, color, and brightness all respond to how well the user is eating. Built with Swift 6, SwiftUI, SwiftData, and RealityKit. Minimum deployment target: iOS 18.0.
+
+## Build & Test Commands
+
+This is an Xcode project (no SPM Package.swift). Build and test via `xcodebuild`:
+
+```bash
+# Build
+xcodebuild -project Thrumi.xcodeproj -scheme Thrumi -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 16' build
+
+# Run all tests
+xcodebuild -project Thrumi.xcodeproj -scheme Thrumi -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 16' test
+
+# Run a specific test suite
+xcodebuild -project Thrumi.xcodeproj -scheme Thrumi -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 16' test -only-testing:ThrumiTests/ModelTests
+
+# Run a specific test
+xcodebuild -project Thrumi.xcodeproj -scheme Thrumi -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 16' test -only-testing:ThrumiTests/ModelTests/testMealCreationWithPhotoSource
+```
+
+No external package dependencies. No linter configured.
+
+## Architecture
+
+### Layer Structure
+
+```
+SwiftUI Views → Domain Services → SwiftData Models
+       ↕
+  RealityKit 3D (AuriScene)
+```
+
+**Views** (`Thrumi/Views/`): 4 main screens — `CoreView` (home with 3D orb), `LogMealView`, `DataView`, `OnboardingView`. Components and onboarding steps are in subdirectories.
+
+**Services** (`Thrumi/Services/`): `MealService` (CRUD + photo storage), `AdherenceEngine` (calculates adherence percentages from meal data), `UserPreferencesService` (settings management). All are `@Observable` classes injected via SwiftUI environment.
+
+**Models** (`Thrumi/Models/`): SwiftData `@Model` classes (`Meal`, `UserSettings`) plus value types (`AdherenceState`, `OrbTier`, `DietaryGoal`, `MealSource`).
+
+**3D System** (`Thrumi/3D/`): The most complex module. `AuriScene` orchestrates the RealityKit scene. `Spark` represents individual orbiting light particles. `StateInterpolator` maps adherence (0.0–1.0) to visual parameters using a non-linear reward curve. `SpinnerPhysics` handles spin dynamics. `AuriView` is the SwiftUI wrapper with gesture handling. Supporting systems: `HapticsManager`, `MotionManager`, `ThermalManager`, `MultiFrequencyPulse`, `TierTransitionEffect`, `AmbientMoteSystem`, `ReducedMotionSupport`.
+
+### Key Data Flow
+
+1. User logs a meal → `MealService` persists to SwiftData
+2. `AdherenceEngine` recalculates adherence percentages (today, 7-day, 30-day rolling)
+3. `AdherenceState` computed → contains `coreAdherence` (weighted: 60% today + 40% 7-day) and `OrbTier`
+4. `StateInterpolator` maps adherence to visual parameters (speed, color, spark count, emissive intensity)
+5. `AuriScene.update()` applies parameters to RealityKit entities each frame via `CADisplayLink`
+
+### Service Injection
+
+Services are created in `ThrumiApp.init()` and injected via custom `EnvironmentValues` (defined in `App/Environment+Extensions.swift`). Views access them with `@Environment(\.mealService)` etc. All environment service types are optional to support SwiftUI previews.
+
+## Key Conventions
+
+- **Testing framework**: Swift Testing (`@Suite`, `@Test`, `#expect`) — not XCTest
+- **SwiftData tests**: Must be `@MainActor`, use in-memory `ModelContainer`
+- **All RealityKit code**: Must be `@MainActor`
+- **Git commits**: `[ISSUE-ID] Brief description` (e.g., `[THR-42] Add meal photo capture`)
+- **Linear project**: "Thrumi-MVP"
+- **Patterns and conventions**: See `CONVENTIONS.md` for established patterns (SwiftData models, observable services, custom mesh generation, gesture tracking, particle systems, etc.)
+
+## Important Documentation
+
+- `docs/PRODUCT.md` — Product brief ("Auri: Your Light, Visualized")
+- `docs/BUILD-STRATEGY.md` — Tech stack decisions, architecture diagram, implementation roadmap
+- `CONVENTIONS.md` — Code patterns and anti-patterns (updated via Compound Engineering Protocol)
+
+## Session Startup Protocol
 At the beginning of each session:
 1. Read `README.md` (if it exists) for project overview
 2. Read `docs/PRODUCT.md` to understand what we're building (located in `docs/`)
@@ -8,22 +79,22 @@ At the beginning of each session:
 4. If working on a specific feature or Linear issue, read relevant sections of `docs/BUILD-STRATEGY.md`
 5. Signal readiness by saying: "⏱️ So much time and so little to do. Wait. Strike that. Reverse it."
 
-### Linear Workflow
+## Linear Workflow
 
 Linear project name: "Thrumi-MVP"
 
-#### Starting Work on an Issue
+### Starting Work on an Issue
 1. Check the issue status in Linear
 2. If status is "In Progress": Read all issue comments for context from previous sessions
 3. If status is "Backlog" or "Todo": Set status to "In Progress"
 4. Read the full issue description, acceptance criteria, and any linked resources
 
-#### During Implementation
+### During Implementation
 - Follow patterns established in `CONVENTIONS.md` (if any exist)
 - If you encounter a decision not covered by existing conventions, make a reasonable choice and document it
 - Commit frequently with clear messages
 
-#### Completing Work on an Issue
+### Completing Work on an Issue
 1. Add a comment to the Linear issue documenting:
    - What was implemented
    - Implementation status (complete, partial, blocked)
@@ -33,11 +104,7 @@ Linear project name: "Thrumi-MVP"
 3. Set issue status to appropriate state (Done, In Review, Blocked)
 4. Signal completion by saying at the very end: "🧪 Invention is 93% perspiration, 6% electricity, 4% evaporation, and 2% butterscotch ripple. Do you concur?"
 
-### Git Conventions
-- Commit messages: `[ISSUE-ID] Brief description` (e.g., `[LIN-123] Add login form validation`)
-- Keep commits focused and atomic
-
-### Compound Engineering Protocol
+## Compound Engineering Protocol
 This protocol ensures the codebase gets smarter over time. It is **not optional**—execute it after every implementation session.
 
 **After completing any implementation work:**
@@ -84,7 +151,7 @@ This protocol ensures the codebase gets smarter over time. It is **not optional*
 // Correct approach
 ```
 
-### When to Ask for Human Input
+## When to Ask for Human Input
 - Unclear or ambiguous requirements
 - Decisions that significantly deviate from established patterns
 - Security-sensitive implementations
