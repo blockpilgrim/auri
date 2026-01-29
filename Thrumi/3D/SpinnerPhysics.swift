@@ -2,10 +2,16 @@ import Foundation
 import CoreGraphics
 
 /// Minimal spin physics for an interactive fidget spinner.
+///
+/// Uses delta-based spin tracking to avoid wrapping discontinuities.
+/// Each frame produces a `spinDelta` that consumers fold into their own
+/// accumulated angles, preventing jitter when multiplied by per-spark speed multipliers.
 @Observable
 @MainActor
 final class SpinnerPhysics {
-    private(set) var spinAngle: Float = 0
+    /// Per-frame angle change from user spin. Consumers should accumulate this
+    /// into their own angles rather than using an absolute spin angle.
+    private(set) var spinDelta: Float = 0
     private(set) var spinVelocity: Float = 0
 
     var maxSpinSpeed: Float = 10
@@ -23,7 +29,7 @@ final class SpinnerPhysics {
         }
 
         spinVelocity = clamp(spinVelocity, -maxSpinSpeed, maxSpinSpeed)
-        spinAngle = wrap(spinAngle + spinVelocity * deltaTime)
+        spinDelta = spinVelocity * deltaTime
     }
 
     func applyFlick(velocity: CGSize) {
@@ -34,10 +40,6 @@ final class SpinnerPhysics {
 
     func stop() {
         spinVelocity = 0
-    }
-
-    private func wrap(_ radians: Float) -> Float {
-        radians.truncatingRemainder(dividingBy: 2 * .pi)
     }
 
     private func clamp(_ x: Float, _ lo: Float, _ hi: Float) -> Float {

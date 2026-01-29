@@ -23,8 +23,8 @@ final class AuriScene {
     private var targetSparkCount: Int = 5
     private var currentPalette: [UIColor] = SparkColors.palette(for: 0)
     private var currentPaletteHash: Int = 0
-    private var lastBrightnessUpdateTime: Float = 0
-    private let brightnessUpdateInterval: Float = 0.1 // Update brightness 10x/sec, not 60+
+    /// Round-robin index for staggering brightness material updates across frames.
+    private var brightnessUpdateIndex: Int = 0
 
     /// Timing for spark spawn/despawn.
     private var lastSparkAdjustTime: Float = 0
@@ -124,13 +124,13 @@ final class AuriScene {
     ///
     /// - Parameters:
     ///   - interpolator: State interpolator with adherence-based parameters
-    ///   - spinAngle: Global spin angle from physics (user flick response)
+    ///   - spinDelta: Per-frame spin angle change from physics (user flick response)
     ///   - deltaTime: Frame delta time
     ///   - breathingPulse: Pulse value for breathing animation
     ///   - motionConfig: Reduced motion configuration (optional, defaults to normal)
     func update(
         interpolator: StateInterpolator,
-        spinAngle: Float,
+        spinDelta: Float,
         deltaTime: Float,
         breathingPulse: Float,
         motionConfig: ReducedMotionConfig = .normal
@@ -164,7 +164,7 @@ final class AuriScene {
         for spark in sparks {
             spark.update(
                 deltaTime: deltaTime,
-                globalSpinAngle: spinAngle,
+                spinDelta: spinDelta,
                 baseOrbitSpeed: interpolator.baseOrbitSpeed * globalExcitement,
                 breathingPulse: breathingPulse,
                 breathingAmplitude: interpolator.breathingAmplitude,
@@ -218,14 +218,20 @@ final class AuriScene {
             i -= 1
         }
 
-        // Update brightness on sparks (throttled to reduce material updates).
-        lastBrightnessUpdateTime += deltaTime
-        if lastBrightnessUpdateTime >= brightnessUpdateInterval {
-            lastBrightnessUpdateTime = 0
+        // Update brightness on a subset of sparks each frame (round-robin).
+        // Spreading material updates across ~6 frames prevents frame spikes
+        // when all sparks would otherwise cross an opacity step in one frame.
+        if !sparks.isEmpty {
             let brightness = interpolator.sparkBrightness
-            for spark in sparks where !spark.isFadingOut {
-                spark.updateBrightness(brightness)
+            let batchSize = max(1, (sparks.count + 5) / 6)
+            for i in 0..<batchSize {
+                let idx = (brightnessUpdateIndex + i) % sparks.count
+                let spark = sparks[idx]
+                if !spark.isFadingOut {
+                    spark.updateBrightness(brightness)
+                }
             }
+            brightnessUpdateIndex = (brightnessUpdateIndex + batchSize) % sparks.count
         }
     }
 

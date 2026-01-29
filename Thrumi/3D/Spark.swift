@@ -175,14 +175,14 @@ final class Spark {
     ///
     /// - Parameters:
     ///   - deltaTime: Frame delta time
-    ///   - globalSpinAngle: Global spin angle from physics (flick response)
+    ///   - spinDelta: Per-frame spin angle change from physics (flick response)
     ///   - baseOrbitSpeed: Base orbit speed from state interpolator
     ///   - breathingPulse: Breathing animation pulse value (-1 to 1)
     ///   - breathingAmplitude: Breathing scale amplitude
     ///   - orbitScale: Multiplier for orbit radius (for pinch gesture)
     func update(
         deltaTime: Float,
-        globalSpinAngle: Float,
+        spinDelta: Float,
         baseOrbitSpeed: Float,
         breathingPulse: Float,
         breathingAmplitude: Float,
@@ -209,18 +209,23 @@ final class Spark {
         chaosFactor *= max(0, chaosDecay)
         if chaosFactor < 0.01 { chaosFactor = 0 }
 
-        // Accumulate orbital angle internally (avoids jump when global angle wraps).
+        // Accumulate orbital angle internally.
+        // Both natural orbit speed and user spin delta are folded into the same
+        // accumulator so there is never a wrapping discontinuity — each spark
+        // applies its own speedMultiplier to the delta before accumulation.
         let effectiveSpeed = baseOrbitSpeed * speedMultiplier * excitement
-        accumulatedOrbitAngle += deltaTime * effectiveSpeed
+        accumulatedOrbitAngle += deltaTime * effectiveSpeed + spinDelta * speedMultiplier
 
-        // Prevent precision loss over very long sessions (wrap at large value).
+        // Prevent precision loss over very long sessions.
+        // 1000π = 500 full rotations, so cos/sin values are unchanged after wrap.
         if accumulatedOrbitAngle > 1000 * .pi {
             accumulatedOrbitAngle -= 1000 * .pi
+        } else if accumulatedOrbitAngle < -1000 * .pi {
+            accumulatedOrbitAngle += 1000 * .pi
         }
 
-        // Calculate current orbital angle.
-        // Combines internal accumulated angle with global spin from user interaction.
-        currentAngle = orbitPhase + accumulatedOrbitAngle + globalSpinAngle * speedMultiplier
+        // Calculate current orbital angle (purely accumulated, no external absolute angle).
+        currentAngle = orbitPhase + accumulatedOrbitAngle
 
         // Calculate base position on circular orbit.
         let effectiveRadius = orbitRadius * orbitScale

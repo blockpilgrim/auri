@@ -359,7 +359,7 @@ struct AuriView: View {
 
         scene.update(
             interpolator: stateInterpolator,
-            spinAngle: physics.spinAngle,
+            spinDelta: physics.spinDelta,
             deltaTime: deltaTime * motionConfig.animationSpeed,
             breathingPulse: breathingPulse,
             motionConfig: motionConfig
