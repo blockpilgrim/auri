@@ -9,6 +9,7 @@ struct DietPickerSheet: View {
 
     @State private var showingCustomInput = false
     @State private var customText = ""
+    @State private var selectedDetent: PresentationDetent = .medium
     @FocusState private var customFieldFocused: Bool
 
     private let columns = [
@@ -34,6 +35,7 @@ struct DietPickerSheet: View {
                                     isSelected: currentGoal == .custom && !showingCustomInput
                                 ) {
                                     showingCustomInput = true
+                                    selectedDetent = .large
                                     customFieldFocused = true
                                 }
                             } else {
@@ -101,13 +103,18 @@ struct DietPickerSheet: View {
                 }
             }
         }
-        .presentationDetents([.medium, .large])
+        .presentationDetents([.medium, .large], selection: $selectedDetent)
         .presentationDragIndicator(.visible)
         .presentationBackground(.black)
         .preferredColorScheme(.dark)
         .onAppear {
             if currentGoal == .custom {
                 customText = currentCustomName ?? ""
+            }
+        }
+        .onChange(of: showingCustomInput) {
+            if !showingCustomInput {
+                selectedDetent = .medium
             }
         }
     }
