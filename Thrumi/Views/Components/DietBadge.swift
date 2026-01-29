@@ -23,11 +23,11 @@ struct DietBadge: View {
             }
             .padding(.horizontal, 14)
             .padding(.vertical, 8)
-            .background(.ultraThinMaterial)
+            .background(Capsule().fill(GlassStyle.cardFill))
             .clipShape(Capsule())
             .overlay(
                 Capsule()
-                    .strokeBorder(Color.primary.opacity(0.08), lineWidth: 1)
+                    .strokeBorder(GlassStyle.borderGradient, lineWidth: GlassStyle.borderWidth)
             )
         }
         .buttonStyle(.plain)

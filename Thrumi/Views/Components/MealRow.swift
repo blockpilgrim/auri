@@ -12,8 +12,7 @@ struct MealRow: View {
                     .font(.title3)
                     .foregroundStyle(.secondary)
                     .frame(width: 44, height: 44)
-                    .background(.ultraThinMaterial)
-                    .clipShape(RoundedRectangle(cornerRadius: 8))
+                    .glassCard(cornerRadius: 8)
             }
 
             VStack(alignment: .leading, spacing: 2) {
@@ -32,7 +31,7 @@ struct MealRow: View {
 
             Image(systemName: meal.isOnTrack ? "checkmark.circle.fill" : "xmark.circle")
                 .font(.title3)
-                .foregroundStyle(meal.isOnTrack ? .green : .orange)
+                .foregroundStyle(meal.isOnTrack ? GlassStyle.onTrackColor : .orange.opacity(0.8))
         }
         .padding(.vertical, 4)
     }

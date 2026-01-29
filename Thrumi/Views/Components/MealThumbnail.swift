@@ -13,7 +13,7 @@ struct MealThumbnail: View {
                     .resizable()
                     .scaledToFill()
             } else {
-                Color.gray.opacity(0.3)
+                GlassStyle.cardFill
             }
         }
         .frame(width: 44, height: 44)

@@ -29,12 +29,30 @@ struct LogMealView: View {
     var body: some View {
         NavigationStack {
             VStack(spacing: 24) {
-                Picker("Entry Mode", selection: $entryMode) {
+                // Custom glass segmented toggle
+                HStack(spacing: 0) {
                     ForEach(EntryMode.allCases, id: \.self) { mode in
-                        Text(mode.rawValue).tag(mode)
+                        Button {
+                            withAnimation(.easeInOut(duration: 0.2)) {
+                                entryMode = mode
+                            }
+                        } label: {
+                            Text(mode.rawValue)
+                                .font(.subheadline.weight(.medium))
+                                .foregroundStyle(entryMode == mode ? .white.opacity(0.9) : .white.opacity(0.4))
+                                .frame(maxWidth: .infinity)
+                                .padding(.vertical, 10)
+                                .background(
+                                    entryMode == mode
+                                        ? Capsule().fill(.white.opacity(0.12))
+                                        : Capsule().fill(Color.clear)
+                                )
+                        }
+                        .buttonStyle(.plain)
                     }
                 }
-                .pickerStyle(.segmented)
+                .padding(4)
+                .glassCapsule()
                 .padding(.horizontal)
 
                 if entryMode == .photo {
@@ -49,7 +67,7 @@ struct LogMealView: View {
                     .padding(.bottom)
             }
             .padding(.top)
-            .background(Color(uiColor: .systemGroupedBackground))
+            .background(Color.black)
             .navigationTitle("Log Meal")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -65,6 +83,7 @@ struct LogMealView: View {
                     .ignoresSafeArea()
             }
         }
+        .preferredColorScheme(.dark)
     }
 
     private func saveMeal(isOnTrack: Bool) {

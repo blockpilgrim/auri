@@ -15,21 +15,36 @@ struct TrackingButtons: View {
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
 
-            HStack(spacing: 16) {
+            HStack(spacing: 12) {
                 Button(action: { onSave(false) }) {
                     Label("Off Track", systemImage: "xmark.circle")
+                        .font(.subheadline.weight(.medium))
+                        .foregroundStyle(.white.opacity(0.9))
                         .frame(maxWidth: .infinity)
+                        .padding(.vertical, 14)
                 }
-                .buttonStyle(.bordered)
-                .controlSize(.large)
+                .buttonStyle(.plain)
+                .glassCard()
+                .opacity(isEnabled ? 1.0 : 0.4)
                 .disabled(!isEnabled)
 
                 Button(action: { onSave(true) }) {
                     Label("On Track", systemImage: "checkmark.circle.fill")
+                        .font(.subheadline.weight(.medium))
+                        .foregroundStyle(GlassStyle.onTrackColor.opacity(0.95))
                         .frame(maxWidth: .infinity)
+                        .padding(.vertical, 14)
                 }
-                .buttonStyle(.borderedProminent)
-                .controlSize(.large)
+                .buttonStyle(.plain)
+                .background(
+                    RoundedRectangle(cornerRadius: GlassStyle.cornerRadius)
+                        .fill(GlassStyle.onTrackFill)
+                )
+                .overlay(
+                    RoundedRectangle(cornerRadius: GlassStyle.cornerRadius)
+                        .strokeBorder(GlassStyle.onTrackBorderGradient, lineWidth: GlassStyle.borderWidth)
+                )
+                .opacity(isEnabled ? 1.0 : 0.4)
                 .disabled(!isEnabled)
             }
         }

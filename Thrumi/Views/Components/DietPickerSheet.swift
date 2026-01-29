@@ -49,12 +49,18 @@ struct DietPickerSheet: View {
                     }
 
                     if showingCustomInput {
+                        let canSave = !customText.trimmingCharacters(in: .whitespaces).isEmpty
+
                         VStack(spacing: 12) {
                             TextField("e.g. Carnivore, Lion Diet", text: $customText)
                                 .font(.body)
                                 .padding(12)
-                                .background(Color(.secondarySystemGroupedBackground))
-                                .clipShape(RoundedRectangle(cornerRadius: 12))
+                                .background(GlassStyle.cardFill)
+                                .clipShape(RoundedRectangle(cornerRadius: GlassStyle.cornerRadius))
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: GlassStyle.cornerRadius)
+                                        .strokeBorder(GlassStyle.borderGradient, lineWidth: GlassStyle.borderWidth)
+                                )
                                 .focused($customFieldFocused)
                                 .submitLabel(.done)
                                 .onSubmit { saveCustom() }
@@ -62,15 +68,23 @@ struct DietPickerSheet: View {
                             Button(action: saveCustom) {
                                 Text("Save")
                                     .font(.subheadline.weight(.semibold))
-                                    .foregroundStyle(.white)
+                                    .foregroundStyle(canSave ? .white.opacity(0.9) : .white.opacity(0.3))
                                     .frame(maxWidth: .infinity)
                                     .padding(.vertical, 14)
-                                    .background(customText.trimmingCharacters(in: .whitespaces).isEmpty
-                                        ? Color.accentColor.opacity(0.4)
-                                        : Color.accentColor)
-                                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                                    .background(
+                                        RoundedRectangle(cornerRadius: GlassStyle.cornerRadius)
+                                            .fill(canSave ? GlassStyle.onTrackFill : GlassStyle.cardFill)
+                                    )
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: GlassStyle.cornerRadius)
+                                            .strokeBorder(
+                                                canSave ? GlassStyle.onTrackBorderGradient : GlassStyle.borderGradient,
+                                                lineWidth: GlassStyle.borderWidth
+                                            )
+                                    )
                             }
-                            .disabled(customText.trimmingCharacters(in: .whitespaces).isEmpty)
+                            .buttonStyle(.plain)
+                            .disabled(!canSave)
                         }
                         .transition(.opacity.combined(with: .move(edge: .top)))
                     }
@@ -89,6 +103,8 @@ struct DietPickerSheet: View {
         }
         .presentationDetents([.medium, .large])
         .presentationDragIndicator(.visible)
+        .presentationBackground(.black)
+        .preferredColorScheme(.dark)
         .onAppear {
             if currentGoal == .custom {
                 customText = currentCustomName ?? ""
@@ -121,16 +137,19 @@ private struct DietOptionButton: View {
                         .font(.caption.weight(.bold))
                 }
             }
-            .foregroundStyle(isSelected ? .white : .primary)
+            .foregroundStyle(isSelected ? .white.opacity(0.95) : .white.opacity(0.7))
             .frame(maxWidth: .infinity)
             .padding(.vertical, 14)
-            .background(isSelected ? Color.accentColor.opacity(0.85) : Color(.secondarySystemGroupedBackground))
-            .clipShape(RoundedRectangle(cornerRadius: 12))
+            .background(
+                RoundedRectangle(cornerRadius: GlassStyle.cornerRadius)
+                    .fill(isSelected ? GlassStyle.selectedFill : GlassStyle.cardFill)
+            )
+            .clipShape(RoundedRectangle(cornerRadius: GlassStyle.cornerRadius))
             .overlay(
-                RoundedRectangle(cornerRadius: 12)
+                RoundedRectangle(cornerRadius: GlassStyle.cornerRadius)
                     .strokeBorder(
-                        isSelected ? Color.accentColor : Color.primary.opacity(0.08),
-                        lineWidth: 1
+                        isSelected ? GlassStyle.selectedBorderGradient : GlassStyle.borderGradient,
+                        lineWidth: GlassStyle.borderWidth
                     )
             )
         }

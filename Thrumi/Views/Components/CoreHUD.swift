@@ -26,15 +26,16 @@ struct CoreHUD: View {
             Text("TODAY")
                 .font(.caption2)
                 .fontWeight(.medium)
-                .foregroundStyle(.gray)
+                .tracking(0.8)
+                .foregroundStyle(.white.opacity(0.45))
             Text("\(percentage)%")
                 .font(.title3)
                 .fontWeight(.semibold)
-                .foregroundStyle(.white)
+                .foregroundStyle(.white.opacity(0.85))
         }
         .padding(.horizontal, 12)
         .padding(.vertical, 8)
-        .background(.ultraThinMaterial.opacity(0.5), in: RoundedRectangle(cornerRadius: 8))
+        .glassCard()
     }
 }
 

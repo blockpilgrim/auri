@@ -14,16 +14,21 @@ struct PhotoCaptureSection: View {
                     .resizable()
                     .scaledToFit()
                     .frame(maxHeight: 300)
-                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                    .clipShape(RoundedRectangle(cornerRadius: GlassStyle.cornerRadius))
                     .overlay(
-                        RoundedRectangle(cornerRadius: 12)
-                            .stroke(Color.secondary.opacity(0.3), lineWidth: 1)
+                        RoundedRectangle(cornerRadius: GlassStyle.cornerRadius)
+                            .strokeBorder(GlassStyle.borderGradient, lineWidth: GlassStyle.borderWidth)
                     )
 
                 Button(action: { image = nil }) {
                     Label("Retake Photo", systemImage: "arrow.counterclockwise")
+                        .font(.subheadline.weight(.medium))
+                        .foregroundStyle(.white.opacity(0.9))
+                        .padding(.horizontal, 20)
+                        .padding(.vertical, 10)
                 }
-                .buttonStyle(.bordered)
+                .buttonStyle(.plain)
+                .glassCapsule()
             } else {
                 VStack(spacing: 12) {
                     Image(systemName: "camera.fill")
@@ -36,15 +41,17 @@ struct PhotoCaptureSection: View {
                 }
                 .frame(maxWidth: .infinity)
                 .frame(height: 200)
-                .background(Color(uiColor: .secondarySystemGroupedBackground))
-                .clipShape(RoundedRectangle(cornerRadius: 12))
+                .glassCard()
 
                 Button(action: openCamera) {
                     Label("Take Photo", systemImage: "camera")
+                        .font(.subheadline.weight(.medium))
+                        .foregroundStyle(.white.opacity(0.9))
                         .frame(maxWidth: .infinity)
+                        .padding(.vertical, 14)
                 }
-                .buttonStyle(.borderedProminent)
-                .controlSize(.large)
+                .buttonStyle(.plain)
+                .glassCard()
             }
         }
         .padding(.horizontal)

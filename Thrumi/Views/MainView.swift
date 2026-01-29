@@ -21,26 +21,27 @@ struct MainView: View {
                 Button {
                     showLogMeal = true
                 } label: {
-                    HStack(spacing: 8) {
+                    HStack(spacing: 6) {
                         Image(systemName: "plus")
-                            .font(.title2.weight(.semibold))
+                            .font(.subheadline.weight(.semibold))
                         Text("Log Meal")
-                            .font(.headline)
+                            .font(.subheadline.weight(.medium))
                     }
-                    .foregroundStyle(.white)
-                    .padding(.horizontal, 24)
-                    .padding(.vertical, 14)
-                    .background(.blue)
-                    .clipShape(Capsule())
+                    .foregroundStyle(.white.opacity(0.9))
+                    .padding(.horizontal, 20)
+                    .padding(.vertical, 11)
+                    .glassCapsule()
                 }
                 .padding(.bottom, 40)
             }
         }
         .sheet(isPresented: $showLogMeal) {
             LogMealView()
+                .presentationBackground(.black)
         }
         .sheet(isPresented: $showDataView) {
             DataView()
+                .presentationBackground(.black)
         }
     }
 }

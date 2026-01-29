@@ -17,8 +17,7 @@ struct MetricCard: View {
         }
         .frame(maxWidth: .infinity)
         .padding()
-        .background(.ultraThinMaterial)
-        .cornerRadius(12)
+        .glassCard()
     }
 }
 

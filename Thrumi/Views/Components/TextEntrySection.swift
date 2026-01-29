@@ -15,16 +15,16 @@ struct TextEntrySection: View {
                 .focused($isFocused)
                 .frame(minHeight: 150)
                 .scrollContentBackground(.hidden)
-                .background(Color(uiColor: .secondarySystemGroupedBackground))
-                .clipShape(RoundedRectangle(cornerRadius: 12))
+                .background(GlassStyle.cardFill)
+                .clipShape(RoundedRectangle(cornerRadius: GlassStyle.cornerRadius))
                 .overlay(
-                    RoundedRectangle(cornerRadius: 12)
-                        .stroke(Color.secondary.opacity(0.3), lineWidth: 1)
+                    RoundedRectangle(cornerRadius: GlassStyle.cornerRadius)
+                        .strokeBorder(GlassStyle.borderGradient, lineWidth: GlassStyle.borderWidth)
                 )
                 .overlay(alignment: .topLeading) {
                     if description.isEmpty {
                         Text("e.g., Grilled chicken salad with avocado...")
-                            .foregroundStyle(.tertiary)
+                            .foregroundStyle(.white.opacity(0.25))
                             .padding(.horizontal, 8)
                             .padding(.vertical, 12)
                             .allowsHitTesting(false)

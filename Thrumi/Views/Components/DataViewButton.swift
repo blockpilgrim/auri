@@ -8,11 +8,16 @@ struct DataViewButton: View {
     var body: some View {
         Button(action: action) {
             Image(systemName: "chart.bar.fill")
-                .font(.title2)
-                .foregroundStyle(.white.opacity(0.8))
-                .padding(12)
-                .background(.ultraThinMaterial)
-                .clipShape(Circle())
+                .font(.body)
+                .foregroundStyle(.white.opacity(0.7))
+                .padding(10)
+                .background(
+                    Circle().fill(GlassStyle.cardFill)
+                )
+                .overlay(
+                    Circle()
+                        .strokeBorder(GlassStyle.borderGradient, lineWidth: GlassStyle.borderWidth)
+                )
         }
         .accessibilityLabel("View Data")
         .accessibilityHint("Opens meal history and adherence statistics")

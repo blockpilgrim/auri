@@ -24,7 +24,8 @@ struct DataView: View {
                 }
                 .padding()
             }
-            .background(Color(uiColor: .systemGroupedBackground))
+            .scrollContentBackground(.hidden)
+            .background(Color.black)
             .navigationTitle("Data")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -34,14 +35,15 @@ struct DataView: View {
                     }
                 }
             }
-            .sheet(isPresented: $showingDietPicker) {
-                if let settings = userPreferences?.settings {
-                    DietPickerSheet(
-                        currentGoal: settings.dietaryGoal,
-                        currentCustomName: settings.customDietName
-                    ) { goal, customName in
-                        try? userPreferences?.updateDietaryGoal(goal, customName: customName)
-                    }
+        }
+        .preferredColorScheme(.dark)
+        .sheet(isPresented: $showingDietPicker) {
+            if let settings = userPreferences?.settings {
+                DietPickerSheet(
+                    currentGoal: settings.dietaryGoal,
+                    currentCustomName: settings.customDietName
+                ) { goal, customName in
+                    try? userPreferences?.updateDietaryGoal(goal, customName: customName)
                 }
             }
         }
