@@ -17,7 +17,7 @@
 		7A7F02BCCE67313828759C7D /* TierTransitionEffect.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1499F471A26B9C490985AD2 /* TierTransitionEffect.swift */; };
 		8D186C37E93D82FD0DCCB047 /* MultiFrequencyPulse.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3EA8EA4976A5DFF255DD36A /* MultiFrequencyPulse.swift */; };
 		9CE3FABBB962E37E767F21E9 /* OrbTier.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0B39317CCC1E724E2CFFCCB /* OrbTier.swift */; };
-		B1000001BBBBBBBB00000001 /* ThrumiApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000011BBBBBBBB00000011 /* ThrumiApp.swift */; };
+		B1000001BBBBBBBB00000001 /* AuriApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000011BBBBBBBB00000011 /* AuriApp.swift */; };
 		B1000003BBBBBBBB00000003 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B1000013BBBBBBBB00000013 /* Assets.xcassets */; };
 		B1000004BBBBBBBB00000004 /* Meal.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000014BBBBBBBB00000014 /* Meal.swift */; };
 		B1000005BBBBBBBB00000005 /* UserSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000015BBBBBBBB00000015 /* UserSettings.swift */; };
@@ -25,7 +25,7 @@
 		B1000007BBBBBBBB00000007 /* MealSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000017BBBBBBBB00000017 /* MealSource.swift */; };
 		B1000008BBBBBBBB00000008 /* DietaryGoal.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000018BBBBBBBB00000018 /* DietaryGoal.swift */; };
 		B100000ABBBBBBBB0000000A /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = B100001ABBBBBBBB0000001A /* PrivacyInfo.xcprivacy */; };
-		B100000BBBBBBBBB0000000B /* ThrumiTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B100001BBBBBBBBB0000001B /* ThrumiTests.swift */; };
+		B100000BBBBBBBBB0000000B /* AuriTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B100001BBBBBBBBB0000001B /* AuriTests.swift */; };
 		B1000080BBBBBBBB00000080 /* MealService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000090BBBBBBBB00000090 /* MealService.swift */; };
 		B1000081BBBBBBBB00000081 /* AdherenceEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000091BBBBBBBB00000091 /* AdherenceEngine.swift */; };
 		B1000082BBBBBBBB00000082 /* UserPreferencesService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000092BBBBBBBB00000092 /* UserPreferencesService.swift */; };
@@ -71,7 +71,7 @@
 			containerPortal = B1000000BBBBBBBB00000000 /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = B1000050BBBBBBBB00000050;
-			remoteInfo = Thrumi;
+			remoteInfo = Auri;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -83,7 +83,7 @@
 		D3F4A5B6C7E8F9A0B1D2E3F4 /* GlassStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlassStyle.swift; sourceTree = "<group>"; };
 		9CAF714F02DC77ED1E4E8099 /* AmbientMoteSystem.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AmbientMoteSystem.swift; sourceTree = "<group>"; };
 		AE25E748B7FD36FA3FEFAAD1 /* SparkColors.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SparkColors.swift; sourceTree = "<group>"; };
-		B1000011BBBBBBBB00000011 /* ThrumiApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThrumiApp.swift; sourceTree = "<group>"; };
+		B1000011BBBBBBBB00000011 /* AuriApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuriApp.swift; sourceTree = "<group>"; };
 		B1000013BBBBBBBB00000013 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		B1000014BBBBBBBB00000014 /* Meal.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Meal.swift; sourceTree = "<group>"; };
 		B1000015BBBBBBBB00000015 /* UserSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserSettings.swift; sourceTree = "<group>"; };
@@ -91,10 +91,10 @@
 		B1000017BBBBBBBB00000017 /* MealSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MealSource.swift; sourceTree = "<group>"; };
 		B1000018BBBBBBBB00000018 /* DietaryGoal.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DietaryGoal.swift; sourceTree = "<group>"; };
 		B100001ABBBBBBBB0000001A /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
-		B100001BBBBBBBBB0000001B /* ThrumiTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThrumiTests.swift; sourceTree = "<group>"; };
+		B100001BBBBBBBBB0000001B /* AuriTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuriTests.swift; sourceTree = "<group>"; };
 		B100001CBBBBBBBB0000001C /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		B1000020BBBBBBBB00000020 /* Thrumi.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Thrumi.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		B1000021BBBBBBBB00000021 /* ThrumiTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ThrumiTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		B1000020BBBBBBBB00000020 /* Auri.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Auri.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		B1000021BBBBBBBB00000021 /* AuriTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = AuriTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		B1000090BBBBBBBB00000090 /* MealService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MealService.swift; sourceTree = "<group>"; };
 		B1000091BBBBBBBB00000091 /* AdherenceEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdherenceEngine.swift; sourceTree = "<group>"; };
 		B1000092BBBBBBBB00000092 /* UserPreferencesService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserPreferencesService.swift; sourceTree = "<group>"; };
@@ -158,13 +158,13 @@
 		B1000040BBBBBBBB00000040 = {
 			isa = PBXGroup;
 			children = (
-				B1000041BBBBBBBB00000041 /* Thrumi */,
-				B1000042BBBBBBBB00000042 /* ThrumiTests */,
+				B1000041BBBBBBBB00000041 /* Auri */,
+				B1000042BBBBBBBB00000042 /* AuriTests */,
 				B1000043BBBBBBBB00000043 /* Products */,
 			);
 			sourceTree = "<group>";
 		};
-		B1000041BBBBBBBB00000041 /* Thrumi */ = {
+		B1000041BBBBBBBB00000041 /* Auri */ = {
 			isa = PBXGroup;
 			children = (
 				B1481100BBBBBBBB00481100 /* Utilities */,
@@ -175,23 +175,23 @@
 				B1000048BBBBBBBB00000048 /* 3D */,
 				B1000049BBBBBBBB00000049 /* Resources */,
 			);
-			path = Thrumi;
+			path = Auri;
 			sourceTree = "<group>";
 		};
-		B1000042BBBBBBBB00000042 /* ThrumiTests */ = {
+		B1000042BBBBBBBB00000042 /* AuriTests */ = {
 			isa = PBXGroup;
 			children = (
-				B100001BBBBBBBBB0000001B /* ThrumiTests.swift */,
+				B100001BBBBBBBBB0000001B /* AuriTests.swift */,
 				B1000093BBBBBBBB00000093 /* ServiceTests.swift */,
 			);
-			path = ThrumiTests;
+			path = AuriTests;
 			sourceTree = "<group>";
 		};
 		B1000043BBBBBBBB00000043 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				B1000020BBBBBBBB00000020 /* Thrumi.app */,
-				B1000021BBBBBBBB00000021 /* ThrumiTests.xctest */,
+				B1000020BBBBBBBB00000020 /* Auri.app */,
+				B1000021BBBBBBBB00000021 /* AuriTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -199,7 +199,7 @@
 		B1000044BBBBBBBB00000044 /* App */ = {
 			isa = PBXGroup;
 			children = (
-				B1000011BBBBBBBB00000011 /* ThrumiApp.swift */,
+				B1000011BBBBBBBB00000011 /* AuriApp.swift */,
 				B1473011BBBBBBBB00473011 /* Environment+Extensions.swift */,
 			);
 			path = App;
@@ -319,9 +319,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		B1000050BBBBBBBB00000050 /* Thrumi */ = {
+		B1000050BBBBBBBB00000050 /* Auri */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = B1000060BBBBBBBB00000060 /* Build configuration list for PBXNativeTarget "Thrumi" */;
+			buildConfigurationList = B1000060BBBBBBBB00000060 /* Build configuration list for PBXNativeTarget "Auri" */;
 			buildPhases = (
 				B1000051BBBBBBBB00000051 /* Sources */,
 				B1000030BBBBBBBB00000030 /* Frameworks */,
@@ -331,14 +331,14 @@
 			);
 			dependencies = (
 			);
-			name = Thrumi;
-			productName = Thrumi;
-			productReference = B1000020BBBBBBBB00000020 /* Thrumi.app */;
+			name = Auri;
+			productName = Auri;
+			productReference = B1000020BBBBBBBB00000020 /* Auri.app */;
 			productType = "com.apple.product-type.application";
 		};
-		B1000053BBBBBBBB00000053 /* ThrumiTests */ = {
+		B1000053BBBBBBBB00000053 /* AuriTests */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = B1000061BBBBBBBB00000061 /* Build configuration list for PBXNativeTarget "ThrumiTests" */;
+			buildConfigurationList = B1000061BBBBBBBB00000061 /* Build configuration list for PBXNativeTarget "AuriTests" */;
 			buildPhases = (
 				B1000054BBBBBBBB00000054 /* Sources */,
 				B1000031BBBBBBBB00000031 /* Frameworks */,
@@ -349,9 +349,9 @@
 			dependencies = (
 				B100000DBBBBBBBB0000000D /* PBXTargetDependency */,
 			);
-			name = ThrumiTests;
-			productName = ThrumiTests;
-			productReference = B1000021BBBBBBBB00000021 /* ThrumiTests.xctest */;
+			name = AuriTests;
+			productName = AuriTests;
+			productReference = B1000021BBBBBBBB00000021 /* AuriTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
 /* End PBXNativeTarget section */
@@ -373,7 +373,7 @@
 					};
 				};
 			};
-			buildConfigurationList = B1000062BBBBBBBB00000062 /* Build configuration list for PBXProject "Thrumi" */;
+			buildConfigurationList = B1000062BBBBBBBB00000062 /* Build configuration list for PBXProject "Auri" */;
 			compatibilityVersion = "Xcode 14.0";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
@@ -386,8 +386,8 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				B1000050BBBBBBBB00000050 /* Thrumi */,
-				B1000053BBBBBBBB00000053 /* ThrumiTests */,
+				B1000050BBBBBBBB00000050 /* Auri */,
+				B1000053BBBBBBBB00000053 /* AuriTests */,
 			);
 		};
 /* End PBXProject section */
@@ -416,7 +416,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				B1000001BBBBBBBB00000001 /* ThrumiApp.swift in Sources */,
+				B1000001BBBBBBBB00000001 /* AuriApp.swift in Sources */,
 				B1473001BBBBBBBB00473001 /* Environment+Extensions.swift in Sources */,
 				B1473002BBBBBBBB00473002 /* RootView.swift in Sources */,
 				B1473003BBBBBBBB00473003 /* MainView.swift in Sources */,
@@ -475,7 +475,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				B100000BBBBBBBBB0000000B /* ThrumiTests.swift in Sources */,
+				B100000BBBBBBBBB0000000B /* AuriTests.swift in Sources */,
 				B1000083BBBBBBBB00000083 /* ServiceTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -485,7 +485,7 @@
 /* Begin PBXTargetDependency section */
 		B100000DBBBBBBBB0000000D /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = B1000050BBBBBBBB00000050 /* Thrumi */;
+			target = B1000050BBBBBBBB00000050 /* Auri */;
 			targetProxy = B100000CBBBBBBBB0000000C /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
@@ -622,8 +622,8 @@
 				DEVELOPMENT_ASSET_PATHS = "";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = Thrumi/Resources/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = Thrumi;
+				INFOPLIST_FILE = Auri/Resources/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = Auri;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.healthcare-fitness";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -635,7 +635,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.thrumi.app;
+				PRODUCT_BUNDLE_IDENTIFIER = com.roi-ex-machina.auri;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 6.0;
@@ -653,8 +653,8 @@
 				DEVELOPMENT_ASSET_PATHS = "";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = Thrumi/Resources/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = Thrumi;
+				INFOPLIST_FILE = Auri/Resources/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = Auri;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.healthcare-fitness";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -666,7 +666,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.thrumi.app;
+				PRODUCT_BUNDLE_IDENTIFIER = com.roi-ex-machina.auri;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 6.0;
@@ -683,12 +683,12 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.thrumi.ThrumiTests;
+				PRODUCT_BUNDLE_IDENTIFIER = com.roi-ex-machina.AuriTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 6.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Thrumi.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Thrumi";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Auri.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Auri";
 			};
 			name = Debug;
 		};
@@ -701,19 +701,19 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.thrumi.ThrumiTests;
+				PRODUCT_BUNDLE_IDENTIFIER = com.roi-ex-machina.AuriTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 6.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Thrumi.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Thrumi";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Auri.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Auri";
 			};
 			name = Release;
 		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		B1000060BBBBBBBB00000060 /* Build configuration list for PBXNativeTarget "Thrumi" */ = {
+		B1000060BBBBBBBB00000060 /* Build configuration list for PBXNativeTarget "Auri" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				B1000072BBBBBBBB00000072 /* Debug */,
@@ -722,7 +722,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		B1000061BBBBBBBB00000061 /* Build configuration list for PBXNativeTarget "ThrumiTests" */ = {
+		B1000061BBBBBBBB00000061 /* Build configuration list for PBXNativeTarget "AuriTests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				B1000074BBBBBBBB00000074 /* Debug */,
@@ -731,7 +731,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		B1000062BBBBBBBB00000062 /* Build configuration list for PBXProject "Thrumi" */ = {
+		B1000062BBBBBBBB00000062 /* Build configuration list for PBXProject "Auri" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				B1000070BBBBBBBB00000070 /* Debug */,

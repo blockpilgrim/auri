@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Auri (codenamed "Thrumi") is an iOS diet-adherence tracker that visualizes progress as a 3D orb of orbiting sparks using RealityKit. Instead of charts and numbers, adherence drives the visual richness of the orb — spark count, speed, color, and brightness all respond to how well the user is eating. Built with Swift 6, SwiftUI, SwiftData, and RealityKit. Minimum deployment target: iOS 18.0.
+Auri is an iOS diet-adherence tracker that visualizes progress as a 3D orb of orbiting sparks using RealityKit. Instead of charts and numbers, adherence drives the visual richness of the orb — spark count, speed, color, and brightness all respond to how well the user is eating. Built with Swift 6, SwiftUI, SwiftData, and RealityKit. Minimum deployment target: iOS 18.0.
 
 ## Build & Test Commands
 
@@ -12,16 +12,16 @@ This is an Xcode project (no SPM Package.swift). Build and test via `xcodebuild`
 
 ```bash
 # Build
-xcodebuild -project Thrumi.xcodeproj -scheme Thrumi -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 16' build
+xcodebuild -project Auri.xcodeproj -scheme Auri -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 17 Pro' build
 
 # Run all tests
-xcodebuild -project Thrumi.xcodeproj -scheme Thrumi -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 16' test
+xcodebuild -project Auri.xcodeproj -scheme Auri -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 17 Pro' test
 
 # Run a specific test suite
-xcodebuild -project Thrumi.xcodeproj -scheme Thrumi -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 16' test -only-testing:ThrumiTests/ModelTests
+xcodebuild -project Auri.xcodeproj -scheme Auri -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 17 Pro' test -only-testing:AuriTests/ModelTests
 
 # Run a specific test
-xcodebuild -project Thrumi.xcodeproj -scheme Thrumi -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 16' test -only-testing:ThrumiTests/ModelTests/testMealCreationWithPhotoSource
+xcodebuild -project Auri.xcodeproj -scheme Auri -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 17 Pro' test -only-testing:AuriTests/ModelTests/testMealCreationWithPhotoSource
 ```
 
 No external package dependencies. No linter configured.
@@ -36,13 +36,13 @@ SwiftUI Views → Domain Services → SwiftData Models
   RealityKit 3D (AuriScene)
 ```
 
-**Views** (`Thrumi/Views/`): 4 main screens — `CoreView` (home with 3D orb), `LogMealView`, `DataView`, `OnboardingView`. Components and onboarding steps are in subdirectories.
+**Views** (`Auri/Views/`): 4 main screens — `CoreView` (home with 3D orb), `LogMealView`, `DataView`, `OnboardingView`. Components and onboarding steps are in subdirectories.
 
-**Services** (`Thrumi/Services/`): `MealService` (CRUD + photo storage), `AdherenceEngine` (calculates adherence percentages from meal data), `UserPreferencesService` (settings management). All are `@Observable` classes injected via SwiftUI environment.
+**Services** (`Auri/Services/`): `MealService` (CRUD + photo storage), `AdherenceEngine` (calculates adherence percentages from meal data), `UserPreferencesService` (settings management). All are `@Observable` classes injected via SwiftUI environment.
 
-**Models** (`Thrumi/Models/`): SwiftData `@Model` classes (`Meal`, `UserSettings`) plus value types (`AdherenceState`, `OrbTier`, `DietaryGoal`, `MealSource`).
+**Models** (`Auri/Models/`): SwiftData `@Model` classes (`Meal`, `UserSettings`) plus value types (`AdherenceState`, `OrbTier`, `DietaryGoal`, `MealSource`).
 
-**3D System** (`Thrumi/3D/`): The most complex module. `AuriScene` orchestrates the RealityKit scene. `Spark` represents individual orbiting light particles. `StateInterpolator` maps adherence (0.0–1.0) to visual parameters using a non-linear reward curve. `SpinnerPhysics` handles spin dynamics. `AuriView` is the SwiftUI wrapper with gesture handling. Supporting systems: `HapticsManager`, `MotionManager`, `ThermalManager`, `MultiFrequencyPulse`, `TierTransitionEffect`, `AmbientMoteSystem`, `ReducedMotionSupport`.
+**3D System** (`Auri/3D/`): The most complex module. `AuriScene` orchestrates the RealityKit scene. `Spark` represents individual orbiting light particles. `StateInterpolator` maps adherence (0.0–1.0) to visual parameters using a non-linear reward curve. `SpinnerPhysics` handles spin dynamics. `AuriView` is the SwiftUI wrapper with gesture handling. Supporting systems: `HapticsManager`, `MotionManager`, `ThermalManager`, `MultiFrequencyPulse`, `TierTransitionEffect`, `AmbientMoteSystem`, `ReducedMotionSupport`.
 
 ### Key Data Flow
 
@@ -54,7 +54,7 @@ SwiftUI Views → Domain Services → SwiftData Models
 
 ### Service Injection
 
-Services are created in `ThrumiApp.init()` and injected via custom `EnvironmentValues` (defined in `App/Environment+Extensions.swift`). Views access them with `@Environment(\.mealService)` etc. All environment service types are optional to support SwiftUI previews.
+Services are created in `AuriApp.init()` and injected via custom `EnvironmentValues` (defined in `App/Environment+Extensions.swift`). Views access them with `@Environment(\.mealService)` etc. All environment service types are optional to support SwiftUI previews.
 
 ## Key Conventions
 
@@ -62,7 +62,7 @@ Services are created in `ThrumiApp.init()` and injected via custom `EnvironmentV
 - **SwiftData tests**: Must be `@MainActor`, use in-memory `ModelContainer`
 - **All RealityKit code**: Must be `@MainActor`
 - **Git commits**: `[ISSUE-ID] Brief description` (e.g., `[THR-42] Add meal photo capture`)
-- **Linear project**: "Thrumi-MVP"
+- **Linear project**: "Auri-MVP"
 - **Patterns and conventions**: See `CONVENTIONS.md` for established patterns (SwiftData models, observable services, custom mesh generation, gesture tracking, particle systems, etc.)
 
 ## Important Documentation
@@ -81,7 +81,7 @@ At the beginning of each session:
 
 ## Linear Workflow
 
-Linear project name: "Thrumi-MVP"
+Linear project name: "Auri-MVP"
 
 ### Starting Work on an Issue
 1. Check the issue status in Linear

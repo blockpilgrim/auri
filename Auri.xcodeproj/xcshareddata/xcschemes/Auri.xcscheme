@@ -16,9 +16,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "B1000050BBBBBBBB00000050"
-               BuildableName = "Thrumi.app"
-               BlueprintName = "Thrumi"
-               ReferencedContainer = "container:Thrumi.xcodeproj">
+               BuildableName = "Auri.app"
+               BlueprintName = "Auri"
+               ReferencedContainer = "container:Auri.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -36,9 +36,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "B1000053BBBBBBBB00000053"
-               BuildableName = "ThrumiTests.xctest"
-               BlueprintName = "ThrumiTests"
-               ReferencedContainer = "container:Thrumi.xcodeproj">
+               BuildableName = "AuriTests.xctest"
+               BlueprintName = "AuriTests"
+               ReferencedContainer = "container:Auri.xcodeproj">
             </BuildableReference>
          </TestableReference>
       </Testables>
@@ -58,9 +58,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "B1000050BBBBBBBB00000050"
-            BuildableName = "Thrumi.app"
-            BlueprintName = "Thrumi"
-            ReferencedContainer = "container:Thrumi.xcodeproj">
+            BuildableName = "Auri.app"
+            BlueprintName = "Auri"
+            ReferencedContainer = "container:Auri.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </LaunchAction>
@@ -75,9 +75,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "B1000050BBBBBBBB00000050"
-            BuildableName = "Thrumi.app"
-            BlueprintName = "Thrumi"
-            ReferencedContainer = "container:Thrumi.xcodeproj">
+            BuildableName = "Auri.app"
+            BlueprintName = "Auri"
+            ReferencedContainer = "container:Auri.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>

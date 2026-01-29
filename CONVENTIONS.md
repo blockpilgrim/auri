@@ -1,6 +1,6 @@
-# Thrumi Conventions
+# Auri Conventions
 
-Emerging patterns and conventions for the Thrumi codebase.
+Emerging patterns and conventions for the Auri codebase.
 
 ---
 
@@ -9,7 +9,7 @@ Emerging patterns and conventions for the Thrumi codebase.
 **When to use**: Always follow this structure for organizing files.
 
 ```
-Thrumi/
+Auri/
 ├── App/           # App entry point and configuration
 ├── Views/         # SwiftUI views
 │   └── Components/  # Reusable view components
@@ -143,7 +143,7 @@ import Foundation
 import SwiftData
 import Testing
 
-@testable import Thrumi
+@testable import Auri
 
 @Suite("Model Tests")
 struct ModelTests {
@@ -265,9 +265,9 @@ extension EnvironmentValues {
     @Entry var userPreferences: UserPreferencesService?
 }
 
-// App/ThrumiApp.swift
+// App/AuriApp.swift
 @main
-struct ThrumiApp: App {
+struct AuriApp: App {
     let mealService: MealService
     // ... other services
 

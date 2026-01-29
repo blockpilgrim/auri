@@ -2,7 +2,7 @@ import Foundation
 import SwiftData
 import Testing
 
-@testable import Thrumi
+@testable import Auri
 
 // MARK: - MealService Tests
 

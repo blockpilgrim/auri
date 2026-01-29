@@ -2,7 +2,7 @@ import SwiftData
 import SwiftUI
 
 @main
-struct ThrumiApp: App {
+struct AuriApp: App {
     let sharedModelContainer: ModelContainer
     let mealService: MealService
     let adherenceEngine: AdherenceEngine

@@ -1,6 +1,6 @@
-# Thrumi: Build Strategy
+# Auri: Build Strategy
 
-> Strategic technical guidance for building Thrumi's MVP. Focus: get to App Store fast without accumulating crippling tech debt.
+> Strategic technical guidance for building Auri's MVP. Focus: get to App Store fast without accumulating crippling tech debt.
 
 ---
 

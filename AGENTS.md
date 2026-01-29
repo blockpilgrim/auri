@@ -10,7 +10,7 @@ At the beginning of each session:
 
 ### Linear Workflow
 
-Linear project name: "Thrumi-MVP"
+Linear project name: "Auri-MVP"
 
 #### Starting Work on an Issue
 1. Check the issue status in Linear
