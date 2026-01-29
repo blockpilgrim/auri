@@ -10,6 +10,8 @@
 		05AF05EC708F0232F3E7E22B /* SparkColors.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE25E748B7FD36FA3FEFAAD1 /* SparkColors.swift */; };
 		0C9CEB5B9873F00953B521DA /* AuriScene.swift in Sources */ = {isa = PBXBuildFile; fileRef = D362CF7E254BA012A1D7C39A /* AuriScene.swift */; };
 		0CBE285A49C66A30F74A186B /* AmbientMoteSystem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9CAF714F02DC77ED1E4E8099 /* AmbientMoteSystem.swift */; };
+		A1D1E7B1C3F4A5E6B7D8C9F1 /* DietBadge.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1D1E7B0C3F4A5E6B7D8C9F0 /* DietBadge.swift */; };
+		C2E3F8A5D5B6C7E8F9A0B1D3 /* DietPickerSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2E3F8A4D5B6C7E8F9A0B1D2 /* DietPickerSheet.swift */; };
 		4FC44C2D83563532694D09AA /* AuriView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4DC7CB5D5DAC6523E5FD751D /* AuriView.swift */; };
 		7A7F02BCCE67313828759C7D /* TierTransitionEffect.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1499F471A26B9C490985AD2 /* TierTransitionEffect.swift */; };
 		8D186C37E93D82FD0DCCB047 /* MultiFrequencyPulse.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3EA8EA4976A5DFF255DD36A /* MultiFrequencyPulse.swift */; };
@@ -75,6 +77,8 @@
 /* Begin PBXFileReference section */
 		04AFA3C914787350B0A8E61F /* Spark.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Spark.swift; sourceTree = "<group>"; };
 		4DC7CB5D5DAC6523E5FD751D /* AuriView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AuriView.swift; sourceTree = "<group>"; };
+		A1D1E7B0C3F4A5E6B7D8C9F0 /* DietBadge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DietBadge.swift; sourceTree = "<group>"; };
+		C2E3F8A4D5B6C7E8F9A0B1D2 /* DietPickerSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DietPickerSheet.swift; sourceTree = "<group>"; };
 		9CAF714F02DC77ED1E4E8099 /* AmbientMoteSystem.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AmbientMoteSystem.swift; sourceTree = "<group>"; };
 		AE25E748B7FD36FA3FEFAAD1 /* SparkColors.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SparkColors.swift; sourceTree = "<group>"; };
 		B1000011BBBBBBBB00000011 /* ThrumiApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThrumiApp.swift; sourceTree = "<group>"; };
@@ -274,6 +278,8 @@
 				B1478012BBBBBBBB00478012 /* CoreTooltip.swift */,
 				B1478013BBBBBBBB00478013 /* DataViewButton.swift */,
 				B1479016BBBBBBBB00479016 /* DaySection.swift */,
+				A1D1E7B0C3F4A5E6B7D8C9F0 /* DietBadge.swift */,
+				C2E3F8A4D5B6C7E8F9A0B1D2 /* DietPickerSheet.swift */,
 				B1479013BBBBBBBB00479013 /* EmptyHistoryView.swift */,
 				B1479017BBBBBBBB00479017 /* MealHistorySection.swift */,
 				B1479015BBBBBBBB00479015 /* MealRow.swift */,
@@ -436,6 +442,8 @@
 				B1478001BBBBBBBB00478001 /* CoreHUD.swift in Sources */,
 				B1478002BBBBBBBB00478002 /* CoreTooltip.swift in Sources */,
 				B1478003BBBBBBBB00478003 /* DataViewButton.swift in Sources */,
+				A1D1E7B1C3F4A5E6B7D8C9F1 /* DietBadge.swift in Sources */,
+				C2E3F8A5D5B6C7E8F9A0B1D3 /* DietPickerSheet.swift in Sources */,
 				B1479001BBBBBBBB00479001 /* MetricCard.swift in Sources */,
 				B1479002BBBBBBBB00479002 /* MetricsSection.swift in Sources */,
 				B1479003BBBBBBBB00479003 /* EmptyHistoryView.swift in Sources */,
