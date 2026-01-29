@@ -26,7 +26,7 @@ struct GoalSelectionStep: View {
 
                 Text("This helps you define what 'on track' means")
                     .font(.subheadline)
-                    .foregroundStyle(.white.opacity(0.6))
+                    .foregroundStyle(.white.opacity(0.5))
                     .multilineTextAlignment(.center)
             }
 
@@ -51,12 +51,18 @@ struct GoalSelectionStep: View {
             }
 
             if showingCustomInput {
+                let canSave = !customText.trimmingCharacters(in: .whitespaces).isEmpty
+
                 VStack(spacing: 12) {
                     TextField("e.g. Carnivore, Lion Diet", text: $customText)
                         .font(.body)
                         .padding(12)
-                        .background(.ultraThinMaterial.opacity(0.8))
-                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                        .background(GlassStyle.cardFill)
+                        .clipShape(RoundedRectangle(cornerRadius: GlassStyle.cornerRadius))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: GlassStyle.cornerRadius)
+                                .strokeBorder(GlassStyle.borderGradient, lineWidth: GlassStyle.borderWidth)
+                        )
                         .foregroundStyle(.white)
                         .focused($customFieldFocused)
                         .submitLabel(.done)
@@ -65,23 +71,14 @@ struct GoalSelectionStep: View {
                     Button(action: saveCustom) {
                         Text("Continue")
                             .font(.subheadline.weight(.semibold))
-                            .foregroundStyle(.white)
+                            .foregroundStyle(canSave ? .white.opacity(0.9) : .white.opacity(0.3))
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, 14)
-                            .background {
-                                if customText.trimmingCharacters(in: .whitespaces).isEmpty {
-                                    Color.white.opacity(0.15)
-                                } else {
-                                    LinearGradient(
-                                        colors: [.cyan, .blue],
-                                        startPoint: .leading,
-                                        endPoint: .trailing
-                                    )
-                                }
-                            }
-                            .clipShape(RoundedRectangle(cornerRadius: 12))
+                            .glassCard()
                     }
-                    .disabled(customText.trimmingCharacters(in: .whitespaces).isEmpty)
+                    .buttonStyle(.plain)
+                    .disabled(!canSave)
+                    .opacity(canSave ? 1.0 : 0.4)
                 }
                 .transition(.opacity.combined(with: .move(edge: .top)))
             }

@@ -8,6 +8,9 @@ struct CoreTutorialStep: View {
 
     let onComplete: () -> Void
 
+    /// Purple accent from the Auri spark palette (SparkColors.purple)
+    private let accentPurple = Color(red: 0.7, green: 0.5, blue: 0.9)
+
     /// Tutorial state shows the Orb in a good "High" state (80% adherence)
     /// so it looks impressive but has room to improve
     private let tutorialState = AdherenceState(
@@ -38,11 +41,11 @@ struct CoreTutorialStep: View {
                         VStack(spacing: 8) {
                             Image(systemName: "hand.draw")
                                 .font(.system(size: 32))
-                                .foregroundStyle(.cyan)
+                                .foregroundStyle(accentPurple.opacity(0.8))
 
                             Text("Flick to spin the sparks")
-                                .font(.headline)
-                                .foregroundStyle(.white)
+                                .font(.subheadline.weight(.medium))
+                                .foregroundStyle(.white.opacity(0.9))
                         }
                     }
                 } else {
@@ -55,24 +58,18 @@ struct CoreTutorialStep: View {
 
                             Text("Your Auri's glow reflects your choices")
                                 .font(.subheadline)
-                                .foregroundStyle(.white.opacity(0.7))
+                                .foregroundStyle(.white.opacity(0.5))
                                 .multilineTextAlignment(.center)
 
                             Button(action: onComplete) {
                                 Text("Continue")
-                                    .font(.headline)
-                                    .foregroundStyle(.black)
+                                    .font(.subheadline.weight(.semibold))
+                                    .foregroundStyle(.white.opacity(0.9))
                                     .padding(.horizontal, 32)
                                     .padding(.vertical, 12)
-                                    .background(
-                                        LinearGradient(
-                                            colors: [.cyan, .blue],
-                                            startPoint: .leading,
-                                            endPoint: .trailing
-                                        )
-                                    )
-                                    .clipShape(RoundedRectangle(cornerRadius: 10))
+                                    .glassCard()
                             }
+                            .buttonStyle(.plain)
                         }
                     }
                     .transition(.opacity.combined(with: .scale(scale: 0.95)))
@@ -114,8 +111,7 @@ struct CoreTutorialStep: View {
     private func instructionCard<Content: View>(@ViewBuilder content: () -> Content) -> some View {
         content()
             .padding(24)
-            .background(.ultraThinMaterial)
-            .clipShape(RoundedRectangle(cornerRadius: 20))
+            .glassCard()
             .padding(.horizontal, 32)
     }
 }

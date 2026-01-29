@@ -5,33 +5,27 @@ import SwiftUI
 struct FirstMealPromptStep: View {
     let onComplete: () -> Void
 
+    /// Purple accent from the Auri spark palette (SparkColors.purple)
+    private let accentPurple = Color(red: 0.7, green: 0.5, blue: 0.9)
+
     var body: some View {
         VStack(spacing: 32) {
             Spacer()
 
             VStack(spacing: 24) {
-                // Icon
+                // Icon — glass circle with fork.knife symbol in Auri purple
                 ZStack {
                     Circle()
-                        .fill(
-                            RadialGradient(
-                                colors: [Color.cyan.opacity(0.2), Color.clear],
-                                center: .center,
-                                startRadius: 20,
-                                endRadius: 50
-                            )
-                        )
+                        .fill(GlassStyle.cardFill)
                         .frame(width: 100, height: 100)
+                        .overlay(
+                            Circle()
+                                .strokeBorder(GlassStyle.borderGradient, lineWidth: GlassStyle.borderWidth)
+                        )
 
                     Image(systemName: "fork.knife.circle.fill")
-                        .font(.system(size: 56))
-                        .foregroundStyle(
-                            LinearGradient(
-                                colors: [.cyan, .blue],
-                                startPoint: .topLeading,
-                                endPoint: .bottomTrailing
-                            )
-                        )
+                        .font(.system(size: 48))
+                        .foregroundStyle(accentPurple.opacity(0.8))
                 }
 
                 VStack(spacing: 12) {
@@ -39,9 +33,9 @@ struct FirstMealPromptStep: View {
                         .font(.title.bold())
                         .foregroundStyle(.white)
 
-                    Text("Log your next meal to power up your Core")
+                    Text("Log your next meal to power up your Auri")
                         .font(.body)
-                        .foregroundStyle(.white.opacity(0.7))
+                        .foregroundStyle(.white.opacity(0.5))
                         .multilineTextAlignment(.center)
                         .padding(.horizontal, 24)
                 }
@@ -51,19 +45,13 @@ struct FirstMealPromptStep: View {
 
             Button(action: onComplete) {
                 Text("Let's Go")
-                    .font(.headline)
-                    .foregroundStyle(.black)
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundStyle(.white.opacity(0.9))
                     .frame(maxWidth: .infinity)
-                    .padding(.vertical, 16)
-                    .background(
-                        LinearGradient(
-                            colors: [.cyan, .blue],
-                            startPoint: .leading,
-                            endPoint: .trailing
-                        )
-                    )
-                    .clipShape(RoundedRectangle(cornerRadius: 14))
+                    .padding(.vertical, 14)
+                    .glassCard()
             }
+            .buttonStyle(.plain)
             .padding(.horizontal, 32)
 
             Spacer()

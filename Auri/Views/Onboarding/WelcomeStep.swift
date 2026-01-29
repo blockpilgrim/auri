@@ -5,32 +5,26 @@ import SwiftUI
 struct WelcomeStep: View {
     let onContinue: () -> Void
 
+    /// Purple accent from the Auri spark palette (SparkColors.purple)
+    private let accentPurple = Color(red: 0.7, green: 0.5, blue: 0.9)
+
     var body: some View {
         VStack(spacing: 32) {
             Spacer()
 
-            // App icon placeholder - using atom symbol as Core representation
+            // App icon — glass circle with atom symbol in Auri purple
             ZStack {
                 Circle()
-                    .fill(
-                        RadialGradient(
-                            colors: [Color.cyan.opacity(0.3), Color.clear],
-                            center: .center,
-                            startRadius: 40,
-                            endRadius: 80
-                        )
+                    .fill(GlassStyle.cardFill)
+                    .frame(width: 140, height: 140)
+                    .overlay(
+                        Circle()
+                            .strokeBorder(GlassStyle.borderGradient, lineWidth: GlassStyle.borderWidth)
                     )
-                    .frame(width: 160, height: 160)
 
                 Image(systemName: "atom")
-                    .font(.system(size: 80, weight: .thin))
-                    .foregroundStyle(
-                        LinearGradient(
-                            colors: [.cyan, .blue],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        )
-                    )
+                    .font(.system(size: 64, weight: .thin))
+                    .foregroundStyle(accentPurple.opacity(0.8))
             }
 
             VStack(spacing: 12) {
@@ -40,26 +34,20 @@ struct WelcomeStep: View {
 
                 Text("Feed your light")
                     .font(.title3)
-                    .foregroundStyle(.white.opacity(0.7))
+                    .foregroundStyle(.white.opacity(0.5))
             }
 
             Spacer()
 
             Button(action: onContinue) {
                 Text("Get Started")
-                    .font(.headline)
-                    .foregroundStyle(.black)
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundStyle(.white.opacity(0.9))
                     .frame(maxWidth: .infinity)
-                    .padding(.vertical, 16)
-                    .background(
-                        LinearGradient(
-                            colors: [.cyan, .blue],
-                            startPoint: .leading,
-                            endPoint: .trailing
-                        )
-                    )
-                    .clipShape(RoundedRectangle(cornerRadius: 14))
+                    .padding(.vertical, 14)
+                    .glassCard()
             }
+            .buttonStyle(.plain)
             .padding(.horizontal, 32)
 
             Spacer()

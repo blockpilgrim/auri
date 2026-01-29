@@ -8,18 +8,20 @@ struct GoalButton: View {
     var body: some View {
         Button(action: action) {
             Text(goal.displayName)
-                .font(.subheadline)
-                .fontWeight(.medium)
-                .foregroundStyle(.white)
+                .font(.subheadline.weight(.medium))
+                .foregroundStyle(.white.opacity(0.7))
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 14)
-                .background(.ultraThinMaterial.opacity(0.8))
                 .background(
-                    RoundedRectangle(cornerRadius: 12)
-                        .stroke(Color.white.opacity(0.2), lineWidth: 1)
+                    RoundedRectangle(cornerRadius: GlassStyle.cornerRadius)
+                        .fill(GlassStyle.cardFill)
                 )
-                .clipShape(RoundedRectangle(cornerRadius: 12))
+                .overlay(
+                    RoundedRectangle(cornerRadius: GlassStyle.cornerRadius)
+                        .strokeBorder(GlassStyle.borderGradient, lineWidth: GlassStyle.borderWidth)
+                )
         }
+        .buttonStyle(.plain)
     }
 }
 
