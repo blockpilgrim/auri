@@ -1,10 +1,10 @@
 import UIKit
 
-/// Color palette for the Orb of Wisps - soft, magical tones.
+/// Color palette for Auri sparks - soft, magical tones representing your inner light.
 ///
 /// Visual style: Cel-shaded / stylized - NOT photorealistic
-/// Inspired by: Studio Ghibli magic, Ori and the Blind Forest, fantasy mana orbs
-struct WispColors {
+/// Inspired by: Biophotons, Studio Ghibli magic, Ori and the Blind Forest
+struct SparkColors {
     // MARK: - Cool Blues (Low Adherence: 0-30%)
 
     static let coolBlue = UIColor(red: 0.4, green: 0.6, blue: 0.9, alpha: 1.0)

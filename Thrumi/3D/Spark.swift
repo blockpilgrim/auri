@@ -2,14 +2,14 @@ import RealityKit
 import UIKit
 import simd
 
-/// A single wisp entity that orbits within the Orb of Wisps.
+/// A single spark entity that orbits within your Auri.
 ///
-/// Wisps are small teardrop/flame-shaped spirits that orbit the center
-/// on individual tilted orbital planes. They use UnlitMaterial for
+/// Sparks are small luminous particles representing your cellular light (biophotons).
+/// They orbit on individual tilted orbital planes using UnlitMaterial for
 /// bright, saturated cel-shaded appearance.
 @MainActor
-final class Wisp {
-    // Shared mesh resource to avoid creating new meshes for each wisp
+final class Spark {
+    // Shared mesh resource to avoid creating new meshes for each spark
     private static var sharedMesh: MeshResource?
 
     private static func getSharedMesh(radius: Float) -> MeshResource {
@@ -46,6 +46,7 @@ final class Wisp {
     // MARK: - Animation State
 
     private var breathingPhase: Float
+    private var accumulatedOrbitAngle: Float = 0
     private var currentAngle: Float = 0
 
     // MARK: - Interaction State
@@ -65,7 +66,7 @@ final class Wisp {
     /// Chaos factor (0 = normal orbit, 1 = fully chaotic)
     var chaosFactor: Float = 0
 
-    /// Random chaos direction for this wisp
+    /// Random chaos direction for this spark
     private var chaosDirection: SIMD3<Float> = .zero
 
     // MARK: - Fade State
@@ -109,10 +110,10 @@ final class Wisp {
 
     // MARK: - Factory
 
-    /// Creates a new wisp with randomized orbital parameters.
+    /// Creates a new spark with randomized orbital parameters.
     ///
     /// - Parameters:
-    ///   - color: The wisp's base color (from WispColors palette)
+    ///   - color: The spark's base color (from SparkColors palette)
     ///   - orbitRadius: Base orbit radius (varied slightly for organic feel)
     ///   - brightness: Brightness multiplier based on adherence
     ///   - unitScale: Scene unit scale
@@ -121,19 +122,19 @@ final class Wisp {
         orbitRadius: Float,
         brightness: Float,
         unitScale: Float
-    ) -> Wisp {
-        // Use shared mesh for teardrop/flame shape (reuse across all wisps).
+    ) -> Spark {
+        // Use shared mesh for teardrop/flame shape (reuse across all sparks).
         let baseRadius: Float = 0.025 * unitScale
         let mesh = getSharedMesh(radius: baseRadius)
 
         // Bright UnlitMaterial - cel-shaded look.
         var material = UnlitMaterial()
-        let tintColor = WispColors.withAlpha(color, brightness)
+        let tintColor = SparkColors.withAlpha(color, brightness)
         material.color = .init(tint: tintColor)
         material.blending = .transparent(opacity: .init(floatLiteral: brightness))
 
         let entity = ModelEntity(mesh: mesh, materials: [material])
-        entity.name = "Wisp"
+        entity.name = "Spark"
 
         // Elongate slightly for teardrop shape.
         entity.scale = [1.0, 1.4, 1.0]
@@ -154,7 +155,7 @@ final class Wisp {
         // Base scale with slight variation.
         let scaleVariation = Float.random(in: 0.8...1.2)
 
-        return Wisp(
+        return Spark(
             entity: entity,
             orbitRadius: orbitRadius * radiusVariation,
             speedMultiplier: speedVariation,
@@ -170,7 +171,7 @@ final class Wisp {
 
     // MARK: - Update
 
-    /// Updates the wisp's position and appearance.
+    /// Updates the spark's position and appearance.
     ///
     /// - Parameters:
     ///   - deltaTime: Frame delta time
@@ -208,10 +209,18 @@ final class Wisp {
         chaosFactor *= max(0, chaosDecay)
         if chaosFactor < 0.01 { chaosFactor = 0 }
 
-        // Calculate current orbital angle.
-        // Combines base orbit speed with global spin from user interaction.
+        // Accumulate orbital angle internally (avoids jump when global angle wraps).
         let effectiveSpeed = baseOrbitSpeed * speedMultiplier * excitement
-        currentAngle = orbitPhase + globalSpinAngle * speedMultiplier + effectiveSpeed
+        accumulatedOrbitAngle += deltaTime * effectiveSpeed
+
+        // Prevent precision loss over very long sessions (wrap at large value).
+        if accumulatedOrbitAngle > 1000 * .pi {
+            accumulatedOrbitAngle -= 1000 * .pi
+        }
+
+        // Calculate current orbital angle.
+        // Combines internal accumulated angle with global spin from user interaction.
+        currentAngle = orbitPhase + accumulatedOrbitAngle + globalSpinAngle * speedMultiplier
 
         // Calculate base position on circular orbit.
         let effectiveRadius = orbitRadius * orbitScale
@@ -252,7 +261,7 @@ final class Wisp {
         let damping = 1.0 - deltaTime * 5.0 // ~0.92^60 per second
         offsetVelocity *= max(0, damping)
 
-        // Clamp offset to prevent wisps going too far.
+        // Clamp offset to prevent sparks going too far.
         let maxOffset = effectiveRadius * 2.0
         let offsetLengthSq = simd_length_squared(positionOffset)
         let maxOffsetSq = maxOffset * maxOffset
@@ -264,7 +273,7 @@ final class Wisp {
         let finalPosition = orbitalPosition + positionOffset
         entity.position = finalPosition
 
-        // Orient wisp along direction of travel (optimized).
+        // Orient spark along direction of travel (optimized).
         let velocityLengthSq = simd_length_squared(offsetVelocity)
         var movementDirection: SIMD3<Float>
 
@@ -407,7 +416,7 @@ final class Wisp {
         guard step != lastOpacityStep else { return }
         lastOpacityStep = step
 
-        cachedMaterial.color = .init(tint: WispColors.withAlpha(baseColor, clampedOpacity))
+        cachedMaterial.color = .init(tint: SparkColors.withAlpha(baseColor, clampedOpacity))
         cachedMaterial.blending = .transparent(opacity: .init(floatLiteral: clampedOpacity))
         entity.model?.materials = [cachedMaterial]
     }

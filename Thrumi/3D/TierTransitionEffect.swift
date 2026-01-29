@@ -22,7 +22,7 @@ final class TierTransitionEffect {
 
     /// Ring parameters
     private let unitScale: Float
-    private var targetColor: UIColor = WispColors.gold
+    private var targetColor: UIColor = SparkColors.gold
 
     // MARK: - Initialization
 
@@ -54,8 +54,8 @@ final class TierTransitionEffect {
         // Choose a warm color for the ring
         targetColor = palette.first { color in
             // Prefer gold/pink/white for celebration
-            color == WispColors.gold || color == WispColors.pink || color == WispColors.white
-        } ?? WispColors.gold
+            color == SparkColors.gold || color == SparkColors.pink || color == SparkColors.white
+        } ?? SparkColors.gold
 
         // Create the ring entity
         createRing()

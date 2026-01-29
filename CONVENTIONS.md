@@ -309,25 +309,25 @@ import RealityKit
 import UIKit
 
 @MainActor
-final class WispOrbScene {
+final class AuriScene {
     let rootEntity: Entity
-    private var wisps: [Wisp] = []
+    private var sparks: [Spark] = []
     // ... other component references
 
     private init(rootEntity: Entity) {
         self.rootEntity = rootEntity
     }
 
-    static func create() async -> WispOrbScene {
+    static func create() async -> AuriScene {
         let root = Entity()
-        root.name = "WispOrb"
+        root.name = "SparkOrb"
 
-        // Create initial wisps, add to root...
-        return WispOrbScene(rootEntity: root)
+        // Create initial sparks, add to root...
+        return AuriScene(rootEntity: root)
     }
 
     func update(interpolator: StateInterpolator, spinAngle: Float, deltaTime: Float, breathingPulse: Float) {
-        // Update wisp positions, colors, counts based on interpolator
+        // Update spark positions, colors, counts based on interpolator
     }
 }
 ```
@@ -828,7 +828,7 @@ struct OnboardingView: View {
 
 **Example**:
 ```swift
-WispOrbView(adherenceState: tutorialState)
+SparkOrbView(adherenceState: tutorialState)
     .simultaneousGesture(
         DragGesture(minimumDistance: 20)
             .onEnded { value in
@@ -952,14 +952,14 @@ final class ThermalManager {
 **Example**:
 ```swift
 // Environment key
-private struct WispOrbReducedMotionKey: EnvironmentKey {
+private struct SparkOrbReducedMotionKey: EnvironmentKey {
     static let defaultValue: Bool = false
 }
 
 extension EnvironmentValues {
-    var wispOrbReducedMotion: Bool {
-        get { self[WispOrbReducedMotionKey.self] }
-        set { self[WispOrbReducedMotionKey.self] = newValue }
+    var auriReducedMotion: Bool {
+        get { self[SparkOrbReducedMotionKey.self] }
+        set { self[SparkOrbReducedMotionKey.self] = newValue }
     }
 }
 
@@ -979,7 +979,7 @@ struct ReducedMotionModifier: ViewModifier {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     func body(content: Content) -> some View {
-        content.environment(\.wispOrbReducedMotion, reduceMotion)
+        content.environment(\.auriReducedMotion, reduceMotion)
     }
 }
 ```
@@ -1116,45 +1116,45 @@ func updateSparks(...) {
 ```swift
 // Main scene orchestrator - owns all sub-systems
 @MainActor
-final class WispOrbScene {
+final class AuriScene {
     let rootEntity: Entity
 
-    private var wisps: [Wisp] = []       // Individual wisp entities
-    private var targetWispCount: Int = 5  // Changes with adherence
+    private var sparks: [Spark] = []       // Individual spark entities
+    private var targetSparkCount: Int = 5  // Changes with adherence
 
-    static func create() async -> WispOrbScene {
+    static func create() async -> AuriScene {
         let root = Entity()
-        root.name = "WispOrb"
+        root.name = "SparkOrb"
 
-        // Create initial wisps...
-        let scene = WispOrbScene(rootEntity: root)
-        await scene.initializeWisps(count: 5, palette: WispColors.palette(for: 0))
+        // Create initial sparks...
+        let scene = AuriScene(rootEntity: root)
+        await scene.initializeSparks(count: 5, palette: SparkColors.palette(for: 0))
 
         return scene
     }
 
     func update(interpolator: StateInterpolator, spinAngle: Float, deltaTime: Float, breathingPulse: Float) {
-        // Update wisp count based on adherence
-        adjustWispCount(deltaTime: deltaTime)
+        // Update spark count based on adherence
+        adjustSparkCount(deltaTime: deltaTime)
 
-        // Update each wisp position
-        for wisp in wisps {
-            wisp.update(deltaTime: deltaTime, globalSpinAngle: spinAngle, ...)
+        // Update each spark position
+        for spark in sparks {
+            spark.update(deltaTime: deltaTime, globalSpinAngle: spinAngle, ...)
         }
     }
 }
 
-// Individual wisp entity wrapper
+// Individual spark entity wrapper
 @MainActor
-final class Wisp {
+final class Spark {
     let entity: ModelEntity
     var orbitRadius: Float
     var orbitSpeed: Float
 
-    static func create(color: UIColor, orbitRadius: Float, brightness: Float, unitScale: Float) -> Wisp {
+    static func create(color: UIColor, orbitRadius: Float, brightness: Float, unitScale: Float) -> Spark {
         // Create sphere mesh with UnlitMaterial
         // Randomize orbital parameters for organic feel
-        return Wisp(entity: entity, ...)
+        return Spark(entity: entity, ...)
     }
 
     func update(deltaTime: Float, globalSpinAngle: Float, ...) {

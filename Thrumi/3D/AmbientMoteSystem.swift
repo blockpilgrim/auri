@@ -4,7 +4,7 @@ import simd
 
 /// A system that manages ambient floating motes (dust-like particles) around the orb.
 ///
-/// Motes create a sense of magical atmosphere even when wisps are few.
+/// Motes create a sense of magical atmosphere even when sparks are few.
 /// They drift slowly with slight turbulence, fading in and out over time.
 @MainActor
 final class AmbientMoteSystem {
@@ -44,7 +44,7 @@ final class AmbientMoteSystem {
     private let spawnRadius: Float
 
     /// Current palette for spawning motes
-    private var currentPalette: [UIColor] = WispColors.palette(for: 0)
+    private var currentPalette: [UIColor] = SparkColors.palette(for: 0)
 
     // MARK: - Mote
 
@@ -122,7 +122,7 @@ final class AmbientMoteSystem {
 
     init(unitScale: Float) {
         self.unitScale = unitScale
-        self.spawnRadius = 0.5 * unitScale // Slightly larger than wisp orbit radius
+        self.spawnRadius = 0.5 * unitScale // Slightly larger than spark orbit radius
 
         containerEntity = Entity()
         containerEntity.name = "AmbientMotes"
@@ -228,7 +228,7 @@ final class AmbientMoteSystem {
         let radius: Float = 0.003 * unitScale
         let mesh = Self.getSharedMesh(radius: radius)
 
-        let color = WispColors.randomColor(from: currentPalette)
+        let color = SparkColors.randomColor(from: currentPalette)
 
         var material = UnlitMaterial()
         material.color = .init(tint: color.withAlphaComponent(0.01))
@@ -254,7 +254,7 @@ final class AmbientMoteSystem {
 
     private func resetMote(_ mote: Mote) {
         let (position, velocity, maxLifetime, noiseOffset) = randomMoteParams()
-        let color = WispColors.randomColor(from: currentPalette)
+        let color = SparkColors.randomColor(from: currentPalette)
 
         mote.reset(
             position: position,

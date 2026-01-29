@@ -1,22 +1,22 @@
 import SwiftUI
 
-/// Environment key for Wisp Orb reduced motion mode.
+/// Environment key for Auri reduced motion mode.
 ///
-/// When true, the Orb displays a "calm mode" experience:
+/// When true, Auri displays a "calm mode" experience:
 /// - Slower animation speeds
 /// - Less orbital motion
 /// - Fewer secondary effects
 /// - State differentiation preserved via color/intensity (not motion)
-private struct WispOrbReducedMotionKey: EnvironmentKey {
+private struct AuriReducedMotionKey: EnvironmentKey {
     static let defaultValue: Bool = false
 }
 
 extension EnvironmentValues {
-    /// Whether the Wisp Orb should use reduced motion mode.
+    /// Whether Auri should use reduced motion mode.
     /// Automatically syncs with system Reduce Motion setting.
-    var wispOrbReducedMotion: Bool {
-        get { self[WispOrbReducedMotionKey.self] }
-        set { self[WispOrbReducedMotionKey.self] = newValue }
+    var auriReducedMotion: Bool {
+        get { self[AuriReducedMotionKey.self] }
+        set { self[AuriReducedMotionKey.self] = newValue }
     }
 }
 
@@ -77,18 +77,18 @@ struct ReducedMotionConfig {
 
 // MARK: - View Modifier
 
-/// Applies reduced motion settings to the Wisp Orb view hierarchy.
+/// Applies reduced motion settings to the Auri view hierarchy.
 struct ReducedMotionModifier: ViewModifier {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     func body(content: Content) -> some View {
         content
-            .environment(\.wispOrbReducedMotion, reduceMotion)
+            .environment(\.auriReducedMotion, reduceMotion)
     }
 }
 
 extension View {
-    /// Applies system Reduce Motion preference to Wisp Orb effects.
+    /// Applies system Reduce Motion preference to Auri effects.
     func respectsReduceMotion() -> some View {
         modifier(ReducedMotionModifier())
     }
@@ -148,10 +148,10 @@ final class MotionSettingsProvider {
 ///
 /// When motion is reduced, state differentiation is preserved through:
 /// - Color intensity (brighter = higher adherence)
-/// - Wisp count (more wisps = higher adherence)
+/// - Spark count (more sparks = higher adherence)
 /// - Color palette (warmer colors = higher adherence)
 ///
-/// These non-motion cues ensure the Orb remains informative even
+/// These non-motion cues ensure Auri remains informative even
 /// when animations are minimized.
 struct ReducedMotionStateHints {
     /// Whether the Orb is in a "high energy" state (70%+ adherence)

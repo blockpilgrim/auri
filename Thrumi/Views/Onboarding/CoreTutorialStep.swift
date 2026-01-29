@@ -1,7 +1,7 @@
 import SwiftUI
 
 /// Core tutorial - third step of onboarding.
-/// Shows the Orb of Wisps and prompts user to flick it.
+/// Shows Auri and prompts user to flick it.
 struct CoreTutorialStep: View {
     @Environment(\.hapticsManager) private var hapticsManager
     @State private var hasFlicked = false
@@ -18,8 +18,8 @@ struct CoreTutorialStep: View {
 
     var body: some View {
         ZStack {
-            // Full-screen Wisp Orb with flick detection
-            WispOrbView(
+            // Full-screen Auri with flick detection
+            AuriView(
                 adherenceState: tutorialState,
                 adherenceEngine: nil,
                 hapticsManager: hapticsManager
@@ -40,7 +40,7 @@ struct CoreTutorialStep: View {
                                 .font(.system(size: 32))
                                 .foregroundStyle(.cyan)
 
-                            Text("Flick to spin the wisps")
+                            Text("Flick to spin the sparks")
                                 .font(.headline)
                                 .foregroundStyle(.white)
                         }
@@ -53,7 +53,7 @@ struct CoreTutorialStep: View {
                                 .font(.title2.bold())
                                 .foregroundStyle(.white)
 
-                            Text("Your Orb's energy reflects your choices")
+                            Text("Your Auri's glow reflects your choices")
                                 .font(.subheadline)
                                 .foregroundStyle(.white.opacity(0.7))
                                 .multilineTextAlignment(.center)
@@ -87,7 +87,7 @@ struct CoreTutorialStep: View {
 
     // MARK: - Flick Detection
 
-    /// Gesture that runs simultaneously with WispOrbView's gestures
+    /// Gesture that runs simultaneously with AuriView's gestures
     /// to detect when user has flicked
     private var flickDetectionGesture: some Gesture {
         DragGesture(minimumDistance: 20)

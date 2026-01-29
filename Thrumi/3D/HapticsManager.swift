@@ -1,7 +1,7 @@
 import CoreHaptics
 import Foundation
 
-/// Manages haptic feedback for the Orb of Wisps interactions.
+/// Manages haptic feedback for Auri interactions.
 ///
 /// Haptics amplify the magical feel:
 /// - High adherence: crisp, sparkly feedback
@@ -167,7 +167,7 @@ final class HapticsManager {
 
     // MARK: - Attraction Feedback
 
-    /// Plays gentle continuous feedback while attracting wisps.
+    /// Plays gentle continuous feedback while attracting sparks.
     func playAttractionFeedback() {
         guard isEnabled, isEngineRunning else { return }
 

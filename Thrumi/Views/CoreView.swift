@@ -9,8 +9,8 @@ struct CoreView: View {
             Color.black
                 .ignoresSafeArea()
 
-            // Wisp Orb 3D View (full screen)
-            WispOrbView(
+            // Auri 3D View (full screen)
+            AuriView(
                 adherenceState: adherenceEngine?.state ?? .empty,
                 adherenceEngine: adherenceEngine,
                 hapticsManager: hapticsManager

@@ -2,36 +2,33 @@ import RealityKit
 import UIKit
 import simd
 
-/// The Orb of Wisps 3D scene - a magical orb with orbiting spirit-like elements.
+/// The Auri 3D scene - a luminous orb with orbiting sparks representing your inner light.
 ///
 /// Design philosophy:
 /// - Cel-shaded / stylized (NOT photorealistic)
 /// - Flat colors using UnlitMaterial
 /// - Soft, magical color palette (teals, purples, pinks, golds)
-/// - Think: Studio Ghibli magic, Ori and the Blind Forest, fantasy mana orbs
+/// - Think: Biophotons visualized, Studio Ghibli magic, Ori and the Blind Forest
 ///
-/// The number of wisps, their speed, brightness, and color richness
-/// reflect adherence state. Users can flick to spin the wisps faster.
+/// The number of sparks, their speed, brightness, and color richness
+/// reflect adherence state. Users can flick to spin the sparks faster.
 @MainActor
-final class WispOrbScene {
+final class AuriScene {
     /// Unit scale converts design units to RealityKit meters.
     static let unitScale: Float = 0.06
 
     let rootEntity: Entity
 
-    private var wisps: [Wisp] = []
-    private var targetWispCount: Int = 5
-    private var currentPalette: [UIColor] = WispColors.palette(for: 0)
+    private var sparks: [Spark] = []
+    private var targetSparkCount: Int = 5
+    private var currentPalette: [UIColor] = SparkColors.palette(for: 0)
     private var currentPaletteHash: Int = 0
     private var lastBrightnessUpdateTime: Float = 0
     private let brightnessUpdateInterval: Float = 0.1 // Update brightness 10x/sec, not 60+
 
-    /// Accumulated orbit angle for base orbital motion (separate from spin).
-    private var baseOrbitAngle: Float = 0
-
-    /// Timing for wisp spawn/despawn.
-    private var lastWispAdjustTime: Float = 0
-    private let wispAdjustInterval: Float = 0.3 // Adjust one wisp per this interval
+    /// Timing for spark spawn/despawn.
+    private var lastSparkAdjustTime: Float = 0
+    private let sparkAdjustInterval: Float = 0.3 // Adjust one spark per this interval
 
     /// Optional container outline (currently disabled per spec recommendation).
     private var containerEntity: ModelEntity?
@@ -75,9 +72,9 @@ final class WispOrbScene {
 
     // MARK: - Factory
 
-    static func create() async -> WispOrbScene {
+    static func create() async -> AuriScene {
         let root = Entity()
-        root.name = "WispOrb"
+        root.name = "Auri"
 
         // Scale and position for hero presentation.
         root.scale = SIMD3<Float>(repeating: 5.0)
@@ -99,25 +96,25 @@ final class WispOrbScene {
         let tierTransitionEffect = TierTransitionEffect(unitScale: unitScale)
         root.addChild(tierTransitionEffect.containerEntity)
 
-        let scene = WispOrbScene(rootEntity: root)
+        let scene = AuriScene(rootEntity: root)
         scene.moteSystem = moteSystem
         scene.tierTransitionEffect = tierTransitionEffect
 
-        // Create initial wisps (low adherence default).
-        await scene.initializeWisps(count: 5, palette: WispColors.palette(for: 0))
+        // Create initial sparks (low adherence default).
+        await scene.initializeSparks(count: 5, palette: SparkColors.palette(for: 0))
 
         return scene
     }
 
-    /// Creates initial wisp population.
-    private func initializeWisps(count: Int, palette: [UIColor]) async {
-        targetWispCount = count
+    /// Creates initial spark population.
+    private func initializeSparks(count: Int, palette: [UIColor]) async {
+        targetSparkCount = count
         currentPalette = palette
 
         for _ in 0..<count {
-            let wisp = createNewWisp()
-            wisps.append(wisp)
-            rootEntity.addChild(wisp.entity)
+            let spark = createNewSpark()
+            sparks.append(spark)
+            rootEntity.addChild(spark.entity)
         }
     }
 
@@ -138,10 +135,10 @@ final class WispOrbScene {
         breathingPulse: Float,
         motionConfig: ReducedMotionConfig = .normal
     ) {
-        // Update target wisp count and palette from interpolator.
-        let newTarget = interpolator.wispCount
-        if newTarget != targetWispCount {
-            targetWispCount = newTarget
+        // Update target spark count and palette from interpolator.
+        let newTarget = interpolator.sparkCount
+        if newTarget != targetSparkCount {
+            targetSparkCount = newTarget
         }
 
         // Check palette change via hash (much faster than color comparison).
@@ -151,14 +148,8 @@ final class WispOrbScene {
             currentPaletteHash = newPaletteHash
         }
 
-        // Gradually adjust wisp count.
-        adjustWispCount(deltaTime: deltaTime)
-
-        // Update base orbit angle.
-        baseOrbitAngle += deltaTime * interpolator.baseOrbitSpeed
-        if baseOrbitAngle > 2 * .pi {
-            baseOrbitAngle -= 2 * .pi
-        }
+        // Gradually adjust spark count.
+        adjustSparkCount(deltaTime: deltaTime)
 
         // Smooth orbit scale toward target.
         orbitScale += (targetOrbitScale - orbitScale) * min(1.0, deltaTime * 8.0)
@@ -167,13 +158,13 @@ final class WispOrbScene {
         let excitementDecay = 1.0 - deltaTime * 2.4
         globalExcitement = 1.0 + (globalExcitement - 1.0) * max(0, excitementDecay)
 
-        // Update each wisp.
-        let combinedAngle = baseOrbitAngle + spinAngle
-
-        for wisp in wisps {
-            wisp.update(
+        // Update each spark.
+        // Note: Each spark accumulates its own orbital angle internally.
+        // spinAngle is the user interaction (flick) component only.
+        for spark in sparks {
+            spark.update(
                 deltaTime: deltaTime,
-                globalSpinAngle: combinedAngle,
+                globalSpinAngle: spinAngle,
                 baseOrbitSpeed: interpolator.baseOrbitSpeed * globalExcitement,
                 breathingPulse: breathingPulse,
                 breathingAmplitude: interpolator.breathingAmplitude,
@@ -217,104 +208,104 @@ final class WispOrbScene {
             }
         }
 
-        // Remove fully faded wisps (iterate backwards to avoid index issues).
-        var i = wisps.count - 1
+        // Remove fully faded sparks (iterate backwards to avoid index issues).
+        var i = sparks.count - 1
         while i >= 0 {
-            if wisps[i].isFullyFaded {
-                wisps[i].entity.removeFromParent()
-                wisps.remove(at: i)
+            if sparks[i].isFullyFaded {
+                sparks[i].entity.removeFromParent()
+                sparks.remove(at: i)
             }
             i -= 1
         }
 
-        // Update brightness on wisps (throttled to reduce material updates).
+        // Update brightness on sparks (throttled to reduce material updates).
         lastBrightnessUpdateTime += deltaTime
         if lastBrightnessUpdateTime >= brightnessUpdateInterval {
             lastBrightnessUpdateTime = 0
-            let brightness = interpolator.wispBrightness
-            for wisp in wisps where !wisp.isFadingOut {
-                wisp.updateBrightness(brightness)
+            let brightness = interpolator.sparkBrightness
+            for spark in sparks where !spark.isFadingOut {
+                spark.updateBrightness(brightness)
             }
         }
     }
 
-    // MARK: - Wisp Management
+    // MARK: - Spark Management
 
-    /// Gradually adjusts wisp count toward target.
-    private func adjustWispCount(deltaTime: Float) {
-        lastWispAdjustTime += deltaTime
+    /// Gradually adjusts spark count toward target.
+    private func adjustSparkCount(deltaTime: Float) {
+        lastSparkAdjustTime += deltaTime
 
-        guard lastWispAdjustTime >= wispAdjustInterval else { return }
-        lastWispAdjustTime = 0
+        guard lastSparkAdjustTime >= sparkAdjustInterval else { return }
+        lastSparkAdjustTime = 0
 
-        let activeWisps = wisps.filter { !$0.isFullyFaded && !$0.isFadingOut }
-        let activeCount = activeWisps.count
+        let activeSparks = sparks.filter { !$0.isFullyFaded && !$0.isFadingOut }
+        let activeCount = activeSparks.count
 
-        if activeCount < targetWispCount {
-            // Add a wisp.
-            let wisp = createNewWisp()
-            wisp.fadeIn(duration: 0.4)
-            wisps.append(wisp)
-            rootEntity.addChild(wisp.entity)
-        } else if activeCount > targetWispCount {
-            // Remove a wisp (fade out the oldest non-fading one).
-            if let wispToRemove = activeWisps.first {
-                wispToRemove.fadeOut(duration: 0.5)
+        if activeCount < targetSparkCount {
+            // Add a spark.
+            let spark = createNewSpark()
+            spark.fadeIn(duration: 0.4)
+            sparks.append(spark)
+            rootEntity.addChild(spark.entity)
+        } else if activeCount > targetSparkCount {
+            // Remove a spark (fade out the oldest non-fading one).
+            if let sparkToRemove = activeSparks.first {
+                sparkToRemove.fadeOut(duration: 0.5)
             }
         }
     }
 
-    /// Creates a new wisp with current palette colors.
-    private func createNewWisp() -> Wisp {
-        let color = WispColors.randomColor(from: currentPalette)
+    /// Creates a new spark with current palette colors.
+    private func createNewSpark() -> Spark {
+        let color = SparkColors.randomColor(from: currentPalette)
 
         // Vary orbit radius for depth - larger area for more visual impact.
         let baseRadius: Float = 0.6 * Self.unitScale
         let radiusVariation = Float.random(in: 0.5...1.5)
 
-        return Wisp.create(
+        return Spark.create(
             color: color,
             orbitRadius: baseRadius * radiusVariation,
-            brightness: WispColors.brightness(for: 0.5), // Will be updated
+            brightness: SparkColors.brightness(for: 0.5), // Will be updated
             unitScale: Self.unitScale
         )
     }
 
     // MARK: - Micro-Feedback
 
-    /// Triggers on-track feedback: wisps briefly accelerate and pulse brighter.
+    /// Triggers on-track feedback: sparks briefly accelerate and pulse brighter.
     func triggerOnTrackFeedback() {
-        // Briefly increase brightness and add a new wisp faster.
-        for wisp in wisps where !wisp.isFadingOut {
-            wisp.updateBrightness(min(1.0, wisp.brightness + 0.2))
+        // Briefly increase brightness and add a new spark faster.
+        for spark in sparks where !spark.isFadingOut {
+            spark.updateBrightness(min(1.0, spark.brightness + 0.2))
         }
 
-        // Add a new wisp immediately if under target.
-        let activeCount = wisps.filter { !$0.isFullyFaded && !$0.isFadingOut }.count
-        if activeCount <= targetWispCount {
-            let wisp = createNewWisp()
-            wisp.fadeIn(duration: 0.3)
-            wisps.append(wisp)
-            rootEntity.addChild(wisp.entity)
+        // Add a new spark immediately if under target.
+        let activeCount = sparks.filter { !$0.isFullyFaded && !$0.isFadingOut }.count
+        if activeCount <= targetSparkCount {
+            let spark = createNewSpark()
+            spark.fadeIn(duration: 0.3)
+            sparks.append(spark)
+            rootEntity.addChild(spark.entity)
         }
     }
 
-    /// Triggers off-track feedback: wisps briefly slow and one fades out.
+    /// Triggers off-track feedback: sparks briefly slow and one fades out.
     func triggerOffTrackFeedback() {
-        // Fade out one wisp.
-        let activeWisps = wisps.filter { !$0.isFullyFaded && !$0.isFadingOut }
-        if let wispToRemove = activeWisps.last {
-            wispToRemove.fadeOut(duration: 0.6)
+        // Fade out one spark.
+        let activeSparks = sparks.filter { !$0.isFullyFaded && !$0.isFadingOut }
+        if let sparkToRemove = activeSparks.last {
+            sparkToRemove.fadeOut(duration: 0.6)
         }
     }
 
     // MARK: - Interactive Gestures
 
-    /// Called when user taps - scatters wisps outward from center.
+    /// Called when user taps - scatters sparks outward from center.
     func triggerTapScatter() {
         let center = SIMD3<Float>.zero
-        for wisp in wisps where !wisp.isFullyFaded {
-            wisp.scatter(from: center, strength: 0.15)
+        for spark in sparks where !spark.isFullyFaded {
+            spark.scatter(from: center, strength: 0.15)
         }
         globalExcitement = min(2.0, globalExcitement + 0.3)
     }
@@ -325,27 +316,27 @@ final class WispOrbScene {
         let sparkleCount = 12
         for _ in 0..<sparkleCount {
             let sparkle = SparkleParticle.create(
-                color: WispColors.randomColor(from: currentPalette),
+                color: SparkColors.randomColor(from: currentPalette),
                 unitScale: Self.unitScale
             )
             sparkles.append(sparkle)
             rootEntity.addChild(sparkle.entity)
         }
 
-        // Energize all wisps.
-        for wisp in wisps where !wisp.isFullyFaded {
-            wisp.excitement = min(3.0, wisp.excitement + 1.0)
-            wisp.scatter(from: .zero, strength: 0.08)
+        // Energize all sparks.
+        for spark in sparks where !spark.isFullyFaded {
+            spark.excitement = min(3.0, spark.excitement + 1.0)
+            spark.scatter(from: .zero, strength: 0.08)
         }
 
         globalExcitement = min(2.5, globalExcitement + 0.5)
     }
 
-    /// Called during long press - attracts wisps toward a point.
+    /// Called during long press - attracts sparks toward a point.
     /// - Parameter point: Attraction point in scene coordinates (nil to release)
     func setAttractionPoint(_ point: SIMD3<Float>?) {
-        for wisp in wisps where !wisp.isFullyFaded {
-            wisp.attract(to: point)
+        for spark in sparks where !spark.isFullyFaded {
+            spark.attract(to: point)
         }
     }
 
@@ -386,8 +377,8 @@ final class WispOrbScene {
         let rippleRadius: Float = 0.08
         let rippleStrength: Float = 0.12
 
-        for wisp in wisps where !wisp.isFullyFaded {
-            wisp.ripple(from: point, radius: rippleRadius, strength: rippleStrength)
+        for spark in sparks where !spark.isFullyFaded {
+            spark.ripple(from: point, radius: rippleRadius, strength: rippleStrength)
         }
     }
 
@@ -395,8 +386,8 @@ final class WispOrbScene {
     func triggerShakeChaos(intensity: Float = 1.0) {
         let chaosAmount = min(1.0, intensity * 0.4)
 
-        for wisp in wisps where !wisp.isFullyFaded {
-            wisp.applyChaosFactor(chaosAmount)
+        for spark in sparks where !spark.isFullyFaded {
+            spark.applyChaosFactor(chaosAmount)
         }
 
         globalExcitement = min(3.0, globalExcitement + intensity * 0.5)

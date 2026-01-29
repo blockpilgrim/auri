@@ -3,12 +3,12 @@ import RealityKit
 import SwiftUI
 import UIKit
 
-/// Renders the Orb of Wisps 3D experience.
+/// Renders the Auri 3D experience - your inner light visualized.
 ///
-/// A magical orb with orbiting spirit-like wisps that respond to adherence state.
+/// A luminous orb with orbiting sparks that respond to adherence state.
 /// Rich interactivity: flick to spin, tap to scatter, double-tap for sparkle burst,
 /// long press to attract, pinch to breathe, twist to tilt, shake for chaos.
-struct WispOrbView: View {
+struct AuriView: View {
     let adherenceState: AdherenceState
 
     var adherenceEngine: AdherenceEngine?
@@ -16,7 +16,7 @@ struct WispOrbView: View {
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
-    @State private var scene: WispOrbScene?
+    @State private var scene: AuriScene?
     @State private var physics = SpinnerPhysics()
     @State private var stateInterpolator = StateInterpolator()
     @State private var pulseSystem = MultiFrequencyPulse()
@@ -50,11 +50,11 @@ struct WispOrbView: View {
     var body: some View {
         GeometryReader { geometry in
             RealityView { content in
-                let wispOrb = await WispOrbScene.create()
-                content.add(wispOrb.rootEntity)
+                let auri = await AuriScene.create()
+                content.add(auri.rootEntity)
 
                 await MainActor.run {
-                    scene = wispOrb
+                    scene = auri
 
                     stateInterpolator.update(with: adherenceState)
                     applyPhysicsParameters()
@@ -480,7 +480,7 @@ struct VelocityTracker {
 // MARK: - Previews
 
 #Preview("Peak (100%)") {
-    WispOrbView(
+    AuriView(
         adherenceState: AdherenceState(
             todayAdherence: 1.0,
             rolling7Adherence: 1.0,
@@ -491,7 +491,7 @@ struct VelocityTracker {
 }
 
 #Preview("High (80%)") {
-    WispOrbView(
+    AuriView(
         adherenceState: AdherenceState(
             todayAdherence: 0.8,
             rolling7Adherence: 0.8,
@@ -502,7 +502,7 @@ struct VelocityTracker {
 }
 
 #Preview("Medium (60%)") {
-    WispOrbView(
+    AuriView(
         adherenceState: AdherenceState(
             todayAdherence: 0.6,
             rolling7Adherence: 0.6,
@@ -513,7 +513,7 @@ struct VelocityTracker {
 }
 
 #Preview("Low (40%)") {
-    WispOrbView(
+    AuriView(
         adherenceState: AdherenceState(
             todayAdherence: 0.4,
             rolling7Adherence: 0.4,
@@ -524,7 +524,7 @@ struct VelocityTracker {
 }
 
 #Preview("Minimal (20%)") {
-    WispOrbView(
+    AuriView(
         adherenceState: AdherenceState(
             todayAdherence: 0.2,
             rolling7Adherence: 0.2,

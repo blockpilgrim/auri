@@ -34,11 +34,11 @@ struct WelcomeStep: View {
             }
 
             VStack(spacing: 12) {
-                Text("Thrumi")
+                Text("Auri")
                     .font(.system(size: 42, weight: .bold, design: .rounded))
                     .foregroundStyle(.white)
 
-                Text("Keep your wisps thriving")
+                Text("Feed your light")
                     .font(.title3)
                     .foregroundStyle(.white.opacity(0.7))
             }

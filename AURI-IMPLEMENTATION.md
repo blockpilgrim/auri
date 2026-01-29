@@ -1,10 +1,20 @@
-# Implementation Directive: Replace Fusion Core with Orb of Wisps
+# Implementation Directive: Auri Visualization
 
-## Overview
+> **Note:** This document was created during initial implementation. The terminology has since evolved:
+> - **App name:** Thrumi → **Auri**
+> - **Core concept:** "Orb of Wisps" → **"Your Auri"** (biophoton-based metaphor)
+> - **Particles:** "Wisps" → **"Sparks"**
+> - **Code files:** `WispOrbScene` → `AuriScene`, `WispOrbView` → `AuriView`, `WispColors` → `SparkColors`, `Wisp` → `Spark`
+>
+> See `docs/PRODUCT.md` for current product language.
 
-Replace the current "Fusion Core" (industrial arc reactor aesthetic) with an "Orb of Wisps" (magical, stylized orb with orbiting spirit-like elements). This is a complete visual overhaul—no remnants of the fusion core design should remain.
+---
 
-**Why the change:** The Fusion Core relied on glow/bloom effects that RealityKit cannot achieve well. The Orb of Wisps uses orbiting geometry and motion—playing to RealityKit's strengths.
+## Overview (Historical)
+
+Replace the current "Fusion Core" (industrial arc reactor aesthetic) with a magical, stylized orb with orbiting spirit-like elements. This is a complete visual overhaul—no remnants of the fusion core design should remain.
+
+**Why the change:** The Fusion Core relied on glow/bloom effects that RealityKit cannot achieve well. The orb visualization uses orbiting geometry and motion—playing to RealityKit's strengths.
 
 ---
 

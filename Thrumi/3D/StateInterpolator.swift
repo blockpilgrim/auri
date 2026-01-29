@@ -2,14 +2,14 @@ import Foundation
 import simd
 import UIKit
 
-/// Centralized mapping of adherence (0–1) to Orb of Wisps visual/interaction parameters.
+/// Centralized mapping of adherence (0–1) to Auri visual/interaction parameters.
 ///
-/// Replaces Fusion Core parameters with wisp-specific values:
-/// - wispCount: Number of wisps to display
+/// Spark-specific values derived from adherence:
+/// - sparkCount: Number of sparks to display
 /// - baseOrbitSpeed: Base orbital speed multiplier
-/// - wispBrightness: Brightness of wisps
+/// - sparkBrightness: Brightness of sparks
 /// - colorPalette: Color palette for current adherence level
-/// - breathingAmplitude: Scale pulse amplitude for wisp "breathing"
+/// - breathingAmplitude: Scale pulse amplitude for spark "breathing"
 @Observable
 @MainActor
 final class StateInterpolator {
@@ -19,9 +19,9 @@ final class StateInterpolator {
         Float(adherenceState.coreAdherence)
     }
 
-    // MARK: - Wisp Count
+    // MARK: - Spark Count
 
-    /// Number of wisps to display based on adherence.
+    /// Number of sparks to display based on adherence.
     ///
     /// | Adherence | Count |
     /// |-----------|-------|
@@ -29,7 +29,7 @@ final class StateInterpolator {
     /// | 20-50%    | 12-24 |
     /// | 50-80%    | 24-40 |
     /// | 80-100%   | 40-55 |
-    var wispCount: Int {
+    var sparkCount: Int {
         switch adherence {
         case 0..<0.2:
             return Int(lerp(8, 12, adherence / 0.2))
@@ -52,8 +52,8 @@ final class StateInterpolator {
 
     // MARK: - Brightness
 
-    /// Wisp brightness multiplier (0.4 at 0%, 1.0 at 100%).
-    var wispBrightness: Float {
+    /// Spark brightness multiplier (0.4 at 0%, 1.0 at 100%).
+    var sparkBrightness: Float {
         lerp(0.4, 1.0, adherence)
     }
 
@@ -61,12 +61,12 @@ final class StateInterpolator {
 
     /// Color palette for current adherence level.
     var colorPalette: [UIColor] {
-        WispColors.palette(for: adherence)
+        SparkColors.palette(for: adherence)
     }
 
     // MARK: - Breathing Animation
 
-    /// Breathing/pulse amplitude for wisp scale animation.
+    /// Breathing/pulse amplitude for spark scale animation.
     /// Subtle at low adherence, more pronounced at high.
     var breathingAmplitude: Float {
         piecewiseLerp(x: adherence, xMid: 0.5, y0: 0.02, yMid: 0.06, y1: 0.12)
