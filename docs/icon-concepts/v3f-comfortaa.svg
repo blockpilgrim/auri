@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Comfortaa:wght@700&amp;display=swap');
+  </style>
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="50%" r="70%">
+      <stop offset="0%" stop-color="#181830"/>
+      <stop offset="100%" stop-color="#0A0A18"/>
+    </radialGradient>
+    <radialGradient id="orb-glow" cx="50%" cy="50%" r="35%">
+      <stop offset="0%" stop-color="#40C0B0" stop-opacity="0.14"/>
+      <stop offset="40%" stop-color="#7060A8" stop-opacity="0.08"/>
+      <stop offset="100%" stop-color="#7060A8" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="halo" cx="50%" cy="50%" r="42%">
+      <stop offset="85%" stop-color="#50B8A8" stop-opacity="0"/>
+      <stop offset="93%" stop-color="#50B8A8" stop-opacity="0.06"/>
+      <stop offset="100%" stop-color="#50B8A8" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="spark-warm" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="1"/>
+      <stop offset="10%" stop-color="#FBE8B0" stop-opacity="0.95"/>
+      <stop offset="30%" stop-color="#E8C060" stop-opacity="0.6"/>
+      <stop offset="55%" stop-color="#40C8B0" stop-opacity="0.25"/>
+      <stop offset="100%" stop-color="#40C8B0" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="spark-cool" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.9"/>
+      <stop offset="15%" stop-color="#E0A0C0" stop-opacity="0.6"/>
+      <stop offset="45%" stop-color="#8070B0" stop-opacity="0.2"/>
+      <stop offset="100%" stop-color="#8070B0" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="spark-teal" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.7"/>
+      <stop offset="20%" stop-color="#60D8C8" stop-opacity="0.4"/>
+      <stop offset="100%" stop-color="#60D8C8" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="letter-fill" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#F8F0E4"/>
+      <stop offset="100%" stop-color="#D8CCB4"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1024" height="1024" fill="url(#bg)"/>
+  <rect width="1024" height="1024" fill="url(#orb-glow)"/>
+  <rect width="1024" height="1024" fill="url(#halo)"/>
+
+  <!-- Comfortaa Bold — rounded geometric, warm, modern-organic -->
+  <text
+    x="512" y="640"
+    font-family="'Comfortaa', sans-serif"
+    font-size="540"
+    font-weight="700"
+    fill="url(#letter-fill)"
+    text-anchor="middle"
+  >A</text>
+
+  <circle cx="712" cy="248" r="75" fill="url(#spark-warm)"/>
+  <circle cx="712" cy="248" r="10" fill="#FFFFFF"/>
+  <circle cx="316" cy="736" r="48" fill="url(#spark-cool)" opacity="0.5"/>
+  <circle cx="316" cy="736" r="6" fill="#FFFFFF" opacity="0.55"/>
+  <circle cx="254" cy="444" r="28" fill="url(#spark-teal)" opacity="0.35"/>
+  <circle cx="254" cy="444" r="3.5" fill="#FFFFFF" opacity="0.4"/>
+</svg>

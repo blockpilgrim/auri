@@ -10,13 +10,11 @@
 		05AF05EC708F0232F3E7E22B /* SparkColors.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE25E748B7FD36FA3FEFAAD1 /* SparkColors.swift */; };
 		0C9CEB5B9873F00953B521DA /* AuriScene.swift in Sources */ = {isa = PBXBuildFile; fileRef = D362CF7E254BA012A1D7C39A /* AuriScene.swift */; };
 		0CBE285A49C66A30F74A186B /* AmbientMoteSystem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9CAF714F02DC77ED1E4E8099 /* AmbientMoteSystem.swift */; };
-		A1D1E7B1C3F4A5E6B7D8C9F1 /* DietBadge.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1D1E7B0C3F4A5E6B7D8C9F0 /* DietBadge.swift */; };
-		C2E3F8A5D5B6C7E8F9A0B1D3 /* DietPickerSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2E3F8A4D5B6C7E8F9A0B1D2 /* DietPickerSheet.swift */; };
-		D3F4A5B7C7E8F9A0B1D2E3F5 /* GlassStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3F4A5B6C7E8F9A0B1D2E3F4 /* GlassStyle.swift */; };
 		4FC44C2D83563532694D09AA /* AuriView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4DC7CB5D5DAC6523E5FD751D /* AuriView.swift */; };
 		7A7F02BCCE67313828759C7D /* TierTransitionEffect.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1499F471A26B9C490985AD2 /* TierTransitionEffect.swift */; };
 		8D186C37E93D82FD0DCCB047 /* MultiFrequencyPulse.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3EA8EA4976A5DFF255DD36A /* MultiFrequencyPulse.swift */; };
 		9CE3FABBB962E37E767F21E9 /* OrbTier.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0B39317CCC1E724E2CFFCCB /* OrbTier.swift */; };
+		A1D1E7B1C3F4A5E6B7D8C9F1 /* DietBadge.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1D1E7B0C3F4A5E6B7D8C9F0 /* DietBadge.swift */; };
 		B1000001BBBBBBBB00000001 /* AuriApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000011BBBBBBBB00000011 /* AuriApp.swift */; };
 		B1000003BBBBBBBB00000003 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B1000013BBBBBBBB00000013 /* Assets.xcassets */; };
 		B1000004BBBBBBBB00000004 /* Meal.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000014BBBBBBBB00000014 /* Meal.swift */; };
@@ -62,6 +60,8 @@
 		B1481372BBBBBBBB00481418 /* ThermalManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1481E3BBBBBBBBB00481BFC /* ThermalManager.swift */; };
 		B1481421BBBBBBBB00481525 /* HapticsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B148122DBBBBBBBB004818A7 /* HapticsManager.swift */; };
 		B1481924BBBBBBBB00481ADC /* ReducedMotionSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1481BAEBBBBBBBB0048149A /* ReducedMotionSupport.swift */; };
+		C2E3F8A5D5B6C7E8F9A0B1D3 /* DietPickerSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2E3F8A4D5B6C7E8F9A0B1D2 /* DietPickerSheet.swift */; };
+		D3F4A5B7C7E8F9A0B1D2E3F5 /* GlassStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3F4A5B6C7E8F9A0B1D2E3F4 /* GlassStyle.swift */; };
 		E356EFE08000515E5E404063 /* Spark.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04AFA3C914787350B0A8E61F /* Spark.swift */; };
 /* End PBXBuildFile section */
 
@@ -78,10 +78,8 @@
 /* Begin PBXFileReference section */
 		04AFA3C914787350B0A8E61F /* Spark.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Spark.swift; sourceTree = "<group>"; };
 		4DC7CB5D5DAC6523E5FD751D /* AuriView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AuriView.swift; sourceTree = "<group>"; };
-		A1D1E7B0C3F4A5E6B7D8C9F0 /* DietBadge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DietBadge.swift; sourceTree = "<group>"; };
-		C2E3F8A4D5B6C7E8F9A0B1D2 /* DietPickerSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DietPickerSheet.swift; sourceTree = "<group>"; };
-		D3F4A5B6C7E8F9A0B1D2E3F4 /* GlassStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlassStyle.swift; sourceTree = "<group>"; };
 		9CAF714F02DC77ED1E4E8099 /* AmbientMoteSystem.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AmbientMoteSystem.swift; sourceTree = "<group>"; };
+		A1D1E7B0C3F4A5E6B7D8C9F0 /* DietBadge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DietBadge.swift; sourceTree = "<group>"; };
 		AE25E748B7FD36FA3FEFAAD1 /* SparkColors.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SparkColors.swift; sourceTree = "<group>"; };
 		B1000011BBBBBBBB00000011 /* AuriApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuriApp.swift; sourceTree = "<group>"; };
 		B1000013BBBBBBBB00000013 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -132,8 +130,10 @@
 		B1481BAEBBBBBBBB0048149A /* ReducedMotionSupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReducedMotionSupport.swift; sourceTree = "<group>"; };
 		B1481E3BBBBBBBBB00481BFC /* ThermalManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThermalManager.swift; sourceTree = "<group>"; };
 		B1499F471A26B9C490985AD2 /* TierTransitionEffect.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = TierTransitionEffect.swift; sourceTree = "<group>"; };
+		C2E3F8A4D5B6C7E8F9A0B1D2 /* DietPickerSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DietPickerSheet.swift; sourceTree = "<group>"; };
 		D362CF7E254BA012A1D7C39A /* AuriScene.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AuriScene.swift; sourceTree = "<group>"; };
 		D3EA8EA4976A5DFF255DD36A /* MultiFrequencyPulse.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = MultiFrequencyPulse.swift; sourceTree = "<group>"; };
+		D3F4A5B6C7E8F9A0B1D2E3F4 /* GlassStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlassStyle.swift; sourceTree = "<group>"; };
 		F0B39317CCC1E724E2CFFCCB /* OrbTier.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = OrbTier.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -620,6 +620,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "";
+				DEVELOPMENT_TEAM = WN854P48MS;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Auri/Resources/Info.plist;
@@ -635,7 +636,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.roi-ex-machina.auri;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.roi-ex-machina.auri";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 6.0;
@@ -651,6 +652,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "";
+				DEVELOPMENT_TEAM = WN854P48MS;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Auri/Resources/Info.plist;
@@ -666,7 +668,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.roi-ex-machina.auri;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.roi-ex-machina.auri";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 6.0;
@@ -683,7 +685,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.roi-ex-machina.AuriTests;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.roi-ex-machina.AuriTests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 6.0;
@@ -701,7 +703,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.roi-ex-machina.AuriTests;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.roi-ex-machina.AuriTests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 6.0;
