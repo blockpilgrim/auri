@@ -63,59 +63,59 @@ struct AdherenceStateTests {
         #expect(state.coreAdherence == 0.8)
     }
 
-    @Test("Core tier from safe mode adherence")
-    func coreTierSafeMode() {
+    @Test("Tier from dreaming adherence")
+    func tierDreaming() {
         let state = AdherenceState(
             todayAdherence: 0.2,
             rolling7Adherence: 0.2,
             rolling30Adherence: 0.2
         )
 
-        #expect(state.tier == .safeMode)
+        #expect(state.tier == .dreaming)
     }
 
-    @Test("Core tier from standby adherence")
-    func coreTierStandby() {
+    @Test("Tier from resting adherence")
+    func tierResting() {
         let state = AdherenceState(
             todayAdherence: 0.4,
             rolling7Adherence: 0.4,
             rolling30Adherence: 0.4
         )
 
-        #expect(state.tier == .standby)
+        #expect(state.tier == .resting)
     }
 
-    @Test("Core tier from stabilizing adherence")
-    func coreTierStabilizing() {
+    @Test("Tier from awakening adherence")
+    func tierAwakening() {
         let state = AdherenceState(
             todayAdherence: 0.6,
             rolling7Adherence: 0.6,
             rolling30Adherence: 0.6
         )
 
-        #expect(state.tier == .stabilizing)
+        #expect(state.tier == .awakening)
     }
 
-    @Test("Core tier from online adherence")
-    func coreTierOnline() {
+    @Test("Tier from vibrant adherence")
+    func tierVibrant() {
         let state = AdherenceState(
             todayAdherence: 0.8,
             rolling7Adherence: 0.8,
             rolling30Adherence: 0.8
         )
 
-        #expect(state.tier == .online)
+        #expect(state.tier == .vibrant)
     }
 
-    @Test("Core tier from phase-locked adherence")
-    func coreTierPhaseLocked() {
+    @Test("Tier from radiant adherence")
+    func tierRadiant() {
         let state = AdherenceState(
             todayAdherence: 1.0,
             rolling7Adherence: 1.0,
             rolling30Adherence: 1.0
         )
 
-        #expect(state.tier == .phaseLocked)
+        #expect(state.tier == .radiant)
     }
 
     @Test("Empty state defaults")
@@ -126,26 +126,26 @@ struct AdherenceStateTests {
         #expect(state.rolling7Adherence == 0)
         #expect(state.rolling30Adherence == 0)
         #expect(state.coreAdherence == 0)
-        #expect(state.tier == .safeMode)
+        #expect(state.tier == .dreaming)
     }
 }
 
-@Suite("CoreTier Tests")
-struct CoreTierTests {
-    @Test("CoreTier from adherence boundaries", arguments: [
-        (0.0, CoreTier.safeMode),
-        (0.29, CoreTier.safeMode),
-        (0.30, CoreTier.standby),
-        (0.49, CoreTier.standby),
-        (0.50, CoreTier.stabilizing),
-        (0.69, CoreTier.stabilizing),
-        (0.70, CoreTier.online),
-        (0.89, CoreTier.online),
-        (0.90, CoreTier.phaseLocked),
-        (1.0, CoreTier.phaseLocked),
+@Suite("OrbTier Tests")
+struct OrbTierTests {
+    @Test("OrbTier from adherence boundaries", arguments: [
+        (0.0, OrbTier.dreaming),
+        (0.29, OrbTier.dreaming),
+        (0.30, OrbTier.resting),
+        (0.49, OrbTier.resting),
+        (0.50, OrbTier.awakening),
+        (0.69, OrbTier.awakening),
+        (0.70, OrbTier.vibrant),
+        (0.89, OrbTier.vibrant),
+        (0.90, OrbTier.radiant),
+        (1.0, OrbTier.radiant),
     ])
-    func coreTierFromAdherence(adherence: Double, expected: CoreTier) {
-        #expect(CoreTier.from(adherence: adherence) == expected)
+    func orbTierFromAdherence(adherence: Double, expected: OrbTier) {
+        #expect(OrbTier.from(adherence: adherence) == expected)
     }
 }
 
